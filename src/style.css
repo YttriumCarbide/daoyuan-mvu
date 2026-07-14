@@ -562,8 +562,19 @@ body {
   width: 100%;
   margin-top: 5px;
 }
+.portrait-actions {
+  --portrait-action-size: clamp(30px, 6vw, 36px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) repeat(3, var(--portrait-action-size));
+  gap: 6px;
+  align-items: stretch;
+  padding: 2px 5px;
+}
+.portrait-actions--two {
+  grid-template-columns: minmax(0, 1fr) repeat(2, var(--portrait-action-size));
+}
 .portrait-toggle-btn {
-  width: 100%;
+  min-width: 0;
   background: linear-gradient(
     to right,
     transparent,
@@ -580,6 +591,8 @@ body {
   font-weight: bold;
   transition: all 0.3s;
   letter-spacing: 2px;
+  min-height: var(--portrait-action-size);
+  box-sizing: border-box;
 }
 .portrait-toggle-btn:hover {
   background: linear-gradient(to right, transparent, rgba(255, 215, 0, 0.15), transparent);
@@ -1729,9 +1742,13 @@ body {
 }
 
 .portrait-custom-btn {
-  display: inline-block;
-  width: auto;
-  margin-left: 8px;
+  display: grid;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  margin-left: 0;
+  padding: 0;
+  place-items: center;
   background: linear-gradient(
     to right,
     transparent,
@@ -1740,13 +1757,12 @@ body {
   );
   border: 1px dashed rgba(100, 180, 255, 0.4);
   color: #64b4ff;
-  padding: 6px 12px;
   text-align: center;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 0.8em;
+  font-size: 1.05em;
   transition: all 0.3s;
-  letter-spacing: 1px;
+  box-sizing: border-box;
 }
 .portrait-custom-btn:hover {
   background: linear-gradient(
@@ -1759,9 +1775,11 @@ body {
 }
 .portrait-applause {
   display: inline-grid;
-  flex: 0 0 34px;
-  min-block-size: 30px;
-  min-inline-size: 34px;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  min-block-size: 0;
+  min-inline-size: 0;
 }
 .portrait-applause::part(surface) {
   align-items: center;
@@ -1777,10 +1795,11 @@ body {
   cursor: pointer;
   display: inline-flex;
   font: inherit;
+  box-sizing: border-box;
   inline-size: 100%;
   justify-content: center;
   min-block-size: 100%;
-  padding: 6px 8px;
+  padding: 0;
 }
 .portrait-applause:focus-within {
   outline: 2px solid rgba(255, 105, 180, 0.75);
