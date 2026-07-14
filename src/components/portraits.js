@@ -1,6 +1,6 @@
 /* 预设的人物立绘映射表 (已转为云端加载) */
-window.charPortraits = {};
-window.charPortraitsFemale = {};
+var charPortraits = window.charPortraits = {};
+var charPortraitsFemale = window.charPortraitsFemale = {};
 window.specialPortraits = {};
 
 window.loadRemotePortraits = async function () {
@@ -26,9 +26,11 @@ window.loadRemotePortraits = async function () {
     const response = await fetch(url + "?t=" + new Date().getTime());
     if (response.ok) {
       const data = await response.json();
-      if (data.charPortraits) charPortraits = val(data.charPortraits);
-      if (data.charPortraitsFemale)
+      if (data.charPortraits) { charPortraits = val(data.charPortraits); window.charPortraits = charPortraits; }
+      if (data.charPortraitsFemale) {
         charPortraitsFemale = val(data.charPortraitsFemale);
+        window.charPortraitsFemale = charPortraitsFemale;
+      }
       if (data.specialPortraits)
         window.specialPortraits = val(data.specialPortraits);
       console.log("[道渊状态栏] 云端立绘配置加载成功");
