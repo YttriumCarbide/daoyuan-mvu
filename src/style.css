@@ -119,6 +119,7 @@ body {
   letter-spacing: 2px;
   font-weight: 700;
   background: linear-gradient(to bottom, #fff, #bbb);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
@@ -581,12 +582,8 @@ body {
   letter-spacing: 2px;
 }
 .portrait-toggle-btn:hover {
-  background: linear-gradient(
-    to right,
-    transparent,
-    rgba(255, 215, 0, 0.15),
-    box-shadow: 0 0 10px var(--accent-gold-glow)
-  );
+  background: linear-gradient(to right, transparent, rgba(255, 215, 0, 0.15), transparent);
+  box-shadow: 0 0 10px var(--accent-gold-glow);
 }
 .large-portrait {
   display: none;
