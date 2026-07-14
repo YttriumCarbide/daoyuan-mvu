@@ -264,34 +264,34 @@ window.executeShowLoreByName = async function (name) {
     '<div style="color:var(--accent-mana);text-align:center;padding:20px;">正在翻阅世界书，请稍候...</div>';
   o.style.display = "flex";
   try {
-    if (typeof getLorebookEntries != "function") {
+    if (typeof window.getLorebookEntries != "function") {
       n.innerHTML =
         '<span style="color:var(--accent-blood);">当前环境不支持世界书接口。</span>';
       return;
     }
     let lbs = new Set();
-    if (typeof getOrCreateChatLorebook == "function") {
+    if (typeof window.getOrCreateChatLorebook == "function") {
       try {
-        let b = await getOrCreateChatLorebook();
+        let b = await window.getOrCreateChatLorebook();
         if (b) lbs.add(b);
       } catch (e) {}
     }
-    if (typeof getCurrentCharPrimaryLorebook == "function") {
+    if (typeof window.getCurrentCharPrimaryLorebook == "function") {
       try {
-        let b = await getCurrentCharPrimaryLorebook();
+        let b = await window.getCurrentCharPrimaryLorebook();
         if (b) lbs.add(b);
       } catch (e) {}
     }
-    if (typeof getCharLorebooks == "function") {
+    if (typeof window.getCharLorebooks == "function") {
       try {
-        let b = await getCharLorebooks({ name: name });
+        let b = await window.getCharLorebooks({ name: name });
         if (b) b.forEach((x) => lbs.add(x));
       } catch (e) {}
     }
     let content = "";
     for (let lb of lbs) {
       try {
-        let entries = await getLorebookEntries(lb, {
+        let entries = await window.getLorebookEntries(lb, {
           fields: ["comment", "key", "content"],
         });
         if (entries) {
@@ -914,7 +914,7 @@ window.appendChatMessage = async function (charName, sender, content) {
     }
     const targetMsgId = messages[messages.length - 1].message_id;
 
-    if (window.Mvu && typeof Mvu.replaceMvuData === "function") {
+    if (window.Mvu && typeof window.Mvu.replaceMvuData === "function") {
       const fullData = window.Mvu.getMvuData({
         type: "message",
         message_id: targetMsgId,

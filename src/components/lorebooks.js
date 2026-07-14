@@ -98,7 +98,7 @@ window.openWxPromptModal = async function () {
       '<div style="color: var(--accent-mana); font-style: italic; font-size: 0.85em;">正在拉取当前世界与角色的全部世界书设定...</div>';
 
   try {
-    if (typeof getLorebookEntries !== "function") {
+    if (typeof window.getLorebookEntries !== "function") {
       if (listContainer)
         listContainer.innerHTML =
           '<div style="color: var(--accent-blood); font-size: 0.85em;">当前环境不支持拉取世界书接口。</div>';
@@ -108,9 +108,9 @@ window.openWxPromptModal = async function () {
     let lorebookNames = new Set();
 
     // 1. 尝试获取当前聊天的世界书
-    if (typeof getOrCreateChatLorebook === "function") {
+    if (typeof window.getOrCreateChatLorebook === "function") {
       try {
-        const chatBook = await getOrCreateChatLorebook();
+        const chatBook = await window.getOrCreateChatLorebook();
         if (chatBook) lorebookNames.add(chatBook);
       } catch (e) {
         console.warn("获取聊天世界书失败", e);
@@ -118,9 +118,9 @@ window.openWxPromptModal = async function () {
     }
 
     // 2. 尝试获取当前主角色绑定的主要世界书
-    if (typeof getCurrentCharPrimaryLorebook === "function") {
+    if (typeof window.getCurrentCharPrimaryLorebook === "function") {
       try {
-        const primary = await getCurrentCharPrimaryLorebook();
+        const primary = await window.getCurrentCharPrimaryLorebook();
         if (primary) lorebookNames.add(primary);
       } catch (e) {
         console.warn("获取主角色世界书失败", e);
@@ -128,9 +128,9 @@ window.openWxPromptModal = async function () {
     }
 
     // 3. 尝试获取当前传讯对象绑定的世界书
-    if (typeof getCharLorebooks === "function") {
+    if (typeof window.getCharLorebooks === "function") {
       try {
-        const charBooks = await getCharLorebooks({ name: charName });
+        const charBooks = await window.getCharLorebooks({ name: charName });
         if (charBooks && charBooks.length > 0) {
           charBooks.forEach((b) => lorebookNames.add(b));
         }
@@ -149,7 +149,7 @@ window.openWxPromptModal = async function () {
     let allEntries = [];
     for (const lbName of lorebookNames) {
       try {
-        const entries = await getLorebookEntries(lbName, {
+        const entries = await window.getLorebookEntries(lbName, {
           fields: ["uid", "comment", "key", "content"],
         });
         if (entries && entries.length > 0) {

@@ -24,7 +24,7 @@ window.handleListItemClick = function (charName) {
     window.isPressing = false;
     return;
   }
-  openChatView(charName);
+  window.openChatView(charName);
 };
 
 /* ===== 打开聊天视图的全局函数 ===== */
@@ -789,7 +789,7 @@ window.populateCharacterData = function() {
   window.fairyGuide.updateData(stat.$器灵台词 || [], hero.生命, hero.神识, hero.灵力);
 
   /* 绑定删除按钮事件 (其他页面的正常删除逻辑保留) */
-  bindDiscardButtons();
+  window.bindDiscardButtons();
   if (window.injectHeartButtons) window.injectHeartButtons();
   if (window.injectLoreClicks) window.injectLoreClicks();
   if (window.jiuqiEditMode && window.toggleJiuqiEdit) {
@@ -806,7 +806,7 @@ async function deleteStatEntry(dataPath, cardElement) {
     if (!messages || messages.length === 0) return;
     const targetMsgId = messages[messages.length - 1].message_id;
 
-    if (window.Mvu && typeof Mvu.replaceMvuData === "function") {
+    if (window.Mvu && typeof window.Mvu.replaceMvuData === "function") {
       const fullData = window.Mvu.getMvuData({
         type: "message",
         message_id: targetMsgId,
@@ -829,8 +829,8 @@ async function deleteStatEntry(dataPath, cardElement) {
 /* 点击删除按钮 — 两段确认模式 */
 window.bindDiscardButtons = function() {
   document.querySelectorAll(".card-discard").forEach((btn) => {
-    btn.removeEventListener("click", handleDiscardClick);
-    btn.addEventListener("click", handleDiscardClick);
+    btn.removeEventListener("click", window.handleDiscardClick);
+    btn.addEventListener("click", window.handleDiscardClick);
   });
 }
 

@@ -68,7 +68,7 @@ window.callGenerateReply = async function (
     if (typeof generate === "function") {
       try {
         const combinedPrompt = systemPrompt + "\n\n" + userMessage;
-        const rawReply = await generate({
+        const rawReply = await window.generate({
           user_input: combinedPrompt,
           should_stream: false,
           max_chat_history: 15,
@@ -257,7 +257,7 @@ window.deleteSingleMessage = async function (charName, msgId) {
     if (!messages || messages.length === 0) return;
     const targetMsgId = messages[messages.length - 1].message_id;
 
-    if (window.Mvu && typeof Mvu.replaceMvuData === "function") {
+    if (window.Mvu && typeof window.Mvu.replaceMvuData === "function") {
       const fullData = window.Mvu.getMvuData({
         type: "message",
         message_id: targetMsgId,
@@ -298,7 +298,7 @@ window.retrySingleMessage = async function (charName, msgId) {
     const targetMsgId = messages[messages.length - 1].message_id;
 
     let historyObj = {};
-    if (window.Mvu && typeof Mvu.replaceMvuData === "function") {
+    if (window.Mvu && typeof window.Mvu.replaceMvuData === "function") {
       const fullData = window.Mvu.getMvuData({
         type: "message",
         message_id: targetMsgId,

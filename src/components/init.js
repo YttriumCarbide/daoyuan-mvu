@@ -423,7 +423,7 @@ window.saveJiuqiEdit = async function (pathStr) {
     const messages = window.getChatMessages("0-" + lastMsgId, { role: "assistant" });
     if (!messages || messages.length === 0) return;
     const targetMsgId = messages[messages.length - 1].message_id;
-    if (window.Mvu && typeof Mvu.replaceMvuData === "function") {
+    if (window.Mvu && typeof window.Mvu.replaceMvuData === "function") {
       const fullData = window.Mvu.getMvuData({
         type: "message",
         message_id: targetMsgId,
@@ -566,7 +566,7 @@ window.cleanUpUnwantedUI = function() {
   let t = document.getElementById("dy-time-btn");
   if (t) t.remove();
 }
-setInterval(cleanUpUnwantedUI, 1000);
+setInterval(window.cleanUpUnwantedUI, 1000);
 if (!document.getElementById("dy-header-style")) {
   let s = document.createElement("style");
   s.id = "dy-header-style";
@@ -719,6 +719,6 @@ setTimeout(function () {
     header.appendChild(rightContainer);
     window.loadRemoteNotice();
   }
-  cleanUpUnwantedUI();
+  window.cleanUpUnwantedUI();
 }, 1500);
 $(window.errorCatched(init));
