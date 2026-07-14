@@ -24,8 +24,20 @@ function main() {
   const jsonContent = fs.readFileSync(INPUT_JSON_PATH, 'utf8');
   const data = JSON.parse(jsonContent);
 
+  // Dynamically determine how many backticks are needed to safely wrap the HTML
+  // (Prevents markdown injection if the HTML itself contains triple backticks)
+  const match = distHtml.match(/`+/g);
+  let backtickCount = 3;
+  if (match) {
+    const maxBackticks = Math.max(...match.map(s => s.length));
+    if (maxBackticks >= 3) {
+      backtickCount = maxBackticks + 1;
+    }
+  }
+  const fence = '`'.repeat(backtickCount);
+
   // Wrap the HTML content in markdown code block
-  data.replaceString = `\`\`\`html\n${distHtml}\n\`\`\``;
+  data.replaceString = `${fence}html\n${distHtml}\n${fence}`;
 
   // Make sure output folder exists
   const outputDir = path.dirname(OUTPUT_JSON_PATH);

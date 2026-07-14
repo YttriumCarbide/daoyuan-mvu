@@ -1,281 +1,982 @@
 <!doctype html>
 <html lang="zh-CN">
-<head>
-    <meta name="referrer" content="no-referrer">
-    
-    <link rel="stylesheet" href="./style.css">
-</head>
-<body>
-<!-- disable-default-loading -->
-<div class="terminal-container">
-    <div class="top-bar"></div>
-    <div class="header">
+  <head>
+    <meta name="referrer" content="no-referrer" />
+
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <!-- disable-default-loading -->
+    <div class="terminal-container">
+      <div class="top-bar"></div>
+      <div class="header">
         <div class="guild-badge">
-            <!-- 移除了内联 onclick，改在底部JS中绑定 -->
-            <div class="guild-logo" id="hero-info-btn" title="点击查看主角信息">修</div>
-            <div class="guild-name">面板</div>
+          <!-- 移除了内联 onclick，改在底部JS中绑定 -->
+          <div class="guild-logo" id="hero-info-btn" title="点击查看主角信息">
+            修
+          </div>
+          <div class="guild-name">面板</div>
         </div>
         <div class="time-display" id="env-status"></div>
 
         <!-- 下拉的主角信息面板 -->
         <div class="hero-info-dropdown" id="hero-info-dropdown">
-            <div class="stat-row"><div class="stat-label"><span>姓名</span><span id="name-value" class="rare-text" style="font-weight:normal; text-align:right; flex:1; margin-left:10px; word-break:break-all;"></span></div></div>
-            <div class="stat-row"><div class="stat-label"><span>性别</span><span id="gender-value" class="rare-text" style="font-weight:normal; text-align:right; flex:1; margin-left:10px; word-break:break-all;"></span></div></div>
-            <div class="stat-row"><div class="stat-label"><span>容貌</span><span id="appearance-value" class="rare-text" style="font-weight:normal; text-align:right; flex:1; margin-left:10px; word-break:break-all;"></span></div></div>
-            <div class="stat-row"><div class="stat-label"><span>身形</span><span id="body-value" class="rare-text" style="font-weight:normal; text-align:right; flex:1; margin-left:10px; word-break:break-all;"></span></div></div>
-            <div class="stat-row"><div class="stat-label"><span>衣着</span><span id="clothing-value" class="rare-text" style="font-weight:normal; text-align:right; flex:1; margin-left:10px; word-break:break-all;"></span></div></div>
+          <div class="stat-row">
+            <div class="stat-label">
+              <span>姓名</span
+              ><span
+                id="name-value"
+                class="rare-text"
+                style="
+                  font-weight: normal;
+                  text-align: right;
+                  flex: 1;
+                  margin-left: 10px;
+                  word-break: break-all;
+                "
+              ></span>
+            </div>
+          </div>
+          <div class="stat-row">
+            <div class="stat-label">
+              <span>性别</span
+              ><span
+                id="gender-value"
+                class="rare-text"
+                style="
+                  font-weight: normal;
+                  text-align: right;
+                  flex: 1;
+                  margin-left: 10px;
+                  word-break: break-all;
+                "
+              ></span>
+            </div>
+          </div>
+          <div class="stat-row">
+            <div class="stat-label">
+              <span>容貌</span
+              ><span
+                id="appearance-value"
+                class="rare-text"
+                style="
+                  font-weight: normal;
+                  text-align: right;
+                  flex: 1;
+                  margin-left: 10px;
+                  word-break: break-all;
+                "
+              ></span>
+            </div>
+          </div>
+          <div class="stat-row">
+            <div class="stat-label">
+              <span>身形</span
+              ><span
+                id="body-value"
+                class="rare-text"
+                style="
+                  font-weight: normal;
+                  text-align: right;
+                  flex: 1;
+                  margin-left: 10px;
+                  word-break: break-all;
+                "
+              ></span>
+            </div>
+          </div>
+          <div class="stat-row">
+            <div class="stat-label">
+              <span>衣着</span
+              ><span
+                id="clothing-value"
+                class="rare-text"
+                style="
+                  font-weight: normal;
+                  text-align: right;
+                  flex: 1;
+                  margin-left: 10px;
+                  word-break: break-all;
+                "
+              ></span>
+            </div>
+          </div>
         </div>
-    </div>
-    <div class="content-grid">
+      </div>
+      <div class="content-grid">
         <div class="status-panel">
-            <div class="avatar-wrapper">
-                <div class="avatar-frame"><div class="user_avatar"></div></div>
-                <div class="rank-tag"></div>
+          <div class="avatar-wrapper">
+            <div class="avatar-frame"><div class="user_avatar"></div></div>
+            <div class="rank-tag"></div>
+          </div>
+          <div class="stat-group">
+            <div class="stat-row">
+              <div class="stat-label">
+                <span>生命</span><span id="hp-value"></span>
+              </div>
+              <div class="progress-bg">
+                <div class="progress-fill fill-hp" id="hp-bar"></div>
+              </div>
             </div>
-            <div class="stat-group">
-                <div class="stat-row"><div class="stat-label"><span>生命</span><span id="hp-value"></span></div><div class="progress-bg"><div class="progress-fill fill-hp" id="hp-bar"></div></div></div>
-                <div class="stat-row"><div class="stat-label"><span>精血</span><span id="blood-value"></span></div><div class="progress-bg"><div class="progress-fill fill-hp" id="blood-bar"></div></div></div>
-                <div class="stat-row"><div class="stat-label"><span>灵力</span><span id="mp-value"></span></div><div class="progress-bg"><div class="progress-fill fill-mp" id="mp-bar"></div></div></div>
-                <div class="stat-row"><div class="stat-label"><span>修为</span><span id="exp-value"></span></div><div class="progress-bg"><div class="progress-fill fill-exp" id="exp-bar"></div></div></div>
-                <div class="stat-row"><div class="stat-label"><span>神识</span><span id="san-value"></span></div><div class="progress-bg"><div class="progress-fill fill-san" id="san-bar"></div></div></div>
-                <div class="stat-row"><div class="stat-label"><span>道心</span><span id="daoxin-value"></span></div><div class="progress-bg"><div class="progress-fill fill-daoxin" id="daoxin-bar"></div></div></div>
+            <div class="stat-row">
+              <div class="stat-label">
+                <span>精血</span><span id="blood-value"></span>
+              </div>
+              <div class="progress-bg">
+                <div class="progress-fill fill-hp" id="blood-bar"></div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-label">
+                <span>灵力</span><span id="mp-value"></span>
+              </div>
+              <div class="progress-bg">
+                <div class="progress-fill fill-mp" id="mp-bar"></div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-label">
+                <span>修为</span><span id="exp-value"></span>
+              </div>
+              <div class="progress-bg">
+                <div class="progress-fill fill-exp" id="exp-bar"></div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-label">
+                <span>神识</span><span id="san-value"></span>
+              </div>
+              <div class="progress-bg">
+                <div class="progress-fill fill-san" id="san-bar"></div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-label">
+                <span>道心</span><span id="daoxin-value"></span>
+              </div>
+              <div class="progress-bg">
+                <div class="progress-fill fill-daoxin" id="daoxin-bar"></div>
+              </div>
+            </div>
 
-                <div class="stat-row"><div class="stat-label"><span>神念</span><span id="san-status" class="rare-text" style="font-weight:normal; text-align:right; flex:1; margin-left:10px; word-break:break-all;"></span></div></div>
-                <div class="stat-row luck-stat-row" onclick="document.getElementById('luck-modal-overlay').style.display='flex'">
-                    <div class="stat-label">
-                        <span title="点击查看气运详情">气运</span>
-                        <span id="luck-value" class="rare-text" style="font-weight:normal; text-align:right; flex:1; margin-left:10px; word-break:break-all;"></span>
-                    </div>
-                </div>
-                <div class="stat-row"><div class="stat-label"><span>灵根</span><span id="spirit-root-value" class="rare-text" style="font-weight:normal; text-align:right; flex:1; margin-left:10px; word-break:break-all;"></span></div></div>
-                <div class="stat-row luck-stat-row" id="clan-row">
-                    <div class="stat-label">
-                        <span title="点击查看宗门详情">宗门</span>
-                        <span id="clan-value" class="rare-text" style="font-weight:normal; text-align:right; flex:1; margin-left:10px; word-break:break-all;">无</span>
-                    </div>
-                </div>
-                <div class="stat-row"><div class="stat-label"><span>状态</span><span id="status-effects" class="rare-text" style="font-weight:normal; text-align:right; flex:1; margin-left:10px; word-break:break-all;">无</span></div></div>
+            <div class="stat-row">
+              <div class="stat-label">
+                <span>神念</span
+                ><span
+                  id="san-status"
+                  class="rare-text"
+                  style="
+                    font-weight: normal;
+                    text-align: right;
+                    flex: 1;
+                    margin-left: 10px;
+                    word-break: break-all;
+                  "
+                ></span>
+              </div>
             </div>
+            <div
+              class="stat-row luck-stat-row"
+              onclick="
+                document.getElementById('luck-modal-overlay').style.display =
+                  'flex'
+              "
+            >
+              <div class="stat-label">
+                <span title="点击查看气运详情">气运</span>
+                <span
+                  id="luck-value"
+                  class="rare-text"
+                  style="
+                    font-weight: normal;
+                    text-align: right;
+                    flex: 1;
+                    margin-left: 10px;
+                    word-break: break-all;
+                  "
+                ></span>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-label">
+                <span>灵根</span
+                ><span
+                  id="spirit-root-value"
+                  class="rare-text"
+                  style="
+                    font-weight: normal;
+                    text-align: right;
+                    flex: 1;
+                    margin-left: 10px;
+                    word-break: break-all;
+                  "
+                ></span>
+              </div>
+            </div>
+            <div class="stat-row luck-stat-row" id="clan-row">
+              <div class="stat-label">
+                <span title="点击查看宗门详情">宗门</span>
+                <span
+                  id="clan-value"
+                  class="rare-text"
+                  style="
+                    font-weight: normal;
+                    text-align: right;
+                    flex: 1;
+                    margin-left: 10px;
+                    word-break: break-all;
+                  "
+                  >无</span
+                >
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-label">
+                <span>状态</span
+                ><span
+                  id="status-effects"
+                  class="rare-text"
+                  style="
+                    font-weight: normal;
+                    text-align: right;
+                    flex: 1;
+                    margin-left: 10px;
+                    word-break: break-all;
+                  "
+                  >无</span
+                >
+              </div>
+            </div>
+          </div>
         </div>
         <div class="main-panel">
-            <div class="nav-tabs">
-                <button class="tab-btn active" onclick="switchTab(event, 'dashboard')">概览</button>
-                <button class="tab-btn" onclick="switchTab(event, 'skills')">功法</button>
-                <button class="tab-btn" onclick="switchTab(event, 'partners')">道侣</button>
-                <button class="tab-btn" onclick="switchTab(event, 'npcs')">人物</button>
-                <button class="tab-btn" onclick="switchTab(event, 'pets')">灵宠</button>
-                <button class="tab-btn" onclick="switchTab(event, 'quests')">机遇</button>
-                <button class="tab-btn" onclick="switchTab(event, 'database')">绝色榜</button>
-                <button class="tab-btn" onclick="switchTab(event, 'world_events')">动向</button>
-                <button class="tab-btn" onclick="switchTab(event, 'messages')">玉简</button>
-                <button class="tab-btn" onclick="switchTab(event, 'map')">舆图</button>
+          <div class="nav-tabs">
+            <button
+              class="tab-btn active"
+              onclick="switchTab(event, 'dashboard')"
+            >
+              概览
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'skills')">
+              功法
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'partners')">
+              道侣
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'npcs')">
+              人物
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'pets')">
+              灵宠
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'quests')">
+              机遇
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'database')">
+              绝色榜
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'world_events')">
+              动向
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'messages')">
+              玉简
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'map')">
+              舆图
+            </button>
+          </div>
+
+          <!-- Other Tabs Content -->
+          <div
+            id="tab-dashboard"
+            class="tab-content"
+            style="display: block"
+          ></div>
+          <div id="tab-skills" class="tab-content" style="display: none"></div>
+          <div
+            id="tab-partners"
+            class="tab-content"
+            style="display: none"
+          ></div>
+          <div id="tab-npcs" class="tab-content" style="display: none"></div>
+          <div id="tab-pets" class="tab-content" style="display: none"></div>
+          <div id="tab-quests" class="tab-content" style="display: none"></div>
+          <div
+            id="tab-database"
+            class="tab-content"
+            style="display: none"
+          ></div>
+          <div
+            id="tab-world_events"
+            class="tab-content"
+            style="display: none"
+          ></div>
+
+          <!-- 玉简 Tab Content -->
+          <div id="tab-messages" class="tab-content">
+            <!-- 列表视图 -->
+            <div id="wx-list-view" class="wx-list-view"></div>
+
+            <!-- 聊天视图 -->
+            <div id="wx-chat-view" class="wx-chat-view">
+              <div class="wx-chat-bg" id="wx-chat-bg"></div>
+              <div class="wx-chat-header">
+                <div
+                  class="wx-back-btn"
+                  onclick="
+                    document.getElementById('wx-chat-view').style.display =
+                      'none';
+                    document.getElementById('wx-list-view').style.display =
+                      'flex';
+                    window.currentActiveChat = null;
+                  "
+                >
+                  ❮ 返回
+                </div>
+                <div
+                  class="wx-chat-title"
+                  id="wx-chat-title"
+                  onclick="
+                    document
+                      .getElementById('wx-detail-modal')
+                      .classList.toggle('show')
+                  "
+                >
+                  名字
+                </div>
+                <div
+                  class="wx-api-btn"
+                  onclick="window.openWxPromptModal()"
+                  title="玉简设定"
+                >
+                  ⚙️
+                </div>
+                <div class="wx-detail-modal" id="wx-detail-modal">
+                  <div class="wx-detail-item">
+                    <span style="color: var(--text-dim)">境界</span
+                    ><span id="wx-detail-level" class="rare-text">未知</span>
+                  </div>
+                  <div class="wx-detail-item">
+                    <span style="color: var(--text-dim)">性别</span
+                    ><span id="wx-detail-gender" style="color: var(--text-main)"
+                      >未知</span
+                    >
+                  </div>
+                  <div class="wx-detail-item">
+                    <span style="color: var(--text-dim)">关系</span
+                    ><span
+                      id="wx-detail-relation"
+                      style="color: var(--accent-gold)"
+                      >陌生</span
+                    >
+                  </div>
+                  <div class="wx-detail-item">
+                    <span style="color: var(--text-dim)">好感度</span
+                    ><span id="wx-detail-favor" style="color: var(--accent-san)"
+                      >0</span
+                    >
+                  </div>
+                </div>
+              </div>
+              <div class="wx-chat-messages" id="wx-chat-messages">
+                <!-- 消息列表 -->
+              </div>
+              <div class="wx-chat-input-area">
+                <div class="message-reply-container">
+                  <textarea
+                    class="reply-input"
+                    id="wx-reply-input"
+                    rows="1"
+                    placeholder="输入传讯内容..."
+                  ></textarea>
+                  <button
+                    class="reply-button"
+                    id="wx-reply-btn"
+                    onclick="
+                      window.handleReply(
+                        this,
+                        document.getElementById('wx-chat-title').textContent,
+                      )
+                    "
+                  >
+                    发送
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Map Tab Content -->
+          <div id="tab-map" class="tab-content" style="display: none">
+            <!-- 玄天界 Map -->
+            <div
+              style="
+                text-align: center;
+                margin-top: 15px;
+                margin-bottom: 0px;
+                cursor: pointer;
+                color: var(--text-dim);
+                font-size: 0.85em;
+                letter-spacing: 2px;
+                transition: color 0.3s;
+                font-weight: bold;
+              "
+              onclick="
+                const p = document.getElementById('xuantian-map-img');
+                p.style.display = p.style.display === 'none' ? 'block' : 'none';
+              "
+              onmouseover="this.style.color = 'var(--accent-gold)'"
+              onmouseout="this.style.color = 'var(--text-dim)'"
+            >
+              [ 点击查看玄天界全图 ]
+            </div>
+            <div class="map-section-title" style="margin-top: 5px">
+              ✦ 玄 天 界 ✦
+            </div>
+            <div
+              id="xuantian-map-img"
+              style="display: none; margin-bottom: 20px; text-align: center"
+            >
+              <img
+                src="https://free-img.400040.xyz/4/2026/05/17/6a09d0b65af1c.png"
+                style="
+                  max-width: 100%;
+                  border-radius: 8px;
+                  border: 1px solid rgba(255, 255, 255, 0.15);
+                  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+                  cursor: zoom-in;
+                "
+                onclick="
+                  document.getElementById('modal-image').src = this.src;
+                  document.getElementById('image-modal-overlay').style.display =
+                    'flex';
+                "
+              />
             </div>
 
-            <!-- Other Tabs Content -->
-            <div id="tab-dashboard" class="tab-content" style="display: block;"></div>
-            <div id="tab-skills" class="tab-content" style="display: none;"></div>
-            <div id="tab-partners" class="tab-content" style="display: none;"></div>
-            <div id="tab-npcs" class="tab-content" style="display: none;"></div>
-            <div id="tab-pets" class="tab-content" style="display: none;"></div>
-            <div id="tab-quests" class="tab-content" style="display: none;"></div>
-            <div id="tab-database" class="tab-content" style="display: none;"></div>
-            <div id="tab-world_events" class="tab-content" style="display: none;"></div>
-
-            <!-- 玉简 Tab Content -->
-            <div id="tab-messages" class="tab-content">
-                <!-- 列表视图 -->
-                <div id="wx-list-view" class="wx-list-view"></div>
-
-                <!-- 聊天视图 -->
-                <div id="wx-chat-view" class="wx-chat-view">
-                    <div class="wx-chat-bg" id="wx-chat-bg"></div>
-                    <div class="wx-chat-header">
-                        <div class="wx-back-btn" onclick="document.getElementById('wx-chat-view').style.display='none'; document.getElementById('wx-list-view').style.display='flex'; window.currentActiveChat=null;">❮ 返回</div>
-                        <div class="wx-chat-title" id="wx-chat-title" onclick="document.getElementById('wx-detail-modal').classList.toggle('show');">名字</div>
-                        <div class="wx-api-btn" onclick="window.openWxPromptModal();" title="玉简设定">⚙️</div>
-                        <div class="wx-detail-modal" id="wx-detail-modal">
-                            <div class="wx-detail-item"><span style="color:var(--text-dim)">境界</span><span id="wx-detail-level" class="rare-text">未知</span></div>
-                            <div class="wx-detail-item"><span style="color:var(--text-dim)">性别</span><span id="wx-detail-gender" style="color:var(--text-main)">未知</span></div>
-                            <div class="wx-detail-item"><span style="color:var(--text-dim)">关系</span><span id="wx-detail-relation" style="color:var(--accent-gold)">陌生</span></div>
-                            <div class="wx-detail-item"><span style="color:var(--text-dim)">好感度</span><span id="wx-detail-favor" style="color:var(--accent-san)">0</span></div>
-                        </div>
-                    </div>
-                    <div class="wx-chat-messages" id="wx-chat-messages">
-                        <!-- 消息列表 -->
-                    </div>
-                    <div class="wx-chat-input-area">
-                        <div class="message-reply-container">
-                            <textarea class="reply-input" id="wx-reply-input" rows="1" placeholder="输入传讯内容..."></textarea>
-                            <button class="reply-button" id="wx-reply-btn" onclick="window.handleReply(this, document.getElementById('wx-chat-title').textContent)">发送</button>
-                        </div>
-                    </div>
-                </div>
+            <div class="map-wrapper" id="world-map-xuantian">
+              <div class="map-grid"></div>
             </div>
 
-            <!-- Map Tab Content -->
-            <div id="tab-map" class="tab-content" style="display: none;">
-
-                <!-- 玄天界 Map -->
-                <div style="text-align: center; margin-top: 15px; margin-bottom: 0px; cursor: pointer; color: var(--text-dim); font-size: 0.85em; letter-spacing: 2px; transition: color 0.3s; font-weight: bold;" onclick="const p = document.getElementById('xuantian-map-img'); p.style.display = p.style.display === 'none' ? 'block' : 'none';" onmouseover="this.style.color='var(--accent-gold)'" onmouseout="this.style.color='var(--text-dim)'">
-                    [ 点击查看玄天界全图 ]
-                </div>
-                <div class="map-section-title" style="margin-top: 5px;">
-                    ✦ 玄 天 界 ✦
-                </div>
-                <div id="xuantian-map-img" style="display: none; margin-bottom: 20px; text-align: center;">
-                    <img src="https://free-img.400040.xyz/4/2026/05/17/6a09d0b65af1c.png" style="max-width: 100%; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 5px 15px rgba(0,0,0,0.5); cursor: zoom-in;" onclick="document.getElementById('modal-image').src=this.src; document.getElementById('image-modal-overlay').style.display='flex';">
-                </div>
-
-                <div class="map-wrapper" id="world-map-xuantian">
-                    <div class="map-grid"></div>
-                </div>
-
-                <!-- 仙界 Map -->
-                <div class="map-section-title map-section-title-xian">✧ 九 天 仙 界 ✧</div>
-                <div class="map-wrapper" id="world-map-xianjie">
-                    <div class="map-grid"></div>
-                </div>
-
-                <!-- Shared Location Detail Panel -->
-                <div id="map-details" class="location-detail-panel">
-                    <div class="info-card" style="border-color: var(--accent-gold);">
-                        <div class="info-title" style="color:var(--accent-gold);">
-                            <span id="map-loc-name">请选择区域</span>
-                            <span style="font-size:0.8em; color:var(--text-dim)" id="map-loc-type">探索</span>
-                        </div>
-                        <div class="info-text">
-                            <p id="map-loc-desc">点击地图上的节点查看势力分布与环境详情。</p>
-                            <div id="map-loc-factions" style="margin-top:10px;"></div>
-                        </div>
-                    </div>
-                </div>
+            <!-- 仙界 Map -->
+            <div class="map-section-title map-section-title-xian">
+              ✧ 九 天 仙 界 ✧
+            </div>
+            <div class="map-wrapper" id="world-map-xianjie">
+              <div class="map-grid"></div>
             </div>
 
+            <!-- Shared Location Detail Panel -->
+            <div id="map-details" class="location-detail-panel">
+              <div class="info-card" style="border-color: var(--accent-gold)">
+                <div class="info-title" style="color: var(--accent-gold)">
+                  <span id="map-loc-name">请选择区域</span>
+                  <span
+                    style="font-size: 0.8em; color: var(--text-dim)"
+                    id="map-loc-type"
+                    >探索</span
+                  >
+                </div>
+                <div class="info-text">
+                  <p id="map-loc-desc">
+                    点击地图上的节点查看势力分布与环境详情。
+                  </p>
+                  <div id="map-loc-factions" style="margin-top: 10px"></div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+      <div class="fairy-container" id="fairy-guide">
+        <div
+          class="fairy-bubble"
+          style="opacity: 0; transform: translateY(10px); pointer-events: none"
+        >
+          <span id="fairy-text">...</span>
+        </div>
+        <div
+          class="fairy-avatar"
+          title="点击器灵查看提示, 长按/右键查看大图"
+        ></div>
+      </div>
     </div>
-    <div class="fairy-container" id="fairy-guide">
-        <div class="fairy-bubble" style="opacity: 0; transform: translateY(10px); pointer-events: none;"><span id="fairy-text">...</span></div>
-        <div class="fairy-avatar" title="点击器灵查看提示, 长按/右键查看大图"></div>
+
+    <div id="image-modal-overlay" class="image-modal-overlay">
+      <span class="image-modal-close">×</span>
+      <img class="image-modal-content" id="modal-image" />
     </div>
-</div>
 
-<div id="image-modal-overlay" class="image-modal-overlay">
-    <span class="image-modal-close">×</span>
-    <img class="image-modal-content" id="modal-image">
-</div>
-
-<div id="faction-modal-overlay" class="faction-modal-overlay">
-    <div class="faction-modal-content">
+    <div id="faction-modal-overlay" class="faction-modal-overlay">
+      <div class="faction-modal-content">
         <span class="faction-modal-close">×</span>
         <div class="faction-modal-header" id="faction-modal-title"></div>
         <div class="faction-modal-body" id="faction-modal-note"></div>
         <div class="faction-modal-footer">✨ 乾坤洞察 ✨</div>
+      </div>
     </div>
-</div>
 
-<!-- 气运详情弹窗 -->
-<div id="luck-modal-overlay" class="luck-modal-overlay">
-    <div class="luck-modal-content">
+    <!-- 气运详情弹窗 -->
+    <div id="luck-modal-overlay" class="luck-modal-overlay">
+      <div class="luck-modal-content">
         <span class="luck-modal-close" id="luck-modal-close">×</span>
         <div class="luck-modal-header">✨ 气运加身 ✨</div>
         <div class="luck-modal-body" id="luck-modal-body"></div>
+      </div>
     </div>
-</div>
 
-<!-- 玉简设定弹窗 -->
-<div id="wx-prompt-modal" class="luck-modal-overlay" style="z-index: 99999;">
-    <div class="luck-modal-content" style="max-height: 85vh; min-height: 400px; max-width: 550px; width: 90%; display: flex; flex-direction: column; padding: 0;">
+    <!-- 玉简设定弹窗 -->
+    <div id="wx-prompt-modal" class="luck-modal-overlay" style="z-index: 99999">
+      <div
+        class="luck-modal-content"
+        style="
+          max-height: 85vh;
+          min-height: 400px;
+          max-width: 550px;
+          width: 90%;
+          display: flex;
+          flex-direction: column;
+          padding: 0;
+        "
+      >
         <!-- Header -->
-        <div class="luck-modal-header" style="margin: 20px 20px 10px 20px;">✨ 玉简传讯设定 ✨</div>
-        <span class="luck-modal-close" onclick="document.getElementById('wx-prompt-modal').style.display='none';" style="top: 15px; right: 20px;">×</span>
+        <div class="luck-modal-header" style="margin: 20px 20px 10px 20px">
+          ✨ 玉简传讯设定 ✨
+        </div>
+        <span
+          class="luck-modal-close"
+          onclick="
+            document.getElementById('wx-prompt-modal').style.display = 'none'
+          "
+          style="top: 15px; right: 20px"
+          >×</span
+        >
 
         <!-- Body: 增加了 transform: translateZ(0) 解决滑动白屏渲染bug -->
-        <div class="luck-modal-body" style="display: flex; flex-direction: column; gap: 15px; flex-grow: 1; overflow-y: auto; padding: 0 20px 20px 20px; transform: translateZ(0); -webkit-transform: translateZ(0);">
-
-            <!-- 预设功能区 -->
-            <div class="info-card" style="margin-bottom: 0; flex-shrink: 0; overflow: visible;">
-                <div style="color: var(--accent-gold); font-size: 0.95em; font-weight: bold; margin-bottom: 10px; border-bottom: 1px dashed rgba(255,215,0,0.2); padding-bottom: 5px;">预设配置方案</div>
-                <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
-                    <select id="wx-preset-select" class="reply-input" style="height: 35px; padding: 5px 10px; flex: 1; min-width: 150px; box-sizing: border-box;" onchange="window.applyPreset(this.value)">
-                        <option value="">-- 当前手动配置 --</option>
-                    </select>
-                    <div style="display: flex; gap: 8px; flex-shrink: 0;">
-                        <button class="reply-button" style="height: 35px; min-width: 60px; padding: 0 15px; font-size: 0.85em; background: linear-gradient(135deg, #27ae60, #2ecc71);" onclick="window.saveAsPreset()">保存</button>
-                        <button class="reply-button" style="height: 35px; min-width: 60px; padding: 0 15px; font-size: 0.85em; background: linear-gradient(135deg, #c0392b, #e74c3c);" onclick="window.deletePreset()">删除</button>
-                    </div>
-                </div>
+        <div
+          class="luck-modal-body"
+          style="
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 0 20px 20px 20px;
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+          "
+        >
+          <!-- 预设功能区 -->
+          <div
+            class="info-card"
+            style="margin-bottom: 0; flex-shrink: 0; overflow: visible"
+          >
+            <div
+              style="
+                color: var(--accent-gold);
+                font-size: 0.95em;
+                font-weight: bold;
+                margin-bottom: 10px;
+                border-bottom: 1px dashed rgba(255, 215, 0, 0.2);
+                padding-bottom: 5px;
+              "
+            >
+              预设配置方案
             </div>
+            <div
+              style="
+                display: flex;
+                gap: 10px;
+                flex-wrap: wrap;
+                align-items: center;
+              "
+            >
+              <select
+                id="wx-preset-select"
+                class="reply-input"
+                style="
+                  height: 35px;
+                  padding: 5px 10px;
+                  flex: 1;
+                  min-width: 150px;
+                  box-sizing: border-box;
+                "
+                onchange="window.applyPreset(this.value)"
+              >
+                <option value="">-- 当前手动配置 --</option>
+              </select>
+              <div style="display: flex; gap: 8px; flex-shrink: 0">
+                <button
+                  class="reply-button"
+                  style="
+                    height: 35px;
+                    min-width: 60px;
+                    padding: 0 15px;
+                    font-size: 0.85em;
+                    background: linear-gradient(135deg, #27ae60, #2ecc71);
+                  "
+                  onclick="window.saveAsPreset()"
+                >
+                  保存
+                </button>
+                <button
+                  class="reply-button"
+                  style="
+                    height: 35px;
+                    min-width: 60px;
+                    padding: 0 15px;
+                    font-size: 0.85em;
+                    background: linear-gradient(135deg, #c0392b, #e74c3c);
+                  "
+                  onclick="window.deletePreset()"
+                >
+                  删除
+                </button>
+              </div>
+            </div>
+          </div>
 
-            <!-- 附加设定 / 规则 -->
-            <div class="info-card" style="margin-bottom: 0; flex-shrink: 0; overflow: visible;">
-                <div style="color: var(--accent-gold); font-size: 0.95em; font-weight: bold; margin-bottom: 5px;">附加设定 / 规则</div>
-                <div style="color: var(--text-dim); font-size: 0.8em; line-height: 1.4; margin-bottom: 10px;">在此输入自定义设定补充或规则要求，发送传讯时将作为系统提示词附加：</div>
-                <textarea id="wx-custom-prompt" rows="4" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--accent-mana); border-radius: 6px; padding: 10px; color: var(--text-main); font-family: inherit; font-size: 0.9em; resize: vertical; box-sizing: border-box;" placeholder="例如：你现在正在用玉简（类似微信）与主角进行私聊互动。
+          <!-- 附加设定 / 规则 -->
+          <div
+            class="info-card"
+            style="margin-bottom: 0; flex-shrink: 0; overflow: visible"
+          >
+            <div
+              style="
+                color: var(--accent-gold);
+                font-size: 0.95em;
+                font-weight: bold;
+                margin-bottom: 5px;
+              "
+            >
+              附加设定 / 规则
+            </div>
+            <div
+              style="
+                color: var(--text-dim);
+                font-size: 0.8em;
+                line-height: 1.4;
+                margin-bottom: 10px;
+              "
+            >
+              在此输入自定义设定补充或规则要求，发送传讯时将作为系统提示词附加：
+            </div>
+            <textarea
+              id="wx-custom-prompt"
+              rows="4"
+              style="
+                width: 100%;
+                background: rgba(0, 0, 0, 0.3);
+                border: 1px solid var(--accent-mana);
+                border-radius: 6px;
+                padding: 10px;
+                color: var(--text-main);
+                font-family: inherit;
+                font-size: 0.9em;
+                resize: vertical;
+                box-sizing: border-box;
+              "
+              placeholder="例如：你现在正在用玉简（类似微信）与主角进行私聊互动。
 请直接输出你回复的单句话，必须贴合你的人物性格，口语化、简短，可带表情符号。
-【绝对禁令】：除了你要说的那句话本身，禁止输出任何其他内容！禁止带角色署名，禁止加任何括号、标签或特殊符号，禁止分段换行！直接开口说话！"></textarea>
+【绝对禁令】：除了你要说的那句话本身，禁止输出任何其他内容！禁止带角色署名，禁止加任何括号、标签或特殊符号，禁止分段换行！直接开口说话！"
+            ></textarea>
+          </div>
+
+          <!-- 世界书知识注入 -->
+          <div
+            class="info-card"
+            style="margin-bottom: 0; flex-shrink: 0; overflow: visible"
+          >
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 5px;
+              "
+            >
+              <div
+                style="
+                  color: var(--accent-gold);
+                  font-size: 0.95em;
+                  font-weight: bold;
+                "
+              >
+                📚 角色知识注入 (世界书)
+              </div>
+              <button
+                class="reply-button"
+                style="
+                  height: 28px;
+                  min-width: 60px;
+                  padding: 0 10px;
+                  font-size: 0.8em;
+                  background: linear-gradient(135deg, #e67e22, #d35400);
+                "
+                onclick="
+                  window.saveWxLoreSettings();
+                  alert('✅ 世界书勾选已保存至本地！');
+                "
+              >
+                💾 保存勾选
+              </button>
+            </div>
+            <div
+              style="
+                color: var(--text-dim);
+                font-size: 0.8em;
+                line-height: 1.4;
+                margin-bottom: 10px;
+              "
+            >
+              勾选你需要让对方在当前传讯中知晓的设定（每次勾选都会自动保存）：
             </div>
 
-            <!-- 世界书知识注入 -->
-            <div class="info-card" style="margin-bottom: 0; flex-shrink: 0; overflow: visible;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                    <div style="color: var(--accent-gold); font-size: 0.95em; font-weight: bold;">📚 角色知识注入 (世界书)</div>
-                    <button class="reply-button" style="height: 28px; min-width: 60px; padding: 0 10px; font-size: 0.8em; background: linear-gradient(135deg, #e67e22, #d35400);" onclick="window.saveWxLoreSettings(); alert('✅ 世界书勾选已保存至本地！');">💾 保存勾选</button>
-                </div>
-                <div style="color: var(--text-dim); font-size: 0.8em; line-height: 1.4; margin-bottom: 10px;">勾选你需要让对方在当前传讯中知晓的设定（每次勾选都会自动保存）：</div>
-
-                <div style="margin-bottom: 10px;">
-                    <input type="text" id="wx-lore-search" class="reply-input" placeholder="搜索条目名称或内容..." style="width: 100%; height: 32px; padding: 5px 10px; box-sizing: border-box;" oninput="window.filterLorebooks(this.value)">
-                </div>
-
-                <div id="wx-lorebook-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto; padding-right: 5px;">
-                    <div style="color: var(--text-dim); font-style: italic; font-size: 0.85em;">请先在玉简中选择聊天对象并打开此面板...</div>
-                </div>
+            <div style="margin-bottom: 10px">
+              <input
+                type="text"
+                id="wx-lore-search"
+                class="reply-input"
+                placeholder="搜索条目名称或内容..."
+                style="
+                  width: 100%;
+                  height: 32px;
+                  padding: 5px 10px;
+                  box-sizing: border-box;
+                "
+                oninput="window.filterLorebooks(this.value)"
+              />
             </div>
 
-            <!-- 自定义 API 配置 -->
-            <div class="info-card" style="margin-bottom: 0; flex-shrink: 0; overflow: visible; display: flex; flex-direction: column; gap: 10px;">
-                <div>
-                    <div style="color: var(--accent-mana); font-size: 0.95em; font-weight: bold; margin-bottom: 5px;">自定义 API 配置 (兼容 OpenAI)</div>
-                    <div style="color: var(--text-dim); font-size: 0.8em; line-height: 1.3;">若配置此项，将优先使用自定义API生成回复；留空则默认使用酒馆内建生成。</div>
-                </div>
+            <div
+              id="wx-lorebook-list"
+              style="
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                max-height: 180px;
+                overflow-y: auto;
+                padding-right: 5px;
+              "
+            >
+              <div
+                style="
+                  color: var(--text-dim);
+                  font-style: italic;
+                  font-size: 0.85em;
+                "
+              >
+                请先在玉简中选择聊天对象并打开此面板...
+              </div>
+            </div>
+          </div>
 
-                <div style="display: flex; flex-direction: column; gap: 4px;">
-                    <label style="font-size: 0.85em; color: var(--text-dim);">基础 URL (Endpoint)</label>
-                    <input type="text" id="wx-api-url" class="reply-input" placeholder="例如: https://api.xxx.xxx/v1" style="height: 35px; padding: 5px 10px; box-sizing: border-box; width: 100%;">
-                </div>
-
-                <div style="display: flex; flex-direction: column; gap: 4px;">
-                    <label style="font-size: 0.85em; color: var(--text-dim);">API 密钥 (API Key)</label>
-                    <input type="password" id="wx-api-key" class="reply-input" placeholder="sk-..." style="height: 35px; padding: 5px 10px; box-sizing: border-box; width: 100%;">
-                </div>
-
-                <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;">
-                    <div style="flex: 1; min-width: 150px; display: flex; flex-direction: column; gap: 4px;">
-                        <label style="font-size: 0.85em; color: var(--text-dim);">模型名称</label>
-                        <input type="text" id="wx-api-model" class="reply-input" placeholder="例如: gpt-3.5-turbo" style="height: 35px; padding: 5px 10px; box-sizing: border-box; width: 100%;">
-                    </div>
-                    <button class="reply-button" style="height: 35px; min-width: 80px; padding: 0 15px; font-size: 0.85em; flex-shrink: 0;" onclick="window.fetchApiModels()">获取模型</button>
-                </div>
-                <select id="wx-api-model-select" class="reply-input" style="height: 35px; display: none; padding: 5px 10px; box-sizing: border-box; width: 100%; margin-top: -5px;" onchange="document.getElementById('wx-api-model').value = this.value; this.style.display='none';">
-                    <option value="">-- 选择模型 --</option>
-                </select>
+          <!-- 自定义 API 配置 -->
+          <div
+            class="info-card"
+            style="
+              margin-bottom: 0;
+              flex-shrink: 0;
+              overflow: visible;
+              display: flex;
+              flex-direction: column;
+              gap: 10px;
+            "
+          >
+            <div>
+              <div
+                style="
+                  color: var(--accent-mana);
+                  font-size: 0.95em;
+                  font-weight: bold;
+                  margin-bottom: 5px;
+                "
+              >
+                自定义 API 配置 (兼容 OpenAI)
+              </div>
+              <div
+                style="
+                  color: var(--text-dim);
+                  font-size: 0.8em;
+                  line-height: 1.3;
+                "
+              >
+                若配置此项，将优先使用自定义API生成回复；留空则默认使用酒馆内建生成。
+              </div>
             </div>
 
-            <!-- 原始返回日志框 -->
-            <div class="info-card" style="margin-bottom: 0; flex-shrink: 0; overflow: visible;">
-                <div style="color: var(--rare-text); font-size: 0.95em; font-weight: bold; margin-bottom: 5px;">📜 最近一次原始返回日志</div>
-                <div style="color: var(--text-dim); font-size: 0.8em; line-height: 1.3; margin-bottom: 10px;">如果在手机上无法打开控制台，可以在这里查看模型真实的返回内容，方便排查“空回”或“截断”问题。</div>
-                <textarea id="wx-debug-log" readonly rows="4" style="width: 100%; background: rgba(0,0,0,0.5); border: 1px solid rgba(217, 128, 250, 0.4); border-radius: 6px; padding: 10px; color: #a4b0be; font-family: 'JetBrains Mono', monospace; font-size: 0.8em; resize: vertical; box-sizing: border-box;" placeholder="暂无日志..."></textarea>
+            <div style="display: flex; flex-direction: column; gap: 4px">
+              <label style="font-size: 0.85em; color: var(--text-dim)"
+                >基础 URL (Endpoint)</label
+              >
+              <input
+                type="text"
+                id="wx-api-url"
+                class="reply-input"
+                placeholder="例如: https://api.xxx.xxx/v1"
+                style="
+                  height: 35px;
+                  padding: 5px 10px;
+                  box-sizing: border-box;
+                  width: 100%;
+                "
+              />
             </div>
 
-            <!-- 保存按钮 -->
-            <button class="reply-button" onclick="window.saveWxSettings(); alert('✅ 基础设定与 API 配置已保存！');" style="align-self: center; margin-top: 5px; width: 60%; max-width: 200px; height: 40px; font-size: 1em; letter-spacing: 2px; flex-shrink: 0;">保存基础设定</button>
+            <div style="display: flex; flex-direction: column; gap: 4px">
+              <label style="font-size: 0.85em; color: var(--text-dim)"
+                >API 密钥 (API Key)</label
+              >
+              <input
+                type="password"
+                id="wx-api-key"
+                class="reply-input"
+                placeholder="sk-..."
+                style="
+                  height: 35px;
+                  padding: 5px 10px;
+                  box-sizing: border-box;
+                  width: 100%;
+                "
+              />
+            </div>
 
+            <div
+              style="
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                align-items: flex-end;
+              "
+            >
+              <div
+                style="
+                  flex: 1;
+                  min-width: 150px;
+                  display: flex;
+                  flex-direction: column;
+                  gap: 4px;
+                "
+              >
+                <label style="font-size: 0.85em; color: var(--text-dim)"
+                  >模型名称</label
+                >
+                <input
+                  type="text"
+                  id="wx-api-model"
+                  class="reply-input"
+                  placeholder="例如: gpt-3.5-turbo"
+                  style="
+                    height: 35px;
+                    padding: 5px 10px;
+                    box-sizing: border-box;
+                    width: 100%;
+                  "
+                />
+              </div>
+              <button
+                class="reply-button"
+                style="
+                  height: 35px;
+                  min-width: 80px;
+                  padding: 0 15px;
+                  font-size: 0.85em;
+                  flex-shrink: 0;
+                "
+                onclick="window.fetchApiModels()"
+              >
+                获取模型
+              </button>
+            </div>
+            <select
+              id="wx-api-model-select"
+              class="reply-input"
+              style="
+                height: 35px;
+                display: none;
+                padding: 5px 10px;
+                box-sizing: border-box;
+                width: 100%;
+                margin-top: -5px;
+              "
+              onchange="
+                document.getElementById('wx-api-model').value = this.value;
+                this.style.display = 'none';
+              "
+            >
+              <option value="">-- 选择模型 --</option>
+            </select>
+          </div>
+
+          <!-- 原始返回日志框 -->
+          <div
+            class="info-card"
+            style="margin-bottom: 0; flex-shrink: 0; overflow: visible"
+          >
+            <div
+              style="
+                color: var(--rare-text);
+                font-size: 0.95em;
+                font-weight: bold;
+                margin-bottom: 5px;
+              "
+            >
+              📜 最近一次原始返回日志
+            </div>
+            <div
+              style="
+                color: var(--text-dim);
+                font-size: 0.8em;
+                line-height: 1.3;
+                margin-bottom: 10px;
+              "
+            >
+              如果在手机上无法打开控制台，可以在这里查看模型真实的返回内容，方便排查“空回”或“截断”问题。
+            </div>
+            <textarea
+              id="wx-debug-log"
+              readonly
+              rows="4"
+              style="
+                width: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                border: 1px solid rgba(217, 128, 250, 0.4);
+                border-radius: 6px;
+                padding: 10px;
+                color: #a4b0be;
+                font-family: &quot;JetBrains Mono&quot;, monospace;
+                font-size: 0.8em;
+                resize: vertical;
+                box-sizing: border-box;
+              "
+              placeholder="暂无日志..."
+            ></textarea>
+          </div>
+
+          <!-- 保存按钮 -->
+          <button
+            class="reply-button"
+            onclick="
+              window.saveWxSettings();
+              alert('✅ 基础设定与 API 配置已保存！');
+            "
+            style="
+              align-self: center;
+              margin-top: 5px;
+              width: 60%;
+              max-width: 200px;
+              height: 40px;
+              font-size: 1em;
+              letter-spacing: 2px;
+              flex-shrink: 0;
+            "
+          >
+            保存基础设定
+          </button>
         </div>
+      </div>
     </div>
-</div>
-
 
     <script type="module" src="./main.js"></script>
-</body>
+  </body>
 </html>
