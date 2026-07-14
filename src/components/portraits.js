@@ -458,7 +458,8 @@ window.searchAndShowPortrait = function () {
       (stat.绝色榜 && stat.绝色榜[n]) ||
       {};
     let pUrl = "";
-    if (typeof getPortraitUrl === "function") pUrl = window.getPortraitUrl(n, p.性别);
+    if (typeof window.getPortraitUrl === "function")
+      pUrl = window.getPortraitUrl(n, p.性别);
     if (!pUrl) {
       let base =
         cp[n] || (typeof charPortraits !== "undefined" ? charPortraits[n] : "");
@@ -602,7 +603,7 @@ window.saveCustomPortrait = function (name, url) {
     }
     localStorage.setItem("daoyuan_custom_portraits", dataStr);
     charPortraits[name] = url;
-    if (typeof populateCharacterData === "function") {
+    if (typeof window.populateCharacterData === "function") {
       window.populateCharacterData();
     }
     return true;
@@ -667,7 +668,7 @@ window.removeCustomPortrait = function (name) {
       "daoyuan_custom_portraits",
       JSON.stringify(customPortraits),
     );
-    if (typeof populateCharacterData === "function") {
+    if (typeof window.populateCharacterData === "function") {
       window.populateCharacterData();
     }
     return true;
@@ -942,7 +943,7 @@ window.appendChatMessage = async function (charName, sender, content) {
           type: "message",
           message_id: targetMsgId,
         });
-        if (typeof populateCharacterData === "function")
+        if (typeof window.populateCharacterData === "function")
           window.populateCharacterData();
       }
     } else {
@@ -952,4 +953,3 @@ window.appendChatMessage = async function (charName, sender, content) {
     console.error("[道渊状态栏] 更新玉简消息失败:", err);
   }
 };
-

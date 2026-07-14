@@ -65,7 +65,7 @@ window.callGenerateReply = async function (
     }
   } else {
     // 使用酒馆原生 generate
-    if (typeof generate === "function") {
+    if (typeof window.generate === "function") {
       try {
         const combinedPrompt = systemPrompt + "\n\n" + userMessage;
         const rawReply = await window.generate({
@@ -426,4 +426,3 @@ window.fairyImages = [
   "https://i.postimg.cc/B6bsPC8Q/Image-1765540442059.jpg",
 ];
 window.currentFairyImageIndex = 0;
-
