@@ -1,5 +1,4 @@
 import { defineConfig } from 'vite';
-import vue from '@vitejs/plugin-vue';
 import { viteSingleFile } from 'vite-plugin-singlefile';
 
 // 注入 Mvu mock 数据与全局依赖的插件
@@ -32,7 +31,6 @@ const mvuMockPlugin = () => {
 export default defineConfig({
   root: 'src',
   plugins: [
-    vue(),
     viteSingleFile(),
     mvuMockPlugin()
   ],

@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import pretty from 'pretty';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -20,7 +21,9 @@ function main() {
     process.exit(1);
   }
 
-  const distHtml = fs.readFileSync(DIST_HTML_PATH, 'utf8');
+  const rawDistHtml = fs.readFileSync(DIST_HTML_PATH, 'utf8');
+  const distHtml = pretty(rawDistHtml);
+  fs.writeFileSync(DIST_HTML_PATH, distHtml, 'utf8');
   const jsonContent = fs.readFileSync(INPUT_JSON_PATH, 'utf8');
   const data = JSON.parse(jsonContent);
 
