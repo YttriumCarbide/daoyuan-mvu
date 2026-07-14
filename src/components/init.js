@@ -1,3 +1,5 @@
+import { initTabNavigation } from "./maps.js";
+
 async function init() {
   /* 拉取云端立绘 */
   await window.loadRemotePortraits();
@@ -199,7 +201,9 @@ async function init() {
     userAvatarElement.style.backgroundImage = `url('${avatarUrl}')`;
   }
 
-  const firstTab = document.querySelector(".tab-btn");
+  initTabNavigation();
+
+  const firstTab = document.querySelector(".tab-btn[data-tab-id]");
   if (firstTab) {
     firstTab.click();
   }

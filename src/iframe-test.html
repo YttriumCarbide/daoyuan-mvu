@@ -63,10 +63,10 @@
 <body>
   <div class="controls">
     <span>尺寸预设:</span>
-    <button onclick="setSize('100%', '100%')">全屏充满</button>
-    <button onclick="setSize(800, 600)">800 x 600</button>
-    <button onclick="setSize(375, 812)">手机 (375 x 812)</button>
-    <button onclick="setSize(1024, 768)">平板 (1024 x 768)</button>
+    <button type="button" data-frame-width="100%" data-frame-height="100%">全屏充满</button>
+    <button type="button" data-frame-width="800" data-frame-height="600">800 x 600</button>
+    <button type="button" data-frame-width="375" data-frame-height="812">手机 (375 x 812)</button>
+    <button type="button" data-frame-width="1024" data-frame-height="768">平板 (1024 x 768)</button>
     <span style="margin-left: auto; font-size: 0.9em; color: #aaa;">支持右下角拖拽缩放</span>
   </div>
   <div class="workspace">
@@ -95,9 +95,15 @@
 
     function setSize(width, height) {
       const wrapper = document.getElementById('wrapper');
-      wrapper.style.width = typeof width === 'number' ? `${width}px` : width;
-      wrapper.style.height = typeof height === 'number' ? `${height}px` : height;
+      wrapper.style.width = /^\d+$/.test(width) ? `${width}px` : width;
+      wrapper.style.height = /^\d+$/.test(height) ? `${height}px` : height;
     }
+
+    document.querySelectorAll('[data-frame-width][data-frame-height]').forEach((button) => {
+      button.addEventListener('click', () => {
+        setSize(button.dataset.frameWidth, button.dataset.frameHeight);
+      });
+    });
 
     initIframe();
   </script>

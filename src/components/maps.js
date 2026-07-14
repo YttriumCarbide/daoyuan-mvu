@@ -388,7 +388,7 @@ window.xianjieLore = {
   },
 };
 
-window.switchTab = function (event, tabId) {
+function switchTab(event, tabId) {
   const button = event.currentTarget;
   const panel = button.closest(".main-panel");
   if (!panel) return;
@@ -403,7 +403,15 @@ window.switchTab = function (event, tabId) {
     tabToShow.style.display = tabId === "messages" ? "flex" : "block";
   }
   button.classList.add("active");
-};
+}
+
+export function initTabNavigation(root = document) {
+  root.querySelectorAll(".tab-btn[data-tab-id]").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      switchTab(event, button.dataset.tabId);
+    });
+  });
+}
 
 window.drawMap = function(loreData, containerId) {
   const mapContainer = document.getElementById(containerId);
@@ -622,4 +630,3 @@ window.fairyGuide = {
     }
   },
 };
-
