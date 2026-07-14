@@ -1,0 +1,836 @@
+{
+  "schemaVersion": 1,
+  "characters": [
+    {
+      "characterId": 2,
+      "name": "林若悠",
+      "status": "active"
+    },
+    {
+      "characterId": 3,
+      "name": "宫银叶",
+      "status": "active"
+    },
+    {
+      "characterId": 6,
+      "name": "慕欣心",
+      "status": "active"
+    },
+    {
+      "characterId": 11,
+      "name": "青衣",
+      "status": "active"
+    },
+    {
+      "characterId": 37,
+      "name": "幽悦",
+      "status": "active"
+    },
+    {
+      "characterId": 38,
+      "name": "凌月",
+      "status": "active"
+    },
+    {
+      "characterId": 39,
+      "name": "阴罗",
+      "status": "active"
+    },
+    {
+      "characterId": 40,
+      "name": "晚絮",
+      "status": "active"
+    },
+    {
+      "characterId": 41,
+      "name": "瑶汐",
+      "status": "active"
+    },
+    {
+      "characterId": 42,
+      "name": "林雪",
+      "status": "active"
+    },
+    {
+      "characterId": 43,
+      "name": "白薇",
+      "status": "active"
+    },
+    {
+      "characterId": 44,
+      "name": "苏清雪",
+      "status": "active"
+    },
+    {
+      "characterId": 45,
+      "name": "玄虚",
+      "status": "active"
+    },
+    {
+      "characterId": 46,
+      "name": "陆雪琪",
+      "status": "active"
+    },
+    {
+      "characterId": 47,
+      "name": "紫薇",
+      "status": "active"
+    },
+    {
+      "characterId": 48,
+      "name": "曦和",
+      "status": "active"
+    },
+    {
+      "characterId": 49,
+      "name": "绯月",
+      "status": "active"
+    },
+    {
+      "characterId": 50,
+      "name": "天妤",
+      "status": "active"
+    },
+    {
+      "characterId": 51,
+      "name": "叶清",
+      "status": "active"
+    },
+    {
+      "characterId": 52,
+      "name": "龙傲飞",
+      "status": "active"
+    },
+    {
+      "characterId": 53,
+      "name": "苏沐雪",
+      "status": "active"
+    },
+    {
+      "characterId": 54,
+      "name": "叶冰",
+      "status": "active"
+    },
+    {
+      "characterId": 55,
+      "name": "炎帝",
+      "status": "active"
+    },
+    {
+      "characterId": 56,
+      "name": "秦心",
+      "status": "active"
+    },
+    {
+      "characterId": 57,
+      "name": "红绡",
+      "status": "active"
+    },
+    {
+      "characterId": 58,
+      "name": "苏琉璃",
+      "status": "active"
+    },
+    {
+      "characterId": 59,
+      "name": "秦无夜",
+      "status": "active"
+    },
+    {
+      "characterId": 60,
+      "name": "云舒窈",
+      "status": "active"
+    },
+    {
+      "characterId": 61,
+      "name": "大衍",
+      "status": "active"
+    },
+    {
+      "characterId": 62,
+      "name": "烈阳",
+      "status": "active"
+    },
+    {
+      "characterId": 63,
+      "name": "构军",
+      "status": "active"
+    },
+    {
+      "characterId": 64,
+      "name": "林欣",
+      "status": "active"
+    },
+    {
+      "characterId": 65,
+      "name": "慧空",
+      "status": "active"
+    },
+    {
+      "characterId": 66,
+      "name": "般若",
+      "status": "active"
+    },
+    {
+      "characterId": 68,
+      "name": "韩月灵",
+      "status": "active"
+    },
+    {
+      "characterId": 69,
+      "name": "林妙音",
+      "status": "active"
+    },
+    {
+      "characterId": 70,
+      "name": "广慧",
+      "status": "active"
+    },
+    {
+      "characterId": 71,
+      "name": "幽梦",
+      "status": "active"
+    },
+    {
+      "characterId": 72,
+      "name": "噬魂",
+      "status": "active"
+    },
+    {
+      "characterId": 80,
+      "name": "冰凤",
+      "status": "active"
+    },
+    {
+      "characterId": 81,
+      "name": "姬紫月",
+      "status": "active"
+    },
+    {
+      "characterId": 82,
+      "name": "苏媚",
+      "status": "active"
+    },
+    {
+      "characterId": 83,
+      "name": "萧婉儿",
+      "status": "active"
+    },
+    {
+      "characterId": 84,
+      "name": "姬昊天",
+      "status": "active"
+    },
+    {
+      "characterId": 85,
+      "name": "李牧",
+      "status": "active"
+    },
+    {
+      "characterId": 86,
+      "name": "萧衍",
+      "status": "active"
+    },
+    {
+      "characterId": 88,
+      "name": "青练",
+      "status": "active"
+    },
+    {
+      "characterId": 94,
+      "name": "敖凌霜",
+      "status": "active"
+    },
+    {
+      "characterId": 95,
+      "name": "袁琪",
+      "status": "active"
+    },
+    {
+      "characterId": 96,
+      "name": "孔灵月",
+      "status": "active"
+    },
+    {
+      "characterId": 97,
+      "name": "蛛心儿",
+      "status": "active"
+    },
+    {
+      "characterId": 106,
+      "name": "苏千媚",
+      "status": "active"
+    },
+    {
+      "characterId": 113,
+      "name": "江楚楚",
+      "status": "active"
+    },
+    {
+      "characterId": 116,
+      "name": "苏灿灿",
+      "status": "active"
+    },
+    {
+      "characterId": 117,
+      "name": "苏辰",
+      "status": "active"
+    },
+    {
+      "characterId": 118,
+      "name": "慕清弦",
+      "status": "active"
+    },
+    {
+      "characterId": 119,
+      "name": "温月清",
+      "status": "active"
+    },
+    {
+      "characterId": 120,
+      "name": "温小暖",
+      "status": "active"
+    },
+    {
+      "characterId": 135,
+      "name": "玖柒",
+      "status": "active"
+    },
+    {
+      "characterId": 139,
+      "name": "韩立",
+      "status": "active"
+    },
+    {
+      "characterId": 140,
+      "name": "南宫婉",
+      "status": "active"
+    },
+    {
+      "characterId": 141,
+      "name": "银月",
+      "status": "active"
+    },
+    {
+      "characterId": 149,
+      "name": "石昊",
+      "status": "active"
+    },
+    {
+      "characterId": 150,
+      "name": "白小纯",
+      "status": "active"
+    },
+    {
+      "characterId": 151,
+      "name": "侯小妹",
+      "status": "active"
+    },
+    {
+      "characterId": 152,
+      "name": "古月方源",
+      "status": "active"
+    },
+    {
+      "characterId": 153,
+      "name": "宋文",
+      "status": "active"
+    },
+    {
+      "characterId": 154,
+      "name": "商心慈",
+      "status": "active"
+    },
+    {
+      "characterId": 166,
+      "name": "嫣雨烟",
+      "status": "active"
+    },
+    {
+      "characterId": 167,
+      "name": "唐弎",
+      "status": "active"
+    },
+    {
+      "characterId": 168,
+      "name": "银黎",
+      "status": "active"
+    },
+    {
+      "characterId": 169,
+      "name": "红蝶",
+      "status": "active"
+    },
+    {
+      "characterId": 170,
+      "name": "王林",
+      "status": "active"
+    },
+    {
+      "characterId": 171,
+      "name": "楚星绾",
+      "status": "active"
+    },
+    {
+      "characterId": 173,
+      "name": "灵玥",
+      "status": "active"
+    },
+    {
+      "characterId": 174,
+      "name": "上官玥",
+      "status": "active"
+    },
+    {
+      "characterId": 187,
+      "name": "秦浅月",
+      "status": "active"
+    },
+    {
+      "characterId": 190,
+      "name": "许千寻",
+      "status": "active"
+    },
+    {
+      "characterId": 191,
+      "name": "玄清",
+      "status": "active"
+    },
+    {
+      "characterId": 192,
+      "name": "柳依依",
+      "status": "active"
+    },
+    {
+      "characterId": 193,
+      "name": "顾长枫",
+      "status": "active"
+    },
+    {
+      "characterId": 194,
+      "name": "萧玉寒",
+      "status": "active"
+    },
+    {
+      "characterId": 195,
+      "name": "苏清禾",
+      "status": "active"
+    },
+    {
+      "characterId": 196,
+      "name": "云糯糯",
+      "status": "active"
+    },
+    {
+      "characterId": 197,
+      "name": "苏绾影",
+      "status": "active"
+    },
+    {
+      "characterId": 198,
+      "name": "凌阮阮",
+      "status": "active"
+    },
+    {
+      "characterId": 199,
+      "name": "叶倾心",
+      "status": "active"
+    },
+    {
+      "characterId": 200,
+      "name": "汐怡",
+      "status": "active"
+    },
+    {
+      "characterId": 201,
+      "name": "桃夭夭",
+      "status": "active"
+    },
+    {
+      "characterId": 202,
+      "name": "顾幽梵",
+      "status": "active"
+    },
+    {
+      "characterId": 203,
+      "name": "苏珞刹",
+      "status": "active"
+    },
+    {
+      "characterId": 204,
+      "name": "霖仙怡",
+      "status": "active"
+    },
+    {
+      "characterId": 205,
+      "name": "冥霜儿",
+      "status": "active"
+    },
+    {
+      "characterId": 206,
+      "name": "楚玉璃",
+      "status": "active"
+    },
+    {
+      "characterId": 207,
+      "name": "白玖璃",
+      "status": "active"
+    },
+    {
+      "characterId": 208,
+      "name": "青木璇",
+      "status": "active"
+    },
+    {
+      "characterId": 209,
+      "name": "璃杏",
+      "status": "active"
+    },
+    {
+      "characterId": 210,
+      "name": "杜月菲",
+      "status": "active"
+    },
+    {
+      "characterId": 211,
+      "name": "慕容无尘",
+      "status": "active"
+    },
+    {
+      "characterId": 212,
+      "name": "慕容初袖",
+      "status": "active"
+    },
+    {
+      "characterId": 213,
+      "name": "慕容落羽",
+      "status": "active"
+    },
+    {
+      "characterId": 214,
+      "name": "萌梦",
+      "status": "active"
+    },
+    {
+      "characterId": 215,
+      "name": "钰仙儿",
+      "status": "active"
+    },
+    {
+      "characterId": 216,
+      "name": "青渝",
+      "status": "active"
+    },
+    {
+      "characterId": 217,
+      "name": "齐天麟",
+      "status": "active"
+    },
+    {
+      "characterId": 218,
+      "name": "风梧音",
+      "status": "active"
+    },
+    {
+      "characterId": 219,
+      "name": "秦汐雅",
+      "status": "active"
+    },
+    {
+      "characterId": 220,
+      "name": "凌天辰",
+      "status": "active"
+    },
+    {
+      "characterId": 221,
+      "name": "凌紫嫣",
+      "status": "active"
+    },
+    {
+      "characterId": 222,
+      "name": "叶婷",
+      "status": "active"
+    },
+    {
+      "characterId": 224,
+      "name": "舞弦琴",
+      "status": "active"
+    },
+    {
+      "characterId": 232,
+      "name": "星宿",
+      "status": "active"
+    },
+    {
+      "characterId": 233,
+      "name": "红莲",
+      "status": "active"
+    },
+    {
+      "characterId": 235,
+      "name": "南可熙",
+      "status": "active"
+    },
+    {
+      "characterId": 236,
+      "name": "凤灵儿",
+      "status": "active"
+    },
+    {
+      "characterId": 237,
+      "name": "公孙清",
+      "status": "active"
+    },
+    {
+      "characterId": 241,
+      "name": "魏喑",
+      "status": "active"
+    },
+    {
+      "characterId": 251,
+      "name": "乔梦玉",
+      "status": "active"
+    },
+    {
+      "characterId": 252,
+      "name": "元容",
+      "status": "active"
+    },
+    {
+      "characterId": 253,
+      "name": "玄璃",
+      "status": "active"
+    },
+    {
+      "characterId": 254,
+      "name": "阳宇",
+      "status": "active"
+    },
+    {
+      "characterId": 255,
+      "name": "林寒绾",
+      "status": "active"
+    },
+    {
+      "characterId": 256,
+      "name": "朱离",
+      "status": "active"
+    },
+    {
+      "characterId": 257,
+      "name": "侯景",
+      "status": "active"
+    },
+    {
+      "characterId": 258,
+      "name": "长孙镜华",
+      "status": "active"
+    },
+    {
+      "characterId": 259,
+      "name": "柳青螭",
+      "status": "active"
+    },
+    {
+      "characterId": 260,
+      "name": "希夷",
+      "status": "active"
+    },
+    {
+      "characterId": 261,
+      "name": "辟易川",
+      "status": "active"
+    },
+    {
+      "characterId": 262,
+      "name": "欧阳灵",
+      "status": "active"
+    },
+    {
+      "characterId": 263,
+      "name": "黑姬结灯",
+      "status": "active"
+    },
+    {
+      "characterId": 264,
+      "name": "李未晞",
+      "status": "active"
+    },
+    {
+      "characterId": 265,
+      "name": "阴丽华",
+      "status": "active"
+    },
+    {
+      "characterId": 266,
+      "name": "九歌",
+      "status": "active"
+    },
+    {
+      "characterId": 267,
+      "name": "晏青",
+      "status": "active"
+    },
+    {
+      "characterId": 268,
+      "name": "小D",
+      "status": "active"
+    },
+    {
+      "characterId": 269,
+      "name": "白祈昼",
+      "status": "active"
+    },
+    {
+      "characterId": 271,
+      "name": "璃宫花火",
+      "status": "active"
+    },
+    {
+      "characterId": 272,
+      "name": "紫澪",
+      "status": "active"
+    },
+    {
+      "characterId": 276,
+      "name": "金玉满",
+      "status": "active"
+    },
+    {
+      "characterId": 277,
+      "name": "小翠",
+      "status": "active"
+    },
+    {
+      "characterId": 278,
+      "name": "万金柝",
+      "status": "active"
+    },
+    {
+      "characterId": 279,
+      "name": "万璇玑",
+      "status": "active"
+    },
+    {
+      "characterId": 280,
+      "name": "叶焚渊",
+      "status": "active"
+    },
+    {
+      "characterId": 281,
+      "name": "小显示",
+      "status": "active"
+    },
+    {
+      "characterId": 282,
+      "name": "海伊",
+      "status": "active"
+    },
+    {
+      "characterId": 283,
+      "name": "柳舞蝶",
+      "status": "active"
+    },
+    {
+      "characterId": 284,
+      "name": "白疏影",
+      "status": "active"
+    },
+    {
+      "characterId": 287,
+      "name": "李溯",
+      "status": "active"
+    },
+    {
+      "characterId": 288,
+      "name": "百铃",
+      "status": "active"
+    },
+    {
+      "characterId": 289,
+      "name": "樊月汐",
+      "status": "active"
+    },
+    {
+      "characterId": 290,
+      "name": "卡斯蒂利亚·哈布斯堡",
+      "status": "active"
+    },
+    {
+      "characterId": 291,
+      "name": "君姝",
+      "status": "active"
+    },
+    {
+      "characterId": 292,
+      "name": "代安池",
+      "status": "active"
+    },
+    {
+      "characterId": 293,
+      "name": "桃幽",
+      "status": "active"
+    },
+    {
+      "characterId": 294,
+      "name": "颜小落",
+      "status": "active"
+    },
+    {
+      "characterId": 295,
+      "name": "桃夭诺",
+      "status": "active"
+    },
+    {
+      "characterId": 296,
+      "name": "苏慕渊",
+      "status": "active"
+    },
+    {
+      "characterId": 297,
+      "name": "姬觅弥",
+      "status": "active"
+    },
+    {
+      "characterId": 298,
+      "name": "燕重微",
+      "status": "active"
+    },
+    {
+      "characterId": 299,
+      "name": "林素铃",
+      "status": "active"
+    },
+    {
+      "characterId": 300,
+      "name": "李铭",
+      "status": "active"
+    },
+    {
+      "characterId": 301,
+      "name": "苏清漪",
+      "status": "active"
+    },
+    {
+      "characterId": 303,
+      "name": "姜梦",
+      "status": "active"
+    },
+    {
+      "characterId": 304,
+      "name": "云初未来",
+      "status": "active"
+    },
+    {
+      "characterId": 305,
+      "name": "白倾颜",
+      "status": "active"
+    },
+    {
+      "characterId": 306,
+      "name": "顾清清",
+      "status": "active"
+    }
+  ]
+}
+

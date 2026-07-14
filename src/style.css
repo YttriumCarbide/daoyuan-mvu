@@ -1757,6 +1757,45 @@ body {
   );
   box-shadow: 0 0 8px rgba(100, 180, 255, 0.3);
 }
+.portrait-applause {
+  display: inline-grid;
+  flex: 0 0 34px;
+  min-block-size: 30px;
+  min-inline-size: 34px;
+}
+.portrait-applause::part(surface) {
+  align-items: center;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 105, 180, 0.14),
+    transparent
+  );
+  border: 1px dashed rgba(255, 105, 180, 0.55);
+  border-radius: 4px;
+  color: #ff9ccc;
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  inline-size: 100%;
+  justify-content: center;
+  min-block-size: 100%;
+  padding: 6px 8px;
+}
+.portrait-applause:focus-within {
+  outline: 2px solid rgba(255, 105, 180, 0.75);
+  outline-offset: 2px;
+}
+.portrait-applause[data-busy],
+.portrait-applause[data-runtime-blocked] {
+  cursor: wait;
+  opacity: 0.72;
+}
+.portrait-applause[disabled],
+.portrait-applause[data-disabled] {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
 .portrait-file-label {
   display: flex;
   align-items: center;

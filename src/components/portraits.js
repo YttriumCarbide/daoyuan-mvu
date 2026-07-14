@@ -1,3 +1,5 @@
+import { renderDaoyuanApplause } from "./applause.js";
+
 /* 预设的人物立绘映射表 (已转为云端加载) */
 var charPortraits = window.charPortraits = {};
 var charPortraitsFemale = window.charPortraitsFemale = {};
@@ -483,7 +485,9 @@ window.searchAndShowPortrait = function () {
       safeN +
       '\');" title="设置立绘">🎨</div><div class="portrait-custom-btn" onclick="event.stopPropagation(); window.switchPortrait(\'' +
       safeN +
-      '\');" title="切换立绘">🔄</div></div><div class="large-portrait"><img data-src="' +
+      '\');" title="切换立绘">🔄</div>' +
+      renderDaoyuanApplause(n) +
+      '</div><div class="large-portrait"><img data-src="' +
       pUrl +
       '" alt="' +
       safeN +
