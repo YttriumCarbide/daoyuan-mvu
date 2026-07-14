@@ -1659,7 +1659,20 @@ body {
     border-bottom: 2px solid var(--border-metal);
   }
   .content-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .main-panel,
+  .tab-content,
+  .info-card {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .portrait-search-row {
+    min-width: 0;
+  }
+  .portrait-search-row .reply-input {
+    min-width: 50px;
+    flex: 1 1 0;
   }
   .status-panel {
     flex-direction: row;
