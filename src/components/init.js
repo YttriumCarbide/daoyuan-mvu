@@ -233,7 +233,7 @@ async function init() {
   window.populateCharacterData();
 
   /* 监听变量更新事件，实现自动刷新 */
-  window.eventOn(Mvu.events.VARIABLE_UPDATE_ENDED, () => {
+  window.eventOn(window.Mvu.events.VARIABLE_UPDATE_ENDED, () => {
     window.populateCharacterData();
   });
 
@@ -424,7 +424,7 @@ window.saveJiuqiEdit = async function (pathStr) {
     if (!messages || messages.length === 0) return;
     const targetMsgId = messages[messages.length - 1].message_id;
     if (window.Mvu && typeof Mvu.replaceMvuData === "function") {
-      const fullData = Mvu.getMvuData({
+      const fullData = window.Mvu.getMvuData({
         type: "message",
         message_id: targetMsgId,
       });
@@ -442,7 +442,7 @@ window.saveJiuqiEdit = async function (pathStr) {
           t[path[path.length - 1]] =
             newData["值"] !== undefined ? newData["值"] : newData;
         }
-        await Mvu.replaceMvuData(fullData, {
+        await window.Mvu.replaceMvuData(fullData, {
           type: "message",
           message_id: targetMsgId,
         });
@@ -721,4 +721,4 @@ setTimeout(function () {
   }
   cleanUpUnwantedUI();
 }, 1500);
-$(errorCatched(init));
+$(window.errorCatched(init));

@@ -915,7 +915,7 @@ window.appendChatMessage = async function (charName, sender, content) {
     const targetMsgId = messages[messages.length - 1].message_id;
 
     if (window.Mvu && typeof Mvu.replaceMvuData === "function") {
-      const fullData = Mvu.getMvuData({
+      const fullData = window.Mvu.getMvuData({
         type: "message",
         message_id: targetMsgId,
       });
@@ -938,7 +938,7 @@ window.appendChatMessage = async function (charName, sender, content) {
         };
 
         fullData.stat_data.玉简[charName].历史记录 = history;
-        await Mvu.replaceMvuData(fullData, {
+        await window.Mvu.replaceMvuData(fullData, {
           type: "message",
           message_id: targetMsgId,
         });

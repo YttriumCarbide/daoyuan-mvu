@@ -258,7 +258,7 @@ window.deleteSingleMessage = async function (charName, msgId) {
     const targetMsgId = messages[messages.length - 1].message_id;
 
     if (window.Mvu && typeof Mvu.replaceMvuData === "function") {
-      const fullData = Mvu.getMvuData({
+      const fullData = window.Mvu.getMvuData({
         type: "message",
         message_id: targetMsgId,
       });
@@ -270,7 +270,7 @@ window.deleteSingleMessage = async function (charName, msgId) {
         fullData.stat_data.玉简[charName].历史记录
       ) {
         delete fullData.stat_data.玉简[charName].历史记录[msgId];
-        await Mvu.replaceMvuData(fullData, {
+        await window.Mvu.replaceMvuData(fullData, {
           type: "message",
           message_id: targetMsgId,
         });
@@ -299,7 +299,7 @@ window.retrySingleMessage = async function (charName, msgId) {
 
     let historyObj = {};
     if (window.Mvu && typeof Mvu.replaceMvuData === "function") {
-      const fullData = Mvu.getMvuData({
+      const fullData = window.Mvu.getMvuData({
         type: "message",
         message_id: targetMsgId,
       });
@@ -313,7 +313,7 @@ window.retrySingleMessage = async function (charName, msgId) {
         historyObj = { ...fullData.stat_data.玉简[charName].历史记录 };
         delete historyObj[msgId];
         fullData.stat_data.玉简[charName].历史记录 = historyObj;
-        await Mvu.replaceMvuData(fullData, {
+        await window.Mvu.replaceMvuData(fullData, {
           type: "message",
           message_id: targetMsgId,
         });

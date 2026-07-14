@@ -807,13 +807,13 @@ async function deleteStatEntry(dataPath, cardElement) {
     const targetMsgId = messages[messages.length - 1].message_id;
 
     if (window.Mvu && typeof Mvu.replaceMvuData === "function") {
-      const fullData = Mvu.getMvuData({
+      const fullData = window.Mvu.getMvuData({
         type: "message",
         message_id: targetMsgId,
       });
       if (fullData && fullData.stat_data) {
         _.unset(fullData.stat_data, dataPath);
-        await Mvu.replaceMvuData(fullData, {
+        await window.Mvu.replaceMvuData(fullData, {
           type: "message",
           message_id: targetMsgId,
         });
