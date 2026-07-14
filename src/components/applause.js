@@ -1,4 +1,5 @@
 import registry from "../../data/applause-character-registry.json";
+import { escapeHtmlAttribute } from "../utils/html.js";
 
 const characterIdByName = new Map(
   registry.characters
@@ -13,19 +14,11 @@ const characterIdByName = new Map(
     .map(({ characterId, name }) => [name.trim(), characterId]),
 );
 
-function escapeAttribute(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;");
-}
-
 export function renderDaoyuanApplause(characterName) {
   const normalizedName = String(characterName).trim();
   const characterId = characterIdByName.get(normalizedName);
   if (!characterId) return "";
 
-  const safeName = escapeAttribute(normalizedName);
+  const safeName = escapeHtmlAttribute(normalizedName);
   return `<daoyuan-applause class="portrait-applause" character-id="${characterId}" aria-label="为${safeName}点赞" title="为${safeName}点赞"><span aria-hidden="true">👏</span></daoyuan-applause>`;
 }
