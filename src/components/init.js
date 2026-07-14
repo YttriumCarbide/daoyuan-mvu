@@ -2,7 +2,7 @@ async function init() {
   /* 拉取云端立绘 */
   await window.loadRemotePortraits();
   /* MVU架构接入 */
-  await waitGlobalInitialized("Mvu");
+  await window.waitGlobalInitialized("Mvu");
 
   window.loadWxSettings();
 
@@ -230,11 +230,11 @@ async function init() {
   };
 
   /* 首次渲染数据 */
-  populateCharacterData();
+  window.populateCharacterData();
 
   /* 监听变量更新事件，实现自动刷新 */
-  eventOn(Mvu.events.VARIABLE_UPDATE_ENDED, () => {
-    populateCharacterData();
+  window.eventOn(Mvu.events.VARIABLE_UPDATE_ENDED, () => {
+    window.populateCharacterData();
   });
 
   /* 绑定主角信息面板点击事件 (替换掉容易报错的内联写法) */
@@ -258,7 +258,7 @@ window.jiuqiEditMode = false;
 window.toggleJiuqiEdit = function (skipStory) {
   let allV = null;
   try {
-    allV = getAllVariables();
+    allV = window.getAllVariables();
   } catch (e) {}
   let hero =
     allV &&
@@ -377,7 +377,7 @@ window.toggleJiuqiEdit = function (skipStory) {
   }
 };
 window.openJiuqiEditModal = function (path) {
-  let allVars = getAllVariables();
+  let allVars = window.getAllVariables();
   let stat = _.get(allVars, "stat_data", {});
   let target = stat;
   for (let i = 0; i < path.length; i++) {
@@ -419,8 +419,8 @@ window.saveJiuqiEdit = async function (pathStr) {
     newData[inp.dataset.key] = val;
   });
   try {
-    const lastMsgId = getLastMessageId();
-    const messages = getChatMessages("0-" + lastMsgId, { role: "assistant" });
+    const lastMsgId = window.getLastMessageId();
+    const messages = window.getChatMessages("0-" + lastMsgId, { role: "assistant" });
     if (!messages || messages.length === 0) return;
     const targetMsgId = messages[messages.length - 1].message_id;
     if (window.Mvu && typeof Mvu.replaceMvuData === "function") {
@@ -446,7 +446,7 @@ window.saveJiuqiEdit = async function (pathStr) {
           type: "message",
           message_id: targetMsgId,
         });
-        populateCharacterData();
+        window.populateCharacterData();
         document.getElementById("jiuqi-edit-overlay").remove();
       }
     }

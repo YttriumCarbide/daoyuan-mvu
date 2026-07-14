@@ -327,7 +327,7 @@ window.executeShowLoreByName = async function (name) {
 window.showLoreByName = function (name) {
   let stat = {};
   try {
-    stat = getAllVariables().stat_data || {};
+    stat = window.getAllVariables().stat_data || {};
   } catch (e) {}
   let hn = stat.主角 && stat.主角.姓名 ? stat.主角.姓名 : "unknown";
   let wk = "dy_lore_warn_" + hn;
@@ -447,7 +447,7 @@ window.searchAndShowPortrait = function () {
   }
   let stat = {};
   try {
-    stat = getAllVariables().stat_data || {};
+    stat = window.getAllVariables().stat_data || {};
   } catch (e) {}
   let html = "";
   matched.forEach((n) => {
@@ -458,7 +458,7 @@ window.searchAndShowPortrait = function () {
       (stat.绝色榜 && stat.绝色榜[n]) ||
       {};
     let pUrl = "";
-    if (typeof getPortraitUrl === "function") pUrl = getPortraitUrl(n, p.性别);
+    if (typeof getPortraitUrl === "function") pUrl = window.getPortraitUrl(n, p.性别);
     if (!pUrl) {
       let base =
         cp[n] || (typeof charPortraits !== "undefined" ? charPortraits[n] : "");
@@ -495,7 +495,7 @@ window.searchAndShowPortrait = function () {
 window.injectHeartButtons = function () {
   let stat = {};
   try {
-    stat = getAllVariables().stat_data || {};
+    stat = window.getAllVariables().stat_data || {};
   } catch (e) {}
   if (!document.getElementById("c-btn-anim")) {
     let s = document.createElement("style");
@@ -603,7 +603,7 @@ window.saveCustomPortrait = function (name, url) {
     localStorage.setItem("daoyuan_custom_portraits", dataStr);
     charPortraits[name] = url;
     if (typeof populateCharacterData === "function") {
-      populateCharacterData();
+      window.populateCharacterData();
     }
     return true;
   } catch (e) {
@@ -668,7 +668,7 @@ window.removeCustomPortrait = function (name) {
       JSON.stringify(customPortraits),
     );
     if (typeof populateCharacterData === "function") {
-      populateCharacterData();
+      window.populateCharacterData();
     }
     return true;
   } catch (e) {
@@ -711,7 +711,7 @@ window.openCustomPortraitDialog = function (charName, mode) {
     charName in window.specialPortraits &&
     mode !== "special"
   ) {
-    subBtnsHtml += `<button class="btn-rst-all" style="position:static;background:rgba(255,105,180,0.15);color:#ff69b4;border:1px solid #ff69b4;margin-right:6px;" onclick="event.stopPropagation();let stat={};try{stat=getAllVariables().stat_data||{};}catch(ex){}let p=(stat.道侣&&stat.道侣['${charName}'])||(stat.人物&&stat.人物['${charName}'])||(stat.灵宠&&stat.灵宠['${charName}'])||(stat.绝色榜&&stat.绝色榜['${charName}'])||{};let f=parseFloat(p.亲密||p.好感||p.亲密度||p.好感度||0);if(f<90){alert('好感度不足，无法解锁该立绘配置！');}else{window.openCustomPortraitDialog('${charName}','_keepspecial');}">💖 心动配置</button>`;
+    subBtnsHtml += `<button class="btn-rst-all" style="position:static;background:rgba(255,105,180,0.15);color:#ff69b4;border:1px solid #ff69b4;margin-right:6px;" onclick="event.stopPropagation();let stat={};try{stat=window.getAllVariables().stat_data||{};}catch(ex){}let p=(stat.道侣&&stat.道侣['${charName}'])||(stat.人物&&stat.人物['${charName}'])||(stat.灵宠&&stat.灵宠['${charName}'])||(stat.绝色榜&&stat.绝色榜['${charName}'])||{};let f=parseFloat(p.亲密||p.好感||p.亲密度||p.好感度||0);if(f<90){alert('好感度不足，无法解锁该立绘配置！');}else{window.openCustomPortraitDialog('${charName}','_keepspecial');}">💖 心动配置</button>`;
   }
   if (mode !== "normal") {
     subBtnsHtml += `<button class="btn-rst-all" style="position:static;background:rgba(100,180,255,0.15);color:#64b4ff;border:1px solid #64b4ff;margin-right:6px;" onclick="event.stopPropagation();window.openCustomPortraitDialog('${charName}','_keepnormal')">⬅️ 返回常规</button>`;
@@ -906,8 +906,8 @@ window.openCustomPortraitDialog = function (charName, mode) {
 };
 window.appendChatMessage = async function (charName, sender, content) {
   try {
-    const lastMsgId = getLastMessageId();
-    const messages = getChatMessages("0-" + lastMsgId, { role: "assistant" });
+    const lastMsgId = window.getLastMessageId();
+    const messages = window.getChatMessages("0-" + lastMsgId, { role: "assistant" });
     if (!messages || messages.length === 0) {
       console.warn("找不到消息历史");
       return;
@@ -943,7 +943,7 @@ window.appendChatMessage = async function (charName, sender, content) {
           message_id: targetMsgId,
         });
         if (typeof populateCharacterData === "function")
-          populateCharacterData();
+          window.populateCharacterData();
       }
     } else {
       console.warn("MVU 未初始化");

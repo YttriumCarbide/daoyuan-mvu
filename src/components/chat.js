@@ -136,7 +136,7 @@ window.callGenerateReply = async function (
 };
 
 window.handleReply = async function (buttonElement, charName) {
-  const all_variables = getAllVariables();
+  const all_variables = window.getAllVariables();
   const container = buttonElement.parentElement;
   const inputElement = container.querySelector(".reply-input");
   const replyText = inputElement.value.trim();
@@ -252,8 +252,8 @@ window.handleReply = async function (buttonElement, charName) {
 window.deleteSingleMessage = async function (charName, msgId) {
   if (!confirm("确定删除这条传讯吗？")) return;
   try {
-    const lastMsgId = getLastMessageId();
-    const messages = getChatMessages("0-" + lastMsgId, { role: "assistant" });
+    const lastMsgId = window.getLastMessageId();
+    const messages = window.getChatMessages("0-" + lastMsgId, { role: "assistant" });
     if (!messages || messages.length === 0) return;
     const targetMsgId = messages[messages.length - 1].message_id;
 
@@ -293,8 +293,8 @@ window.retrySingleMessage = async function (charName, msgId) {
   )
     return;
   try {
-    const lastMsgId = getLastMessageId();
-    const messages = getChatMessages("0-" + lastMsgId, { role: "assistant" });
+    const lastMsgId = window.getLastMessageId();
+    const messages = window.getChatMessages("0-" + lastMsgId, { role: "assistant" });
     const targetMsgId = messages[messages.length - 1].message_id;
 
     let historyObj = {};
@@ -350,7 +350,7 @@ window.retrySingleMessage = async function (charName, msgId) {
     });
 
     // --- 新增：提取主角与对方的状态变量 ---
-    const all_variables = getAllVariables();
+    const all_variables = window.getAllVariables();
     const stat = _.get(all_variables, "stat_data", {});
     const hero = stat.主角 || {};
     const world = stat.世界 || {};
