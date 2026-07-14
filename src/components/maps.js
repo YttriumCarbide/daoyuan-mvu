@@ -469,15 +469,15 @@ window.drawMap = function(loreData, containerId) {
         .querySelectorAll(`.map-node`)
         .forEach((n) => n.classList.remove("active-node"));
       node.classList.add("active-node");
-      showLocationDetails(data);
+      window.showLocationDetails(data);
     };
     mapContainer.appendChild(node);
   });
 }
 
 window.initMap = function() {
-  drawMap(xuantianLore, "world-map-xuantian");
-  drawMap(xianjieLore, "world-map-xianjie");
+  window.drawMap(window.xuantianLore, "world-map-xuantian");
+  window.drawMap(window.xianjieLore, "world-map-xianjie");
 }
 
 window.showLocationDetails = function(data) {
@@ -610,12 +610,12 @@ window.fairyGuide = {
   init() {
     const fairyAvatar = this.element.querySelector(".fairy-avatar");
     if (fairyAvatar) {
-      fairyAvatar.style.backgroundImage = `url('${fairyImages[currentFairyImageIndex]}')`;
+      fairyAvatar.style.backgroundImage = `url('${window.fairyImages[window.currentFairyImageIndex]}')`;
       fairyAvatar.addEventListener("click", (e) => {
         if (e.button === 0) {
-          currentFairyImageIndex =
-            (currentFairyImageIndex + 1) % fairyImages.length;
-          fairyAvatar.style.backgroundImage = `url('${fairyImages[currentFairyImageIndex]}')`;
+          window.currentFairyImageIndex =
+            (window.currentFairyImageIndex + 1) % window.fairyImages.length;
+          fairyAvatar.style.backgroundImage = `url('${window.fairyImages[window.currentFairyImageIndex]}')`;
           this.toggleAndShowMessage();
         }
       });

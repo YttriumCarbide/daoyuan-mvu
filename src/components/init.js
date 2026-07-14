@@ -6,8 +6,8 @@ async function init() {
 
   window.loadWxSettings();
 
-  fairyGuide.init();
-  initMap();
+  window.fairyGuide.init();
+  window.initMap();
 
   const fairyAvatar = document.querySelector(".fairy-avatar");
   const modalOverlay = document.getElementById("image-modal-overlay");

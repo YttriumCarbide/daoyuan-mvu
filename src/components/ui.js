@@ -786,7 +786,7 @@ window.populateCharacterData = function() {
   }
 
   /* 更新器灵数据 */
-  fairyGuide.updateData(stat.$器灵台词 || [], hero.生命, hero.神识, hero.灵力);
+  window.fairyGuide.updateData(stat.$器灵台词 || [], hero.生命, hero.神识, hero.灵力);
 
   /* 绑定删除按钮事件 (其他页面的正常删除逻辑保留) */
   bindDiscardButtons();
