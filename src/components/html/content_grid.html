@@ -1,0 +1,351 @@
+<div class="content-grid">
+        <div class="status-panel">
+          <div class="avatar-wrapper">
+            <div class="avatar-frame"><div class="user_avatar"></div></div>
+            <div class="rank-tag"></div>
+          </div>
+          <div class="stat-group">
+            <div class="stat-row">
+              <div class="stat-label">
+                <span>生命</span><span id="hp-value"></span>
+              </div>
+              <div class="progress-bg">
+                <div class="progress-fill fill-hp" id="hp-bar"></div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-label">
+                <span>精血</span><span id="blood-value"></span>
+              </div>
+              <div class="progress-bg">
+                <div class="progress-fill fill-hp" id="blood-bar"></div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-label">
+                <span>灵力</span><span id="mp-value"></span>
+              </div>
+              <div class="progress-bg">
+                <div class="progress-fill fill-mp" id="mp-bar"></div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-label">
+                <span>修为</span><span id="exp-value"></span>
+              </div>
+              <div class="progress-bg">
+                <div class="progress-fill fill-exp" id="exp-bar"></div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-label">
+                <span>神识</span><span id="san-value"></span>
+              </div>
+              <div class="progress-bg">
+                <div class="progress-fill fill-san" id="san-bar"></div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-label">
+                <span>道心</span><span id="daoxin-value"></span>
+              </div>
+              <div class="progress-bg">
+                <div class="progress-fill fill-daoxin" id="daoxin-bar"></div>
+              </div>
+            </div>
+
+            <div class="stat-row">
+              <div class="stat-label">
+                <span>神念</span><span                   id="san-status"
+                  class="rare-text"
+                  style="
+                    font-weight: normal;
+                    text-align: right;
+                    flex: 1;
+                    margin-left: 10px;
+                    word-break: break-all;
+                  "
+                ></span>
+              </div>
+            </div>
+            <div               class="stat-row luck-stat-row"
+              onclick="
+                document.getElementById('luck-modal-overlay').style.display =
+                  'flex'
+              "
+            >
+              <div class="stat-label">
+                <span title="点击查看气运详情">气运</span>
+                <span                   id="luck-value"
+                  class="rare-text"
+                  style="
+                    font-weight: normal;
+                    text-align: right;
+                    flex: 1;
+                    margin-left: 10px;
+                    word-break: break-all;
+                  "
+                ></span>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-label">
+                <span>灵根</span><span                   id="spirit-root-value"
+                  class="rare-text"
+                  style="
+                    font-weight: normal;
+                    text-align: right;
+                    flex: 1;
+                    margin-left: 10px;
+                    word-break: break-all;
+                  "
+                ></span>
+              </div>
+            </div>
+            <div class="stat-row luck-stat-row" id="clan-row">
+              <div class="stat-label">
+                <span title="点击查看宗门详情">宗门</span>
+                <span                   id="clan-value"
+                  class="rare-text"
+                  style="
+                    font-weight: normal;
+                    text-align: right;
+                    flex: 1;
+                    margin-left: 10px;
+                    word-break: break-all;
+                  "
+                  >无</span>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-label">
+                <span>状态</span><span                   id="status-effects"
+                  class="rare-text"
+                  style="
+                    font-weight: normal;
+                    text-align: right;
+                    flex: 1;
+                    margin-left: 10px;
+                    word-break: break-all;
+                  "
+                  >无</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="main-panel">
+          <div class="nav-tabs">
+            <button               class="tab-btn active"
+              onclick="switchTab(event, 'dashboard')"
+            >
+              概览
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'skills')">
+              功法
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'partners')">
+              道侣
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'npcs')">
+              人物
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'pets')">
+              灵宠
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'quests')">
+              机遇
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'database')">
+              绝色榜
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'world_events')">
+              动向
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'messages')">
+              玉简
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'map')">
+              舆图
+            </button>
+          </div>
+
+          
+          <div             id="tab-dashboard"
+            class="tab-content"
+            style="display: block"
+          ></div>
+          <div id="tab-skills" class="tab-content" style="display: none"></div>
+          <div             id="tab-partners"
+            class="tab-content"
+            style="display: none"
+          ></div>
+          <div id="tab-npcs" class="tab-content" style="display: none"></div>
+          <div id="tab-pets" class="tab-content" style="display: none"></div>
+          <div id="tab-quests" class="tab-content" style="display: none"></div>
+          <div             id="tab-database"
+            class="tab-content"
+            style="display: none"
+          ></div>
+          <div             id="tab-world_events"
+            class="tab-content"
+            style="display: none"
+          ></div>
+
+          
+          <div id="tab-messages" class="tab-content">
+            
+            <div id="wx-list-view" class="wx-list-view"></div>
+
+            
+            <div id="wx-chat-view" class="wx-chat-view">
+              <div class="wx-chat-bg" id="wx-chat-bg"></div>
+              <div class="wx-chat-header">
+                <div                   class="wx-back-btn"
+                  onclick="
+                    document.getElementById('wx-chat-view').style.display =
+                      'none';
+                    document.getElementById('wx-list-view').style.display =
+                      'flex';
+                    window.currentActiveChat = null;
+                  "
+                >
+                  ❮ 返回
+                </div>
+                <div                   class="wx-chat-title"
+                  id="wx-chat-title"
+                  onclick="
+                    document
+                      .getElementById('wx-detail-modal')
+                      .classList.toggle('show')
+                  "
+                >
+                  名字
+                </div>
+                <div                   class="wx-api-btn"
+                  onclick="window.openWxPromptModal()"
+                  title="玉简设定"
+                >
+                  ⚙️
+                </div>
+                <div class="wx-detail-modal" id="wx-detail-modal">
+                  <div class="wx-detail-item">
+                    <span style="color: var(--text-dim)">境界</span><span id="wx-detail-level" class="rare-text">未知</span>
+                  </div>
+                  <div class="wx-detail-item">
+                    <span style="color: var(--text-dim)">性别</span><span id="wx-detail-gender" style="color: var(--text-main)"
+                      >未知</span>
+                  </div>
+                  <div class="wx-detail-item">
+                    <span style="color: var(--text-dim)">关系</span><span                       id="wx-detail-relation"
+                      style="color: var(--accent-gold)"
+                      >陌生</span>
+                  </div>
+                  <div class="wx-detail-item">
+                    <span style="color: var(--text-dim)">好感度</span><span id="wx-detail-favor" style="color: var(--accent-san)"
+                      >0</span>
+                  </div>
+                </div>
+              </div>
+              <div class="wx-chat-messages" id="wx-chat-messages">
+                
+              </div>
+              <div class="wx-chat-input-area">
+                <div class="message-reply-container">
+                  <textarea                     class="reply-input"
+                    id="wx-reply-input"
+                    rows="1"
+                    placeholder="输入传讯内容..."
+                  ></textarea>
+                  <button                     class="reply-button"
+                    id="wx-reply-btn"
+                    onclick="
+                      window.handleReply(
+                        this,
+                        document.getElementById('wx-chat-title').textContent,
+                      )
+                    "
+                  >
+                    发送
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          
+          <div id="tab-map" class="tab-content" style="display: none">
+            
+            <div               style="
+                text-align: center;
+                margin-top: 15px;
+                margin-bottom: 0px;
+                cursor: pointer;
+                color: var(--text-dim);
+                font-size: 0.85em;
+                letter-spacing: 2px;
+                transition: color 0.3s;
+                font-weight: bold;
+              "
+              onclick="
+                const p = document.getElementById('xuantian-map-img');
+                p.style.display = p.style.display === 'none' ? 'block' : 'none';
+              "
+              onmouseover="this.style.color = 'var(--accent-gold)'"
+              onmouseout="this.style.color = 'var(--text-dim)'"
+            >
+              [ 点击查看玄天界全图 ]
+            </div>
+            <div class="map-section-title" style="margin-top: 5px">
+              ✦ 玄 天 界 ✦
+            </div>
+            <div               id="xuantian-map-img"
+              style="display: none; margin-bottom: 20px; text-align: center"
+            >
+              <img                 src="https://free-img.400040.xyz/4/2026/05/17/6a09d0b65af1c.png"
+                style="
+                  max-width: 100%;
+                  border-radius: 8px;
+                  border: 1px solid rgba(255, 255, 255, 0.15);
+                  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+                  cursor: zoom-in;
+                "
+                onclick="
+                  document.getElementById('modal-image').src = this.src;
+                  document.getElementById('image-modal-overlay').style.display =
+                    'flex';
+                "
+              >
+            </div>
+
+            <div class="map-wrapper" id="world-map-xuantian">
+              <div class="map-grid"></div>
+            </div>
+
+            
+            <div class="map-section-title map-section-title-xian">
+              ✧ 九 天 仙 界 ✧
+            </div>
+            <div class="map-wrapper" id="world-map-xianjie">
+              <div class="map-grid"></div>
+            </div>
+
+            
+            <div id="map-details" class="location-detail-panel">
+              <div class="info-card" style="border-color: var(--accent-gold)">
+                <div class="info-title" style="color: var(--accent-gold)">
+                  <span id="map-loc-name">请选择区域</span>
+                  <span                     style="font-size: 0.8em; color: var(--text-dim)"
+                    id="map-loc-type"
+                    >探索</span>
+                </div>
+                <div class="info-text">
+                  <p id="map-loc-desc">
+                    点击地图上的节点查看势力分布与环境详情。
+                  </p>
+                  <div id="map-loc-factions" style="margin-top: 10px"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
