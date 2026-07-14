@@ -95,3 +95,7 @@ dist/                        本地构建产物，不作为源码维护
 - `src/index.html` 中的状态栏会加载 DaoYuan applause 组件和部分远程资源，预览时需要网络连接。
 - `pnpm build` 会执行构建后处理和 `srcdoc` 安全校验；校验失败时不会生成可用的最终产物。
 - `pnpm extract -- --force` 是覆盖式操作，执行前请先确认 Git 工作区或自行备份修改。
+
+## 协议
+
+本项目使用 [MIT License](./LICENSE) 发布。
