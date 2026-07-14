@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:tavern": "vite --config tavern/vite.config.js",
     "dev:iframe": "vite --config vite.iframe.config.js",
     "build": "vite build && node scripts/build-post.js",
     "extract": "node scripts/extract.js"

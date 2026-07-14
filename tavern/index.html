@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <title>SillyTavern · 状态栏开发环境</title>
+    <link rel="stylesheet" href="/tavern/styles.css" />
+  </head>
+  <body>
+    <div class="tavern" data-panel-open="false">
+      <header id="top-bar" class="top-bar" aria-label="SillyTavern 工具栏">
+        <button class="tool-button" data-panel="参数" aria-label="参数设置">☷</button>
+        <button class="tool-button" data-panel="API" aria-label="API 连接">♙</button>
+        <button class="tool-button" data-panel="格式" aria-label="格式设置">A</button>
+        <button class="tool-button" data-panel="世界书" aria-label="世界书">◎</button>
+        <button class="tool-button" data-panel="角色" aria-label="角色管理">♟</button>
+        <button class="tool-button" data-panel="背景" aria-label="背景">▧</button>
+        <button class="tool-button" data-panel="扩展" aria-label="扩展">◆</button>
+        <button class="tool-button" data-panel="表情" aria-label="表情">☺</button>
+        <button class="tool-button" data-panel="资料" aria-label="角色资料">▤</button>
+      </header>
+
+      <aside class="drawer" aria-live="polite">
+        <div>
+          <span class="drawer-kicker">SillyTavern</span>
+          <h2 id="drawer-title">工具面板</h2>
+        </div>
+        <button class="drawer-close" aria-label="关闭面板">×</button>
+        <p id="drawer-copy">这是用于状态栏开发的轻量模拟面板。</p>
+      </aside>
+
+      <main id="sheld" class="chat-shell">
+        <section class="chat-header" aria-label="当前聊天">
+          <div class="character-mark" aria-hidden="true">道</div>
+          <div class="chat-identity">
+            <strong>《道渊》v5.2</strong>
+            <span><i></i> 连接正常 · 状态栏调试</span>
+          </div>
+          <button class="quiet-button" data-action="scroll-status">定位状态栏</button>
+          <button class="icon-button" aria-label="聊天菜单">•••</button>
+        </section>
+
+        <section id="chat" class="chat" aria-label="聊天消息">
+          <div class="date-divider"><span>状态栏开发会话</span></div>
+
+          <article class="message message-system">
+            <div class="avatar avatar-system">S</div>
+            <div class="message-main mes_block">
+              <div class="message-meta">
+                <strong>System</strong>
+                <time>今天 10:24</time>
+              </div>
+              <div class="mes_text">
+                <p>这是一个贴近 SillyTavern 实际聊天页的本地开发环境。下方状态栏直接运行当前项目代码。</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="message message-user">
+            <div class="avatar avatar-user">萧</div>
+            <div class="message-main mes_block">
+              <div class="message-meta">
+                <strong>User</strong>
+                <time>今天 10:25</time>
+              </div>
+              <div class="mes_text">
+                <p>查看当前状态。</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="message message-assistant" id="status-message">
+            <div class="avatar avatar-assistant">道</div>
+            <div class="message-main mes_block">
+              <div class="message-meta">
+                <strong>《道渊》v5.2</strong>
+                <time>今天 10:25</time>
+                <span class="model-chip">deepseek-v4-pro</span>
+              </div>
+              <div class="message-actions" aria-label="消息操作">
+                <button title="复制">▣</button>
+                <button title="编辑">✎</button>
+                <button title="更多">⋮</button>
+              </div>
+              <div class="mes_text">
+                <p>寒风掠过广寒宫的冰阶，月华沿着檐角缓缓流转。你收拢衣袖，掌心仍残留着法诀探查后的冷寂感。</p>
+
+                <details class="variable-update">
+                  <summary>✦ 变量更新 <span>点击查看</span></summary>
+                  <dl>
+                    <div><dt>地点</dt><dd>北冥雪原 · 广寒宫</dd></div>
+                    <div><dt>时间</dt><dd>元会历 3726 年</dd></div>
+                    <div><dt>危机</dt><dd>低</dd></div>
+                  </dl>
+                </details>
+
+                <div class="TH-render status-frame-wrap">
+                  <div class="frame-loading">
+                    <span></span>
+                    正在载入状态栏…
+                  </div>
+                  <iframe
+                    id="status-frame"
+                    title="状态栏预览"
+                    data-source="/src/index.html"
+                    scrolling="no"
+                  ></iframe>
+                </div>
+              </div>
+              <div class="swipe-controls" aria-label="消息版本">
+                <button aria-label="上一个版本">‹</button>
+                <span>1 / 1</span>
+                <button aria-label="下一个版本">›</button>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <form id="send_form" class="composer">
+          <button class="composer-icon" type="button" aria-label="扩展">☰</button>
+          <label class="composer-field">
+            <span class="sr-only">输入消息</span>
+            <textarea
+              id="send_textarea"
+              rows="1"
+              placeholder="输入想发送的消息，或输入 /? 获取帮助"
+            ></textarea>
+          </label>
+          <button class="composer-icon" type="button" aria-label="附加文件">＋</button>
+          <button class="send-button" type="submit" aria-label="发送消息">➤</button>
+        </form>
+      </main>
+
+      <div id="toast" class="toast" role="status"></div>
+    </div>
+    <script type="module" src="/tavern/main.js"></script>
+  </body>
+</html>
