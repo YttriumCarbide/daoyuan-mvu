@@ -77,6 +77,9 @@ window.preloadPortraits = function (name) {
   if (window.specialPortraits && window.specialPortraits[name])
     urls.push(window.specialPortraits[name]);
   urls.forEach((u) => {
+    if (!window.dy_preloaded) {
+      window.dy_preloaded = {};
+    }
     if (u && !window.dy_preloaded[u]) {
       let img = new Image();
       img.src = u;
