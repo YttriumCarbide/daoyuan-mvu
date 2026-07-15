@@ -161,6 +161,12 @@ window.populateCharacterData = function() {
   $("#clothing-value").text(hero.衣着 || "未知");
 
   updateStat("hp", hero.生命);
+  const currentHp = parseFloat(hero.生命) || 0;
+  if (currentHp <= 10) {
+    $(".status-panel").addClass("near-death");
+  } else {
+    $(".status-panel").removeClass("near-death");
+  }
   updateStat("blood", hero.精血);
   updateStat("mp", hero.灵力);
   updateStat("exp", hero.修为);
@@ -352,9 +358,12 @@ window.populateCharacterData = function() {
                 </div>
             </div>
             <div class="info-card" style="border-color: var(--accent-mana);">
-                <div class="info-title" style="cursor: pointer; color: var(--accent-mana); user-select: none;" data-idx="0" onclick="const panels = ['inventory-content', 'artifact-content', 'alchemy-content', 'forge-content']; const titles = ['储物袋', '器物', '炼丹', '炼器']; const icons = ['🎒', '⚔️', '💊', '🔨']; let idx = parseInt(this.dataset.idx || '0'); idx = (idx + 1) % 4; this.dataset.idx = idx; panels.forEach((id, i) => document.getElementById(id).style.display = (i === idx ? 'block' : 'none')); this.querySelector('.switch-title').textContent = titles[idx]; this.querySelector('.switch-icon').textContent = icons[idx];">
+                <div class="info-title" style="color: var(--accent-mana); user-select: none; display: flex; justify-content: space-between; align-items: center;">
                     <span class="switch-title">储物袋</span>
-                    <span title="点击切换" style="transition: transform 0.3s; display: inline-block;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'"><span class="switch-icon">🎒</span> 🔄</span>
+                    <div title="点击切换分类 (储物袋 / 器物 / 炼丹 / 炼器)" style="display:flex; align-items:center; gap:6px; background:rgba(0,200,255,0.08); border:1px solid rgba(0,200,255,0.25); padding:3px 10px; border-radius:14px; cursor:pointer; transition:all 0.2s; box-shadow:0 0 5px rgba(0,200,255,0.05);" onmouseover="this.style.background='rgba(0,200,255,0.15)'; this.style.boxShadow='0 0 8px rgba(0,200,255,0.2)';" onmouseout="this.style.background='rgba(0,200,255,0.08)'; this.style.boxShadow='0 0 5px rgba(0,200,255,0.05)';" data-idx="0" onclick="const panels = ['inventory-content', 'artifact-content', 'alchemy-content', 'forge-content']; const titles = ['储物袋', '器物', '炼丹', '炼器']; const icons = ['🎒', '⚔️', '💊', '🔨']; let idx = parseInt(this.dataset.idx || '0'); idx = (idx + 1) % 4; this.dataset.idx = idx; panels.forEach((id, i) => document.getElementById(id).style.display = (i === idx ? 'block' : 'none')); this.parentElement.querySelector('.switch-title').textContent = titles[idx]; this.querySelector('.switch-icon').textContent = icons[idx];">
+                        <span style="font-size:0.85em; opacity:0.85; font-weight:normal; letter-spacing:1px; color:var(--text-main);">切换</span>
+                        <span class="switch-icon" style="font-size:1.05em; transition:transform 0.3s;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='none'">🎒</span>
+                    </div>
                 </div>
                 <div class="info-text" id="inventory-content" style="display: block;">${inventoryHtml}</div>
                 <div class="info-text" id="artifact-content" style="display: none;">${artifactsHtml}</div>
@@ -656,7 +665,7 @@ window.populateCharacterData = function() {
   let beautiesHtml =
     '<div class="info-card" style="border-color:var(--rare-text); margin-bottom:15px; overflow:visible;"><div class="info-title" style="color:var(--rare-text);"><span>仙姿寻影 (全图鉴立绘检索)</span><span>🔍</span></div><div class="portrait-search-row" style="display:flex; gap:8px;"><input type="text" id="portrait-search-input" class="reply-input" placeholder="搜名字，或输“随机”抽卡..." value="' +
     prevSearch +
-    '" onkeydown="if(event.key==="Enter"){event.preventDefault();event.stopPropagation();window.searchAndShowPortrait();}" style="flex:1; height:35px; padding:5px 10px; box-sizing:border-box;"><button class="reply-button" onclick="window.searchAndShowPortrait()" style="height:35px; min-width:60px; padding:0 15px;">搜索</button></div><div id="portrait-search-result" style="margin-top:15px; display:' +
+    '" onkeydown="if(event.key===\'Enter\'){event.preventDefault();event.stopPropagation();window.searchAndShowPortrait();}" style="flex:1; height:35px; padding:5px 10px; box-sizing:border-box;"><button class="reply-button" onclick="window.searchAndShowPortrait()" style="height:35px; min-width:60px; padding:0 15px;">搜索</button></div><div id="portrait-search-result" style="margin-top:15px; display:' +
     (isResVis ? "block" : "none") +
     ';">' +
     prevResult +

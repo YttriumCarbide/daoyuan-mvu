@@ -467,18 +467,41 @@ window.loadRemoteNotice = async function () {
     if (res.ok) {
       window.dyNoticeData = await res.json();
       const savedVer = localStorage.getItem("daoyuan_notice_read_version");
-      const currentVer =
-        window.dyNoticeData.version ||
-        window.dyNoticeData.date ||
-        JSON.stringify(window.dyNoticeData);
+      const currentVer = JSON.stringify(window.dyNoticeData);
       if (savedVer !== currentVer) {
-        let btn = document.getElementById("dy-notice-btn");
-        if (btn && !document.getElementById("dy-notice-dot")) {
-          btn.style.position = "relative";
-          btn.innerHTML +=
-            '<div id="dy-notice-dot" style="position:absolute;top:-2px;right:-2px;width:10px;height:10px;background:var(--accent-blood);border-radius:50%;box-shadow:0 0 5px var(--accent-blood-glow);border:1px solid rgba(0,0,0,0.8);z-index:5;"></div>';
+        let btns = document.querySelectorAll("#dy-notice-btn, .dy-notice-btn-class");
+        btns.forEach(btn => {
+          if (!btn.querySelector(".dy-notice-dot-class") && !btn.querySelector("#dy-notice-dot")) {
+            btn.style.position = "relative";
+            let dot = document.createElement("div");
+            dot.className = "dy-notice-dot-class";
+            dot.id = "dy-notice-dot"; // Keep for backwards compatibility
+            dot.style.cssText = "position:absolute;top:-2px;right:-2px;width:10px;height:10px;background:var(--accent-blood);border-radius:50%;box-shadow:0 0 5px var(--accent-blood-glow);border:1px solid rgba(0,0,0,0.8);z-index:5;";
+            btn.appendChild(dot);
+          
+          let icon = btn.querySelector('.dy-btn-icon');
+          if (icon && !icon.dataset.animating) {
+            icon.dataset.animating = "true";
+            icon.style.display = "inline-block";
+            icon.style.transformOrigin = "top center";
+            icon.animate([
+                { transform: 'rotate(0deg)' },
+                { transform: 'rotate(15deg)' },
+                { transform: 'rotate(-10deg)' },
+                { transform: 'rotate(5deg)' },
+                { transform: 'rotate(-5deg)' },
+                { transform: 'rotate(2deg)' },
+                { transform: 'rotate(0deg)' },
+                { transform: 'rotate(0deg)' }
+            ], {
+                duration: 1200,
+                iterations: Infinity,
+                easing: 'ease-in-out'
+            });
+          }
         }
-      }
+      });
+    }
     }
   } catch (e) {
     console.error("[道渊] 获取公告失败:", e);
@@ -529,20 +552,25 @@ window.fetchAndShowNotice = async function () {
     m.style.cssText =
       "display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px);z-index:9999999;justify-content:center;align-items:center;";
     m.innerHTML =
-      '<div style="background:linear-gradient(145deg,rgba(25,20,30,0.95),rgba(15,10,15,0.98));border:1px solid var(--accent-gold);border-radius:12px;width:85%;max-width:450px;padding:20px 25px;position:relative;box-shadow:0 0 30px rgba(255,215,0,0.2);display:flex;flex-direction:column;max-height:85vh;"><span id="dy-notice-close" style="position:absolute;top:10px;right:15px;cursor:pointer;font-size:24px;color:var(--text-dim);z-index:10;">×</span><div style="color:var(--accent-gold);font-size:1.3em;font-weight:bold;text-align:center;margin-bottom:15px;letter-spacing:2px;flex-shrink:0;">📜 云端信符</div><div id="dy-notice-tabs" style="display:flex;gap:5px;border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:15px;flex-shrink:0;"><div class="n-tab active" onclick="window.switchNoticeTab(\'版本更新\', this)" style="flex:1;text-align:center;padding:8px 0;cursor:pointer;color:var(--accent-gold);border-bottom:2px solid var(--accent-gold);font-weight:bold;font-size:0.9em;transition:all 0.2s;">版本更新</div><div class="n-tab" onclick="window.switchNoticeTab(\'立绘更新\', this)" style="flex:1;text-align:center;padding:8px 0;cursor:pointer;color:var(--text-dim);border-bottom:2px solid transparent;font-size:0.9em;transition:all 0.2s;">立绘更新</div><div class="n-tab" onclick="window.switchNoticeTab(\'其他\', this)" style="flex:1;text-align:center;padding:8px 0;cursor:pointer;color:var(--text-dim);border-bottom:2px solid transparent;font-size:0.9em;transition:all 0.2s;">其他</div></div><div id="dy-notice-content" style="color:var(--text-main);font-size:0.95em;line-height:1.6;overflow-y:auto;padding-right:5px;flex-grow:1;"></div><div id="dy-notice-date" style="text-align:center;flex-shrink:0;margin-top:15px;border-top:1px dashed rgba(255,255,255,0.1);padding-top:10px;"></div></div>';
+      '<div style="background:linear-gradient(145deg,rgba(25,20,30,0.95),rgba(15,10,15,0.98));border:1px solid var(--accent-gold);border-radius:12px;width:85%;max-width:450px;padding:20px 25px;position:relative;box-shadow:0 0 30px rgba(255,215,0,0.2);display:flex;flex-direction:column;max-height:85vh;"><span id="dy-notice-close" style="position:absolute;top:10px;right:15px;cursor:pointer;font-size:24px;color:var(--text-dim);z-index:10;">×</span><div style="color:var(--accent-gold);font-size:1.3em;font-weight:bold;text-align:center;margin-bottom:15px;letter-spacing:2px;flex-shrink:0;cursor:pointer;" onclick="localStorage.removeItem(\'daoyuan_notice_read_version\'); alert(\'【测试模式】已强制重置公告已读状态，请刷新当前页面以测试新公告提醒动画！\');">📜 云端信符</div><div id="dy-notice-tabs" style="display:flex;gap:5px;border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:15px;flex-shrink:0;"><div class="n-tab active" onclick="window.switchNoticeTab(\'版本更新\', this)" style="flex:1;text-align:center;padding:8px 0;cursor:pointer;color:var(--accent-gold);border-bottom:2px solid var(--accent-gold);font-weight:bold;font-size:0.9em;transition:all 0.2s;">版本更新</div><div class="n-tab" onclick="window.switchNoticeTab(\'立绘更新\', this)" style="flex:1;text-align:center;padding:8px 0;cursor:pointer;color:var(--text-dim);border-bottom:2px solid transparent;font-size:0.9em;transition:all 0.2s;">立绘更新</div><div class="n-tab" onclick="window.switchNoticeTab(\'其他\', this)" style="flex:1;text-align:center;padding:8px 0;cursor:pointer;color:var(--text-dim);border-bottom:2px solid transparent;font-size:0.9em;transition:all 0.2s;">其他</div></div><div id="dy-notice-content" style="color:var(--text-main);font-size:0.95em;line-height:1.6;overflow-y:auto;padding-right:5px;flex-grow:1;"></div><div id="dy-notice-date" style="text-align:center;flex-shrink:0;margin-top:15px;border-top:1px dashed rgba(255,255,255,0.1);padding-top:10px;"></div></div>';
     document.body.appendChild(m);
     document.getElementById("dy-notice-close").onclick = function () {
       m.style.display = "none";
     };
   }
   m.style.display = "flex";
-  let dot = document.getElementById("dy-notice-dot");
-  if (dot) dot.remove();
+  let dots = document.querySelectorAll("#dy-notice-dot, .dy-notice-dot-class");
+  dots.forEach(d => d.remove());
+  let btns = document.querySelectorAll("#dy-notice-btn, .dy-notice-btn-class");
+  btns.forEach(btn => {
+    let icon = btn.querySelector('.dy-btn-icon');
+    if (icon) {
+      delete icon.dataset.animating;
+      icon.getAnimations().forEach(a => a.cancel());
+    }
+  });
   if (window.dyNoticeData) {
-    const currentVer =
-      window.dyNoticeData.version ||
-      window.dyNoticeData.date ||
-      JSON.stringify(window.dyNoticeData);
+    const currentVer = JSON.stringify(window.dyNoticeData);
     localStorage.setItem("daoyuan_notice_read_version", currentVer);
     window.switchNoticeTab("版本更新", m.querySelector(".n-tab"));
     let safeDate = window.dySanitizeHtml(window.dyNoticeData.date || "未知");
@@ -550,13 +578,56 @@ window.fetchAndShowNotice = async function () {
     document.getElementById("dy-notice-date").innerHTML =
       '<div style="color:var(--text-dim);font-size:0.8em;margin-bottom:6px;">传讯时间: ' +
       safeDate +
-      '</div><div style="color:#ff4d4d;font-size:1.15em;font-weight:bold;margin-bottom:8px;text-shadow:0 0 5px rgba(255,77,77,0.4);font-family:\'Noto Serif SC\',serif;letter-spacing:1px;">⚠️ 本卡仅在 discord 类脑社区免费发布，贩子死妈！</div><div style="color:var(--accent-gold);font-size:1.3em;font-weight:bold;text-shadow:0 0 10px var(--accent-gold-glow);letter-spacing:1px;font-family:\'JetBrains Mono\',monospace;">🚀 最新版本：<a href="https://discord.com/channels/1134557553011998840/1460952153827971172" target="_blank" rel="noopener noreferrer" style="color:var(--accent-gold);text-decoration:none;transition:all 0.2s;" onmouseover="this.style.textShadow=\'0 0 15px #fff\'" onmouseout="this.style.textShadow=\'none\'">' +
+      '</div><div style="color:var(--accent-gold);font-size:1.3em;font-weight:bold;text-shadow:0 0 10px var(--accent-gold-glow);letter-spacing:1px;font-family:\'JetBrains Mono\',monospace;margin-bottom:15px;display:flex;align-items:center;justify-content:center;gap:8px;">🚀 最新版本：<a href="https://discord.com/channels/1134557553011998840/1460952153827971172" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;background:linear-gradient(145deg, rgba(88,101,242,0.2), rgba(88,101,242,0.05));border:1px solid rgba(88,101,242,0.5);border-radius:18px;color:#fff;text-shadow:none;text-decoration:none;font-size:0.75em;letter-spacing:1px;font-family:sans-serif;transition:all 0.3s ease;box-shadow:0 2px 10px rgba(88,101,242,0.1);" onclick="window.showWarningModal(event);" onmouseover="this.style.background=\'linear-gradient(145deg, rgba(88,101,242,0.4), rgba(88,101,242,0.15))\'; this.style.boxShadow=\'0 0 15px rgba(88,101,242,0.4)\'; this.style.transform=\'translateY(-1px)\';" onmouseout="this.style.background=\'linear-gradient(145deg, rgba(88,101,242,0.2), rgba(88,101,242,0.05))\'; this.style.boxShadow=\'0 2px 10px rgba(88,101,242,0.1)\'; this.style.transform=\'none\';"><svg width="18" height="18" viewBox="0 0 127.14 96.36" fill="#5865F2"><path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.31,60,73.31,53s5-12.74,11.43-12.74S96.2,46,96.09,53,91.08,65.69,84.69,65.69Z"/></svg><span>' +
       safeVer +
-      "</a></div>";
+      '</span></a></div>' +
+      '<div><a href="https://daoyuan.mayuworld.com/" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:8px;padding:8px 20px;background:linear-gradient(145deg, rgba(255,215,0,0.1), rgba(255,215,0,0.02));border:1px solid rgba(255,215,0,0.3);border-radius:24px;color:var(--accent-gold);text-decoration:none;font-size:1em;letter-spacing:1px;font-weight:bold;transition:all 0.3s ease;box-shadow:0 2px 10px rgba(255,215,0,0.05);" onmouseover="this.style.background=\'linear-gradient(145deg, rgba(255,215,0,0.2), rgba(255,215,0,0.05))\'; this.style.boxShadow=\'0 0 15px rgba(255,215,0,0.2)\'; this.style.transform=\'translateY(-1px)\';" onmouseout="this.style.background=\'linear-gradient(145deg, rgba(255,215,0,0.1), rgba(255,215,0,0.02))\'; this.style.boxShadow=\'0 2px 10px rgba(255,215,0,0.05)\'; this.style.transform=\'none\';"><span>📖 查阅道渊 Wiki 图鉴</span><span style="font-size:0.8em;opacity:0.8">➔</span></a></div>';
+
+  if (!window.showWarningModal) {
+    window.showWarningModal = function(e) {
+      e.preventDefault();
+      const link = e.currentTarget.href;
+      if (document.getElementById("dy-warning-modal")) return;
+      const modalHTML = `
+        <div id="dy-warning-modal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(5px);">
+          <div style="background:linear-gradient(145deg,rgba(25,10,15,0.95),rgba(15,5,10,0.98));border:1px solid var(--accent-blood);border-radius:12px;width:80%;max-width:400px;padding:30px 25px;position:relative;box-shadow:0 0 40px rgba(255,77,77,0.3);text-align:center;animation:mapPanelSlideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);">
+            <div style="color:var(--accent-blood);font-size:36px;margin-bottom:15px;text-shadow:0 0 15px rgba(255,77,77,0.5);">⚠️</div>
+            <div style="color:var(--text-main);font-size:1.05em;font-weight:bold;line-height:1.6;margin-bottom:25px;letter-spacing:1px;font-family:'Noto Serif SC',serif;">
+              本卡禁止商用、二传、倒卖；<br>
+              原创发布于 <span style="color:var(--accent-mana);">Discord类脑社区</span>，<br>作者：<span style="color:var(--accent-gold);">玖神</span>
+            </div>
+            <div style="display:flex;gap:15px;justify-content:center;">
+              <button id="dy-warning-cancel" style="padding:10px 25px;background:transparent;border:1px solid rgba(255,255,255,0.3);border-radius:20px;color:var(--text-dim);cursor:pointer;font-weight:bold;transition:all 0.2s;">取消</button>
+              <button id="dy-warning-confirm" style="padding:10px 25px;background:var(--accent-blood);border:none;border-radius:20px;color:#fff;cursor:pointer;font-weight:bold;box-shadow:0 0 15px rgba(255,77,77,0.4);transition:all 0.2s;">我已知晓并继续</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.insertAdjacentHTML('beforeend', modalHTML);
+      
+      const cancelBtn = document.getElementById("dy-warning-cancel");
+      const confirmBtn = document.getElementById("dy-warning-confirm");
+      
+      cancelBtn.onmouseover = () => cancelBtn.style.background = "rgba(255,255,255,0.1)";
+      cancelBtn.onmouseout = () => cancelBtn.style.background = "transparent";
+      
+      confirmBtn.onmouseover = () => confirmBtn.style.transform = "translateY(-2px)";
+      confirmBtn.onmouseout = () => confirmBtn.style.transform = "translateY(0)";
+      
+      cancelBtn.onclick = function() {
+        document.getElementById("dy-warning-modal").remove();
+      };
+      confirmBtn.onclick = function() {
+        document.getElementById("dy-warning-modal").remove();
+        window.open(link, "_blank");
+      };
+    };
+  }
   } else {
     document.getElementById("dy-notice-content").innerHTML =
-      '<div style="text-align:center;color:var(--text-dim);margin-top:20px;">未捕获到云端信符...<br>请检查 GitHub notice.json 格式</div>';
-    document.getElementById("dy-notice-date").innerHTML = "";
+      '<div style="text-align:center;color:var(--text-dim);margin-top:20px;">未捕获到云端信符...<br>请检查 GitHub notice.json 格式（可能因网络问题加载失败）</div>';
+    document.getElementById("dy-notice-date").innerHTML =
+      '<div><a href="https://daoyuan.mayuworld.com/" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:8px;padding:8px 20px;background:linear-gradient(145deg, rgba(255,215,0,0.1), rgba(255,215,0,0.02));border:1px solid rgba(255,215,0,0.3);border-radius:24px;color:var(--accent-gold);text-decoration:none;font-size:1em;letter-spacing:1px;font-weight:bold;transition:all 0.3s ease;box-shadow:0 2px 10px rgba(255,215,0,0.05);" onmouseover="this.style.background=\'linear-gradient(145deg, rgba(255,215,0,0.2), rgba(255,215,0,0.05))\'; this.style.boxShadow=\'0 0 15px rgba(255,215,0,0.2)\'; this.style.transform=\'translateY(-1px)\';" onmouseout="this.style.background=\'linear-gradient(145deg, rgba(255,215,0,0.1), rgba(255,215,0,0.02))\'; this.style.boxShadow=\'0 2px 10px rgba(255,215,0,0.05)\'; this.style.transform=\'none\';"><span>📖 查阅道渊 Wiki 图鉴</span><span style="font-size:0.8em;opacity:0.8">➔</span></a></div>';
   }
 };
 window.cleanUpUnwantedUI = function() {
@@ -589,7 +660,7 @@ setTimeout(function () {
     rightContainer.style.cssText =
       "display:flex;gap:10px;align-items:center;margin-left:auto;";
     let noticeBtn = document.createElement("div");
-    noticeBtn.className = "dy-top-btn";
+    noticeBtn.className = "dy-top-btn dy-notice-btn-class";
     noticeBtn.id = "dy-notice-btn";
     noticeBtn.innerHTML =
       '<span class="dy-btn-icon">🔔</span><span class="dy-btn-txt">公告</span>';
@@ -603,13 +674,13 @@ setTimeout(function () {
       if (document.body.classList.contains("dy-global-collapsed")) return;
       if (window.toggleJiuqiEdit) {
         window.toggleJiuqiEdit(false);
-        if (!document.getElementById("dy-edit-toast")) {
+        if (window.jiuqiEditMode && !document.getElementById("dy-edit-toast")) {
           let t = document.createElement("div");
           t.id = "dy-edit-toast";
           t.style.cssText =
             "position:fixed;top:80px;left:50%;transform:translateX(-50%);background:linear-gradient(145deg,rgba(25,20,30,0.95),rgba(15,10,15,0.98));border:1px solid var(--accent-mana);border-radius:10px;padding:12px 20px;color:var(--text-main);z-index:9999999;box-shadow:0 5px 15px rgba(0,0,0,0.8);text-align:center;pointer-events:none;opacity:0;transition:opacity 0.3s;";
           t.innerHTML =
-            '<span style="color:var(--accent-gold);font-weight:bold;">✏️ 修改模式</span><br><span style="font-size:0.9em;margin-top:5px;display:inline-block;">所有被删除的 <span style="color:#ff4d4d;font-weight:bold;">x</span> 变成了 <span style="color:var(--accent-mana);font-weight:bold;">✏️</span><br>点击即可修改变量</span>';
+            '<span style="color:var(--accent-gold);font-weight:bold;">✏️ 修改模式已开启</span><br><span style="font-size:0.9em;margin-top:5px;display:inline-block;">面板各处的删除按钮已临时替换为<span style="color:var(--accent-mana);font-weight:bold;">修改图标</span><br>点击即可修改底层变量</span>';
           document.body.appendChild(t);
           requestAnimationFrame(() => (t.style.opacity = "1"));
           setTimeout(() => {
