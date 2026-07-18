@@ -1,0 +1,1077 @@
+{
+  "mate": {
+    "type": "chatSheets",
+    "version": 1,
+    "updateConfigUiSentinel": -1,
+    "globalInjectionConfig": {}
+  },
+  "sheet_protagonist": {
+    "uid": "sheet_protagonist",
+    "name": "主角属性表",
+    "sourceData": {
+      "note": "【已初始化单例表·最高优先级硬规则】\n- protagonist在开局模板中已经存在唯一数据行（row_id=1 且 char_name='主角'），当前任务是更新而不是初始化。\n- 任何回合都禁止对 protagonist 输出 INSERT、INSERT OR REPLACE、REPLACE 或 UPSERT。\n- protagonist只能输出带唯一键 WHERE 的 UPDATE；没有字段变化时不输出本表SQL。\n- 唯一允许的语句形态：UPDATE protagonist SET ... WHERE char_name='主角';\n- 输出 <tableEdit> 前必须扫描自己的SQL；如出现“INSERT INTO protagonist”，必须删除并改写为上述 UPDATE。\n主角属性表。全表固定一条主角记录，不新增第二位主角，也不删除现有主角记录。\n只在正文明确造成状态变化时更新对应字段；不得为了凑表而虚构修为、物品、伤势或经历。\n境界格式为“境界名（DC:数值）”；生命、精血、灵力、修为、神识、道心、炼丹和炼器相关数值范围均为 0 至 100；身形与衣着随剧情事实变化。\n【SQLite SQL填写】\n- 响应继续放在 <tableEdit> 标签内，标签内部只输出标准 INSERT/UPDATE/DELETE SQL。\n- UPDATE 与 DELETE 必须带 WHERE；优先使用 DDL 中的 UNIQUE 业务键定位。\n- SQL 字符串中的英文单引号必须写成两个单引号，禁止在语句后追加解释或 Markdown。",
+      "initNode": "已由开局模板插入 row_id=1、char_name='主角'的唯一记录；自动填表阶段禁止再次初始化。",
+      "deleteNode": "禁止 DELETE 主角记录。",
+      "updateNode": "只允许 UPDATE protagonist SET ... WHERE char_name='主角'; 依正文明确变化更新对应字段。",
+      "insertNode": "绝对禁止 INSERT、INSERT OR REPLACE、REPLACE 或 UPSERT；开局模板已有唯一主角行。",
+      "ddl": "CREATE TABLE protagonist (\n  row_id INTEGER PRIMARY KEY, -- 行号\n  char_name TEXT NOT NULL DEFAULT '主角', -- 角色名\n  display_name TEXT NOT NULL DEFAULT '主角', -- 姓名\n  gender TEXT NOT NULL DEFAULT '未知', -- 性别\n  species TEXT NOT NULL DEFAULT '人族', -- 种族\n  appearance TEXT NOT NULL DEFAULT '未知', -- 容貌\n  origin TEXT NOT NULL DEFAULT '散修', -- 出身\n  realm TEXT NOT NULL DEFAULT '凡人（DC:0）', -- 境界\n  clan TEXT NOT NULL DEFAULT '无', -- 宗门\n  clan_contribution INTEGER NOT NULL DEFAULT 0, -- 宗门贡献\n  world_region TEXT NOT NULL DEFAULT '玄天界' CHECK(world_region IN ('玄天界','仙界')), -- 所在界\n  hp INTEGER NOT NULL DEFAULT 100 CHECK(hp BETWEEN 0 AND 100), -- 生命\n  blood INTEGER NOT NULL DEFAULT 100 CHECK(blood BETWEEN 0 AND 100), -- 精血\n  mp INTEGER NOT NULL DEFAULT 100 CHECK(mp BETWEEN 0 AND 100), -- 灵力\n  cultivation INTEGER NOT NULL DEFAULT 0 CHECK(cultivation BETWEEN 0 AND 100), -- 修为\n  spirit_sense INTEGER NOT NULL DEFAULT 100 CHECK(spirit_sense BETWEEN 0 AND 100), -- 神识\n  dao_heart INTEGER NOT NULL DEFAULT 50 CHECK(dao_heart BETWEEN 0 AND 100), -- 道心\n  divine_thought TEXT NOT NULL DEFAULT '无', -- 神念\n  spirit_root TEXT NOT NULL DEFAULT '未知', -- 灵根\n  status_effect TEXT NOT NULL DEFAULT '无异常', -- 状态\n  alchemy_rank TEXT NOT NULL DEFAULT '未入门', -- 炼丹阶级\n  alchemy_proficiency INTEGER NOT NULL DEFAULT 0 CHECK(alchemy_proficiency BETWEEN 0 AND 100), -- 炼丹熟练度\n  alchemy_success_rate INTEGER NOT NULL DEFAULT 0 CHECK(alchemy_success_rate BETWEEN 0 AND 100), -- 炼丹成功率\n  alchemy_count INTEGER NOT NULL DEFAULT 0, -- 炼丹次数\n  forge_rank TEXT NOT NULL DEFAULT '未入门', -- 炼器阶级\n  forge_proficiency INTEGER NOT NULL DEFAULT 0 CHECK(forge_proficiency BETWEEN 0 AND 100), -- 炼器熟练度\n  forge_success_rate INTEGER NOT NULL DEFAULT 0 CHECK(forge_success_rate BETWEEN 0 AND 100), -- 炼器成功率\n  forge_count INTEGER NOT NULL DEFAULT 0, -- 炼器次数\n  body_type TEXT NOT NULL DEFAULT '未知', -- 身形\n  clothing TEXT NOT NULL DEFAULT '未知' -- 衣着\n);"
+    },
+    "content": [
+      [
+        "行号",
+        "角色名",
+        "姓名",
+        "性别",
+        "种族",
+        "容貌",
+        "出身",
+        "境界",
+        "宗门",
+        "宗门贡献",
+        "所在界",
+        "生命",
+        "精血",
+        "灵力",
+        "修为",
+        "神识",
+        "道心",
+        "神念",
+        "灵根",
+        "状态",
+        "炼丹阶级",
+        "炼丹熟练度",
+        "炼丹成功率",
+        "炼丹次数",
+        "炼器阶级",
+        "炼器熟练度",
+        "炼器成功率",
+        "炼器次数",
+        "身形",
+        "衣着"
+      ],
+      [
+        "1",
+        "主角",
+        "青云",
+        "男",
+        "人族",
+        "未知",
+        "散修",
+        "化神中期",
+        "无",
+        "0",
+        "玄天界",
+        "100",
+        "100",
+        "100",
+        "0",
+        "100",
+        "50",
+        "无",
+        "玄品 · 风灵根 (双灵根，百里挑一)",
+        "无异常",
+        "未入门",
+        "0",
+        "0",
+        "0",
+        "未入门",
+        "0",
+        "0",
+        "0",
+        "未知",
+        "未知"
+      ]
+    ],
+    "updateConfig": {
+      "skipFloors": -1
+    },
+    "exportConfig": {
+      "enabled": false,
+      "splitByRow": false,
+      "entryName": "主角属性表",
+      "entryType": "constant",
+      "keywords": "",
+      "preventRecursion": true,
+      "injectionTemplate": "",
+      "extraIndexEnabled": false,
+      "extraIndexEntryName": "主角属性表-索引",
+      "extraIndexColumns": [],
+      "extraIndexColumnModes": {},
+      "extraIndexInjectionTemplate": "",
+      "sqlInjectionTemplate": "",
+      "entryPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 10000
+      },
+      "extraIndexPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 10010
+      },
+      "fixedEntryPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 99990
+      },
+      "fixedIndexPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 99991
+      }
+    },
+    "orderNo": 0
+  },
+  "sheet_world": {
+    "uid": "sheet_world",
+    "name": "世界状态表",
+    "sourceData": {
+      "note": "【已初始化单例表·最高优先级硬规则】\n- world_state在开局模板中已经存在唯一数据行（row_id=1 且 global_key='全局'），当前任务是更新而不是初始化。\n- 任何回合都禁止对 world_state 输出 INSERT、INSERT OR REPLACE、REPLACE 或 UPSERT。\n- world_state只能输出带唯一键 WHERE 的 UPDATE；没有字段变化时不输出本表SQL。\n- 唯一允许的语句形态：UPDATE world_state SET cur_time=..., cur_location=..., crisis_level=..., events_json=... WHERE global_key='全局';\n- 输出 <tableEdit> 前必须扫描自己的SQL；如出现“INSERT INTO world_state”，必须删除并改写为上述 UPDATE。\n- events_json 必须是可被 JSON.parse 解析的JSON对象字符串，例如 '{}' 或 '{\"摘要\":\"宗门大典正在筹备\"}'；禁止写普通文本“当前动向详见动向表”。\n世界状态表。全表固定一条世界状态记录。\n当前时间格式“元会历·3726年·12月23日·15点45分”；使用时辰时不得同时写入矛盾的现代时刻。当前地点必须包含层级和环境描述；危机程度仅为无、低、中、高或致命。\n详细动向只记录于动向表；本表的“动向”仅保留简短摘要。\n【SQLite SQL填写】\n- 响应继续放在 <tableEdit> 标签内，标签内部只输出标准 INSERT/UPDATE/DELETE SQL。\n- UPDATE 与 DELETE 必须带 WHERE；优先使用 DDL 中的 UNIQUE 业务键定位。\n- SQL 字符串中的英文单引号必须写成两个单引号，禁止在语句后追加解释或 Markdown。",
+      "initNode": "已由开局模板插入 row_id=1、global_key='全局'的唯一记录；自动填表阶段禁止再次初始化。",
+      "deleteNode": "禁止 DELETE 世界状态记录。",
+      "updateNode": "只允许 UPDATE world_state SET ... WHERE global_key='全局'; 更新时间、地点、危机程度与JSON动向摘要。",
+      "insertNode": "绝对禁止 INSERT、INSERT OR REPLACE、REPLACE 或 UPSERT；开局模板已有唯一世界状态行。",
+      "ddl": "CREATE TABLE world_state (\n  row_id INTEGER PRIMARY KEY, -- 行号\n  global_key TEXT NOT NULL DEFAULT '全局' UNIQUE, -- 全局键\n  cur_time TEXT NOT NULL DEFAULT '未知', -- 当前时间\n  cur_location TEXT NOT NULL DEFAULT '未知', -- 当前地点\n  crisis_level TEXT NOT NULL DEFAULT '无', -- 危机程度\n  events_json TEXT NOT NULL DEFAULT '{}' -- 动向\n);"
+    },
+    "content": [
+      [
+        "行号",
+        "全局键",
+        "当前时间",
+        "当前地点",
+        "危机程度",
+        "动向"
+      ],
+      [
+        "1",
+        "全局",
+        "未知",
+        "未知",
+        "无",
+        "{}"
+      ]
+    ],
+    "updateConfig": {
+      "skipFloors": -1
+    },
+    "exportConfig": {
+      "enabled": false,
+      "splitByRow": false,
+      "entryName": "世界状态表",
+      "entryType": "constant",
+      "keywords": "",
+      "preventRecursion": true,
+      "injectionTemplate": "",
+      "extraIndexEnabled": false,
+      "extraIndexEntryName": "世界状态表-索引",
+      "extraIndexColumns": [],
+      "extraIndexColumnModes": {},
+      "extraIndexInjectionTemplate": "",
+      "sqlInjectionTemplate": "",
+      "entryPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 10000
+      },
+      "extraIndexPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 10010
+      },
+      "fixedEntryPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 99990
+      },
+      "fixedIndexPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 99991
+      }
+    },
+    "orderNo": 1
+  },
+  "sheet_companions": {
+    "uid": "sheet_companions",
+    "name": "道侣表",
+    "sourceData": {
+      "note": "道侣表。只记录已在正文中明确建立道侣关系的角色。\n亲密、生命、灵力、修为、道心范围为 0 至 100；外观、背景、心声必须贴合已发生剧情。角色成为道侣后，应从 NPC 表移除对应记录。\n【SQLite SQL填写】\n- 响应继续放在 <tableEdit> 标签内，标签内部只输出标准 INSERT/UPDATE/DELETE SQL。\n- UPDATE 与 DELETE 必须带 WHERE；优先使用 DDL 中的 UNIQUE 业务键定位。\n- SQL 字符串中的英文单引号必须写成两个单引号，禁止在语句后追加解释或 Markdown。",
+      "initNode": "无",
+      "deleteNode": "仅在关系明确解除、角色彻底离场且不再需要追踪时移除记录。",
+      "updateNode": "关系、境界、状态或数值在正文中明确变化时更新对应记录。",
+      "insertNode": "仅在角色明确成为道侣后新增完整记录。",
+      "ddl": "CREATE TABLE companions (\n  row_id INTEGER PRIMARY KEY, -- 行号\n  name TEXT NOT NULL UNIQUE, -- 姓名\n  species TEXT NOT NULL DEFAULT '人族', -- 种族\n  status TEXT NOT NULL DEFAULT '正常', -- 状态\n  realm TEXT NOT NULL DEFAULT '未知', -- 境界\n  intimacy INTEGER NOT NULL DEFAULT 100 CHECK(intimacy BETWEEN 0 AND 100), -- 亲密\n  hp INTEGER NOT NULL DEFAULT 100 CHECK(hp BETWEEN 0 AND 100), -- 生命\n  mp INTEGER NOT NULL DEFAULT 100 CHECK(mp BETWEEN 0 AND 100), -- 灵力\n  cultivation INTEGER NOT NULL DEFAULT 0 CHECK(cultivation BETWEEN 0 AND 100), -- 修为\n  dao_heart INTEGER NOT NULL DEFAULT 50 CHECK(dao_heart BETWEEN 0 AND 100), -- 道心\n  personality TEXT NOT NULL DEFAULT '未知', -- 性格\n  appearance TEXT NOT NULL DEFAULT '未知', -- 外观\n  height TEXT NOT NULL DEFAULT '未知', -- 身高\n  background TEXT NOT NULL DEFAULT '', -- 背景\n  abilities TEXT NOT NULL DEFAULT '无', -- 神通\n  inner_thoughts TEXT NOT NULL DEFAULT '无' -- 心声\n);"
+    },
+    "content": [
+      [
+        "行号",
+        "姓名",
+        "种族",
+        "状态",
+        "境界",
+        "亲密",
+        "生命",
+        "灵力",
+        "修为",
+        "道心",
+        "性格",
+        "外观",
+        "身高",
+        "背景",
+        "神通",
+        "心声"
+      ]
+    ],
+    "updateConfig": {
+      "skipFloors": -1
+    },
+    "exportConfig": {
+      "enabled": false,
+      "splitByRow": false,
+      "entryName": "道侣表",
+      "entryType": "constant",
+      "keywords": "",
+      "preventRecursion": true,
+      "injectionTemplate": "",
+      "extraIndexEnabled": false,
+      "extraIndexEntryName": "道侣表-索引",
+      "extraIndexColumns": [],
+      "extraIndexColumnModes": {},
+      "extraIndexInjectionTemplate": "",
+      "sqlInjectionTemplate": "",
+      "entryPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 10000
+      },
+      "extraIndexPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 10010
+      },
+      "fixedEntryPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 99990
+      },
+      "fixedIndexPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 99991
+      }
+    },
+    "orderNo": 2
+  },
+  "sheet_pets": {
+    "uid": "sheet_pets",
+    "name": "灵宠表",
+    "sourceData": {
+      "note": "灵宠表。只记录已经被主角收服、长期同行或需要持续追踪的灵宠。\n生命、灵力、修为、亲密度范围为 0 至 100；参战、喂食、吞噬、训练会推进修为和状态，容貌外观与心声须具体且符合剧情。\n【SQLite SQL填写】\n- 响应继续放在 <tableEdit> 标签内，标签内部只输出标准 INSERT/UPDATE/DELETE SQL。\n- UPDATE 与 DELETE 必须带 WHERE；优先使用 DDL 中的 UNIQUE 业务键定位。\n- SQL 字符串中的英文单引号必须写成两个单引号，禁止在语句后追加解释或 Markdown。",
+      "initNode": "无",
+      "deleteNode": "仅在灵宠死亡、解除契约或永久离队时移除。",
+      "updateNode": "依据正文更新灵宠的境界、状态、数值、能力与关系。",
+      "insertNode": "仅在灵宠被明确收服、同行或需要长期追踪时新增。",
+      "ddl": "CREATE TABLE spirit_pets (\n  row_id INTEGER PRIMARY KEY, -- 行号\n  name TEXT NOT NULL UNIQUE, -- 姓名\n  gender TEXT NOT NULL DEFAULT '未知', -- 性别\n  species TEXT NOT NULL DEFAULT '未知', -- 种族\n  realm TEXT NOT NULL DEFAULT '未知', -- 境界\n  hp INTEGER NOT NULL DEFAULT 100 CHECK(hp BETWEEN 0 AND 100), -- 生命\n  mp INTEGER NOT NULL DEFAULT 100 CHECK(mp BETWEEN 0 AND 100), -- 灵力\n  cultivation INTEGER NOT NULL DEFAULT 0 CHECK(cultivation BETWEEN 0 AND 100), -- 修为\n  affinity INTEGER NOT NULL DEFAULT 50 CHECK(affinity BETWEEN 0 AND 100), -- 亲密度\n  personality TEXT NOT NULL DEFAULT '未知', -- 性格\n  appearance TEXT NOT NULL DEFAULT '未知', -- 容貌外观\n  abilities TEXT NOT NULL DEFAULT '无', -- 神通\n  status TEXT NOT NULL DEFAULT '正常', -- 状态\n  inner_thoughts TEXT NOT NULL DEFAULT '无' -- 心声\n);"
+    },
+    "content": [
+      [
+        "行号",
+        "姓名",
+        "性别",
+        "种族",
+        "境界",
+        "生命",
+        "灵力",
+        "修为",
+        "亲密度",
+        "性格",
+        "容貌外观",
+        "神通",
+        "状态",
+        "心声"
+      ]
+    ],
+    "updateConfig": {
+      "skipFloors": -1
+    },
+    "exportConfig": {
+      "enabled": false,
+      "splitByRow": false,
+      "entryName": "灵宠表",
+      "entryType": "constant",
+      "keywords": "",
+      "preventRecursion": true,
+      "injectionTemplate": "",
+      "extraIndexEnabled": false,
+      "extraIndexEntryName": "灵宠表-索引",
+      "extraIndexColumns": [],
+      "extraIndexColumnModes": {},
+      "extraIndexInjectionTemplate": "",
+      "sqlInjectionTemplate": "",
+      "entryPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 10000
+      },
+      "extraIndexPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 10010
+      },
+      "fixedEntryPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 99990
+      },
+      "fixedIndexPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 99991
+      }
+    },
+    "orderNo": 3
+  },
+  "sheet_npcs": {
+    "uid": "sheet_npcs",
+    "name": "NPC表",
+    "sourceData": {
+      "note": "NPC表。只记录与主角发生过有意义互动、需要后续追踪的角色。\n好感、生命、灵力、修为、道心范围为 0 至 100；关系阶段随剧情变化，描述记录身份、立场、近期事件和态度。\n【SQLite SQL填写】\n- 响应继续放在 <tableEdit> 标签内，标签内部只输出标准 INSERT/UPDATE/DELETE SQL。\n- UPDATE 与 DELETE 必须带 WHERE；优先使用 DDL 中的 UNIQUE 业务键定位。\n- SQL 字符串中的英文单引号必须写成两个单引号，禁止在语句后追加解释或 Markdown。",
+      "initNode": "无",
+      "deleteNode": "角色成为道侣时迁入道侣表；死亡、永久离场或不再需要追踪时移除。",
+      "updateNode": "按正文更新已登记 NPC 的状态、关系、数值和描述。",
+      "insertNode": "角色首次产生有意义互动或后续剧情需要持续追踪时新增。",
+      "ddl": "CREATE TABLE npcs (\n  row_id INTEGER PRIMARY KEY, -- 行号\n  name TEXT NOT NULL UNIQUE, -- 姓名\n  title TEXT NOT NULL DEFAULT '', -- 头衔\n  realm TEXT NOT NULL DEFAULT '未知', -- 境界\n  favorability INTEGER NOT NULL DEFAULT 0 CHECK(favorability BETWEEN 0 AND 100), -- 好感\n  relation_stage TEXT NOT NULL DEFAULT '陌生', -- 关系阶段\n  hp INTEGER NOT NULL DEFAULT 100 CHECK(hp BETWEEN 0 AND 100), -- 生命\n  mp INTEGER NOT NULL DEFAULT 100 CHECK(mp BETWEEN 0 AND 100), -- 灵力\n  cultivation INTEGER NOT NULL DEFAULT 0 CHECK(cultivation BETWEEN 0 AND 100), -- 修为\n  dao_heart INTEGER NOT NULL DEFAULT 50 CHECK(dao_heart BETWEEN 0 AND 100), -- 道心\n  personality TEXT NOT NULL DEFAULT '未知', -- 性格\n  description TEXT NOT NULL DEFAULT '' -- 描述\n);"
+    },
+    "content": [
+      [
+        "行号",
+        "姓名",
+        "头衔",
+        "境界",
+        "好感",
+        "关系阶段",
+        "生命",
+        "灵力",
+        "修为",
+        "道心",
+        "性格",
+        "描述"
+      ]
+    ],
+    "updateConfig": {
+      "skipFloors": -1
+    },
+    "exportConfig": {
+      "enabled": false,
+      "splitByRow": false,
+      "entryName": "NPC表",
+      "entryType": "constant",
+      "keywords": "",
+      "preventRecursion": true,
+      "injectionTemplate": "",
+      "extraIndexEnabled": false,
+      "extraIndexEntryName": "NPC表-索引",
+      "extraIndexColumns": [],
+      "extraIndexColumnModes": {},
+      "extraIndexInjectionTemplate": "",
+      "sqlInjectionTemplate": "",
+      "entryPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 10000
+      },
+      "extraIndexPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 10010
+      },
+      "fixedEntryPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 99990
+      },
+      "fixedIndexPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 99991
+      }
+    },
+    "orderNo": 4
+  },
+  "sheet_opportunities": {
+    "uid": "sheet_opportunities",
+    "name": "机遇表",
+    "sourceData": {
+      "note": "机遇表。\n【沉浸式机遇规则】\n- 每轮必须检查可玩入口。空表时必须立即初始化2条；平时尽量维持2–3条，绝对上限5条。禁止以“当前剧情平静”为由保持空表。\n- 机遇必须是主角当前可以采取行动的任务、邀约、悬赏、秘境线索、危机或承诺。纯远方传闻只进动向表。\n- 即使正文没有明说“任务”，也要从主角当前身份、地点、宗门/势力制度和已知人际关系中，提炼合理的“可选行动入口”。例如入门手续、功法选择、修炼请教、宗门差事、同门结交、附近情报或资源去向。\n- 不得把“可能的选择”写成已经接受的强制任务，也不得凭空宣称主角已获得道具、承诺或确定奖励；未确定的收获应写为“可能”、“有望”或“待打听”。\n- 新增前必须说清楚“主角如何介入”和“可能得到什么”；引言不少于30字，要有具体诱惑、危机或人物语气，禁止写成干燥系统通知。\n- 有新进展时更新目标和引言；完成、失败、主角放弃、路线改变或过期时，本轮先在相应表结算实际收获或损失，再移除该机遇。\n- 已5条时先清理已失效项；若全部仍有效，则不新增，不得为腾位而删除正在进行的机遇。\n【SQLite SQL填写】\n- 响应继续放在 <tableEdit> 标签内，标签内部只输出标准 INSERT/UPDATE/DELETE SQL。\n- UPDATE 与 DELETE 必须带 WHERE；优先使用 DDL 中的 UNIQUE 业务键定位。\n- SQL 字符串中的英文单引号必须写成两个单引号，禁止在语句后追加解释或 Markdown。",
+      "initNode": "空表时必须结合当前身份、地点和已知设定初始化2条主角立即可选择的低烈度机遇。平静开局也不得留空。",
+      "deleteNode": "仅在机遇已结算、失效、被放弃或过期后移除；不得为腾出位置删除仍在进行的机遇。",
+      "updateNode": "机遇有实质进展时更新目标/引言；完成、失败、放弃或过期时同轮结算并删除。",
+      "insertNode": "当前少于2条时补足到2条；正常新增时不得超过5条，并完整填写任务名、难度、目标、可能机缘与沉浸式引言。",
+      "ddl": "CREATE TABLE opportunities (\n  row_id INTEGER PRIMARY KEY, -- 行号\n  quest_name TEXT NOT NULL UNIQUE, -- 任务名\n  difficulty TEXT NOT NULL DEFAULT '未知', -- 难度\n  goal TEXT NOT NULL DEFAULT '', -- 目标\n  reward TEXT NOT NULL DEFAULT '', -- 机缘\n  quote TEXT NOT NULL DEFAULT '' -- 引言\n);"
+    },
+    "content": [
+      [
+        "行号",
+        "任务名",
+        "难度",
+        "目标",
+        "机缘",
+        "引言"
+      ]
+    ],
+    "updateConfig": {
+      "skipFloors": -1
+    },
+    "exportConfig": {
+      "enabled": false,
+      "splitByRow": false,
+      "entryName": "机遇表",
+      "entryType": "constant",
+      "keywords": "",
+      "preventRecursion": true,
+      "injectionTemplate": "",
+      "extraIndexEnabled": false,
+      "extraIndexEntryName": "机遇表-索引",
+      "extraIndexColumns": [],
+      "extraIndexColumnModes": {},
+      "extraIndexInjectionTemplate": "",
+      "sqlInjectionTemplate": "",
+      "entryPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 10000
+      },
+      "extraIndexPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 10010
+      },
+      "fixedEntryPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 99990
+      },
+      "fixedIndexPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 99991
+      }
+    },
+    "orderNo": 5
+  },
+  "sheet_beauty": {
+    "uid": "sheet_beauty",
+    "name": "绝色榜表",
+    "sourceData": {
+      "note": "绝色榜表。此表是每轮轮换展示榜，始终只保留两条当前候选，不保存历史候选。\n【绝色榜当前填表作业】\n候选A：<%= globalThis.__DAOYUAN_BEAUTY_FILL_CANDIDATES__[0] %>\n候选B：<%= globalThis.__DAOYUAN_BEAUTY_FILL_CANDIDATES__[1] %>\n【候选A人物资料】\n<%- await getwi(null, globalThis.__DAOYUAN_BEAUTY_FILL_CANDIDATES__[0]) -%>\n【候选B人物资料】\n<%- await getwi(null, globalThis.__DAOYUAN_BEAUTY_FILL_CANDIDATES__[1]) -%>\n【强制规则】\n1. 上述随机候选及资料仅供绝色榜表使用，不得据此新增NPC、道侣、机遇、动向或正文事实。\n2. 不要从正文、NPC表或其他上下文替换候选；不讨论本轮/上轮。\n3. 绝色榜在<tableEdit>中必须且只能输出下面两条SQL，顺序不得改变，每条只出现一次：\n   第1条：DELETE FROM beauty_ranking;\n   第2条：INSERT INTO beauty_ranking (row_id, name, rank, title, fairy_form, group_fragrance) VALUES (1, ...), (2, ...);\n4. 禁止使用 INSERT...SELECT、UNION、WITH/CTE、子查询或单行分拆INSERT；禁止在DELETE之前输出任何INSERT；禁止输出第3条绝色榜SQL。\n5. 候选A固定row_id=1、排名“一”；候选B固定row_id=2、排名“二”；六个列必须全部填写，最终只保留两行。\n6. 仙姿不少于80字，群芳谱不少于50字；SQL字符串中的英文单引号必须写成两个单引号。\n7. 候选只存在于本次填表请求，禁止写入或复述到正文消息。\n【SQLite SQL填写】\n- 响应继续放在 <tableEdit> 标签内，标签内部只输出标准 INSERT/UPDATE/DELETE SQL。\n- UPDATE 与 DELETE 通常必须带 WHERE；绝色榜的 `DELETE FROM beauty_ranking;` 是唯一明确例外。\n- 禁止在SQL语句后追加解释或Markdown。",
+      "initNode": "每轮按note中当前候选作业完整重建两行。",
+      "deleteNode": "每轮先清空旧榜单，再写入当前两名候选。",
+      "updateNode": "禁止依据旧姓名逐行推理；始终按note中当前候选完整重建。",
+      "insertNode": "使用单条双VALUES INSERT写入候选A/B，禁止累积历史候选。",
+      "ddl": "CREATE TABLE beauty_ranking (\n  row_id INTEGER PRIMARY KEY, -- 行号\n  name TEXT NOT NULL UNIQUE, -- 仙子姓名\n  rank TEXT NOT NULL DEFAULT '未知', -- 排名\n  title TEXT NOT NULL DEFAULT '', -- 头衔\n  fairy_form TEXT NOT NULL DEFAULT '', -- 仙姿\n  group_fragrance TEXT NOT NULL DEFAULT '' -- 群芳谱\n);"
+    },
+    "content": [
+      [
+        "行号",
+        "仙子姓名",
+        "排名",
+        "头衔",
+        "仙姿",
+        "群芳谱"
+      ]
+    ],
+    "updateConfig": {
+      "skipFloors": -1
+    },
+    "exportConfig": {
+      "enabled": false,
+      "splitByRow": false,
+      "entryName": "绝色榜表",
+      "entryType": "constant",
+      "keywords": "",
+      "preventRecursion": true,
+      "injectionTemplate": "",
+      "extraIndexEnabled": false,
+      "extraIndexEntryName": "绝色榜表-索引",
+      "extraIndexColumns": [],
+      "extraIndexColumnModes": {},
+      "extraIndexInjectionTemplate": "",
+      "sqlInjectionTemplate": "",
+      "entryPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 10000
+      },
+      "extraIndexPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 10010
+      },
+      "fixedEntryPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 99990
+      },
+      "fixedIndexPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 99991
+      }
+    },
+    "orderNo": 6
+  },
+  "sheet_jade_contacts": {
+    "uid": "sheet_jade_contacts",
+    "name": "玉简好友表",
+    "sourceData": {
+      "note": "玉简好友表。获得玉简联系方式、发送或收到消息、关系变化时更新；最多保留 20 位联系人。\n历史记录可写 JSON 字符串或对象，记录发送者、内容与时间。\n【SQLite SQL填写】\n- 响应继续放在 <tableEdit> 标签内，标签内部只输出标准 INSERT/UPDATE/DELETE SQL。\n- UPDATE 与 DELETE 必须带 WHERE；优先使用 DDL 中的 UNIQUE 业务键定位。\n- SQL 字符串中的英文单引号必须写成两个单引号，禁止在语句后追加解释或 Markdown。",
+      "initNode": "无",
+      "deleteNode": "仅在玉简被毁、联络永久中断或角色不再需要追踪时移除。",
+      "updateNode": "收到消息、发送消息、境界或关系发生明确变化时更新对应联系人。",
+      "insertNode": "仅在获得对方玉简联系方式或建立可用联络时新增联系人。",
+      "ddl": "CREATE TABLE jade_slip_contacts (\n  row_id INTEGER PRIMARY KEY, -- 行号\n  name TEXT NOT NULL UNIQUE, -- 好友姓名\n  gender TEXT NOT NULL DEFAULT '未知', -- 性别\n  realm TEXT NOT NULL DEFAULT '未知', -- 境界\n  relation TEXT NOT NULL DEFAULT '陌生', -- 关系\n  favorability INTEGER NOT NULL DEFAULT 0 CHECK(favorability BETWEEN 0 AND 100), -- 好感度\n  message_history_json TEXT NOT NULL DEFAULT '{}' -- 历史记录\n);"
+    },
+    "content": [
+      [
+        "行号",
+        "好友姓名",
+        "性别",
+        "境界",
+        "关系",
+        "好感度",
+        "历史记录"
+      ]
+    ],
+    "updateConfig": {
+      "skipFloors": -1
+    },
+    "exportConfig": {
+      "enabled": false,
+      "splitByRow": false,
+      "entryName": "玉简好友表",
+      "entryType": "constant",
+      "keywords": "",
+      "preventRecursion": true,
+      "injectionTemplate": "",
+      "extraIndexEnabled": false,
+      "extraIndexEntryName": "玉简好友表-索引",
+      "extraIndexColumns": [],
+      "extraIndexColumnModes": {},
+      "extraIndexInjectionTemplate": "",
+      "sqlInjectionTemplate": "",
+      "entryPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 10000
+      },
+      "extraIndexPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 10010
+      },
+      "fixedEntryPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 99990
+      },
+      "fixedIndexPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 99991
+      }
+    },
+    "orderNo": 7
+  },
+  "sheet_inventory": {
+    "uid": "sheet_inventory",
+    "name": "储物袋表",
+    "sourceData": {
+      "note": "储物袋表。只记录消耗品、材料、货币等；器物或法宝进入器物表，功法进入功法表，宗门贡献进入主角属性表。\n数量必须大于 0；数量归零时移除对应物品。\n【SQLite SQL填写】\n- 响应继续放在 <tableEdit> 标签内，标签内部只输出标准 INSERT/UPDATE/DELETE SQL。\n- UPDATE 与 DELETE 必须带 WHERE；优先使用 DDL 中的 UNIQUE 业务键定位。\n- SQL 字符串中的英文单引号必须写成两个单引号，禁止在语句后追加解释或 Markdown。",
+      "initNode": "无",
+      "deleteNode": "数量归零、物品彻底失去或转移后移除。",
+      "updateNode": "获得、消耗、转移或鉴定物品时更新数量与描述。",
+      "insertNode": "首次获得应记录的物品时新增。",
+      "ddl": "CREATE TABLE inventory (\n  row_id INTEGER PRIMARY KEY, -- 行号\n  item_name TEXT NOT NULL UNIQUE, -- 物品名\n  description TEXT NOT NULL DEFAULT '', -- 描述\n  quantity INTEGER NOT NULL DEFAULT 1 CHECK(quantity > 0) -- 数量\n);"
+    },
+    "content": [
+      [
+        "行号",
+        "物品名",
+        "描述",
+        "数量"
+      ]
+    ],
+    "updateConfig": {
+      "skipFloors": -1
+    },
+    "exportConfig": {
+      "enabled": false,
+      "splitByRow": false,
+      "entryName": "储物袋表",
+      "entryType": "constant",
+      "keywords": "",
+      "preventRecursion": true,
+      "injectionTemplate": "",
+      "extraIndexEnabled": false,
+      "extraIndexEntryName": "储物袋表-索引",
+      "extraIndexColumns": [],
+      "extraIndexColumnModes": {},
+      "extraIndexInjectionTemplate": "",
+      "sqlInjectionTemplate": "",
+      "entryPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 10000
+      },
+      "extraIndexPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 10010
+      },
+      "fixedEntryPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 99990
+      },
+      "fixedIndexPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 99991
+      }
+    },
+    "orderNo": 8
+  },
+  "sheet_techniques": {
+    "uid": "sheet_techniques",
+    "name": "功法表",
+    "sourceData": {
+      "note": "功法表。获得、阅读、修炼或顿悟任何功法时新增或更新；仅作为待领取奖励时不得提前登记。\n熟练度范围为 0 至 100；类型格式可写“品阶-属性-类型”。\n【SQLite SQL填写】\n- 响应继续放在 <tableEdit> 标签内，标签内部只输出标准 INSERT/UPDATE/DELETE SQL。\n- UPDATE 与 DELETE 必须带 WHERE；优先使用 DDL 中的 UNIQUE 业务键定位。\n- SQL 字符串中的英文单引号必须写成两个单引号，禁止在语句后追加解释或 Markdown。",
+      "initNode": "无",
+      "deleteNode": "仅在功法被废除、遗失且无法继续修炼或明确不再拥有时移除。",
+      "updateNode": "修炼进展、品阶、境界或描述发生明确变化时更新。",
+      "insertNode": "确实获得、学会或开始修炼功法时新增。",
+      "ddl": "CREATE TABLE techniques (\n  row_id INTEGER PRIMARY KEY, -- 行号\n  name TEXT NOT NULL UNIQUE, -- 功法名\n  type TEXT NOT NULL DEFAULT '未知', -- 类型\n  realm TEXT NOT NULL DEFAULT '未入门', -- 境界\n  proficiency INTEGER NOT NULL DEFAULT 0 CHECK(proficiency BETWEEN 0 AND 100), -- 熟练度\n  description TEXT NOT NULL DEFAULT '' -- 描述\n);"
+    },
+    "content": [
+      [
+        "行号",
+        "功法名",
+        "类型",
+        "境界",
+        "熟练度",
+        "描述"
+      ]
+    ],
+    "updateConfig": {
+      "skipFloors": -1
+    },
+    "exportConfig": {
+      "enabled": false,
+      "splitByRow": false,
+      "entryName": "功法表",
+      "entryType": "constant",
+      "keywords": "",
+      "preventRecursion": true,
+      "injectionTemplate": "",
+      "extraIndexEnabled": false,
+      "extraIndexEntryName": "功法表-索引",
+      "extraIndexColumns": [],
+      "extraIndexColumnModes": {},
+      "extraIndexInjectionTemplate": "",
+      "sqlInjectionTemplate": "",
+      "entryPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 10000
+      },
+      "extraIndexPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 10010
+      },
+      "fixedEntryPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 99990
+      },
+      "fixedIndexPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 99991
+      }
+    },
+    "orderNo": 9
+  },
+  "sheet_artifacts": {
+    "uid": "sheet_artifacts",
+    "name": "器物表",
+    "sourceData": {
+      "note": "器物表。损耗度范围为 0 至 100；获得、使用、受击、修复、封印或损毁时更新。储物袋不记录器物。\n【SQLite SQL填写】\n- 响应继续放在 <tableEdit> 标签内，标签内部只输出标准 INSERT/UPDATE/DELETE SQL。\n- UPDATE 与 DELETE 必须带 WHERE；优先使用 DDL 中的 UNIQUE 业务键定位。\n- SQL 字符串中的英文单引号必须写成两个单引号，禁止在语句后追加解释或 Markdown。",
+      "initNode": "无",
+      "deleteNode": "器物彻底损毁、遗失或转让后移除。",
+      "updateNode": "器物的等级、状态、损耗或描述发生明确变化时更新。",
+      "insertNode": "确实获得、炼成或确认长期持有器物时新增。",
+      "ddl": "CREATE TABLE artifacts (\n  row_id INTEGER PRIMARY KEY, -- 行号\n  name TEXT NOT NULL UNIQUE, -- 器物名\n  grade TEXT NOT NULL DEFAULT '未知', -- 等级\n  type TEXT NOT NULL DEFAULT '未知', -- 类型\n  wear INTEGER NOT NULL DEFAULT 0 CHECK(wear BETWEEN 0 AND 100), -- 损耗度\n  status TEXT NOT NULL DEFAULT '正常', -- 状态\n  description TEXT NOT NULL DEFAULT '' -- 描述\n);"
+    },
+    "content": [
+      [
+        "行号",
+        "器物名",
+        "等级",
+        "类型",
+        "损耗度",
+        "状态",
+        "描述"
+      ]
+    ],
+    "updateConfig": {
+      "skipFloors": -1
+    },
+    "exportConfig": {
+      "enabled": false,
+      "splitByRow": false,
+      "entryName": "器物表",
+      "entryType": "constant",
+      "keywords": "",
+      "preventRecursion": true,
+      "injectionTemplate": "",
+      "extraIndexEnabled": false,
+      "extraIndexEntryName": "器物表-索引",
+      "extraIndexColumns": [],
+      "extraIndexColumnModes": {},
+      "extraIndexInjectionTemplate": "",
+      "sqlInjectionTemplate": "",
+      "entryPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 10000
+      },
+      "extraIndexPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 10010
+      },
+      "fixedEntryPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 99990
+      },
+      "fixedIndexPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 99991
+      }
+    },
+    "orderNo": 10
+  },
+  "sheet_fortune": {
+    "uid": "sheet_fortune",
+    "name": "气运表",
+    "sourceData": {
+      "note": "气运表。类型仅为主动或被动；主动气运需记录剩余次数，被压制、封印、激活或冷却时更新。\n【SQLite SQL填写】\n- 响应继续放在 <tableEdit> 标签内，标签内部只输出标准 INSERT/UPDATE/DELETE SQL。\n- UPDATE 与 DELETE 必须带 WHERE；优先使用 DDL 中的 UNIQUE 业务键定位。\n- SQL 字符串中的英文单引号必须写成两个单引号，禁止在语句后追加解释或 Markdown。",
+      "initNode": "无",
+      "deleteNode": "气运永久消失、被替换或明确失效时移除。",
+      "updateNode": "气运触发、消耗、压制或恢复时更新效果、状态与剩余次数。",
+      "insertNode": "主角明确获得新的气运时新增。",
+      "ddl": "CREATE TABLE fortune (\n  row_id INTEGER PRIMARY KEY, -- 行号\n  name TEXT NOT NULL UNIQUE, -- 气运名\n  type TEXT NOT NULL DEFAULT '被动' CHECK(type IN ('主动','被动')), -- 类型\n  effect TEXT NOT NULL DEFAULT '', -- 效果\n  use_status TEXT NOT NULL DEFAULT '常驻', -- 使用状态\n  remaining_uses TEXT, -- 剩余次数\n  suppression TEXT NOT NULL DEFAULT '正常' -- 压制状态\n);"
+    },
+    "content": [
+      [
+        "行号",
+        "气运名",
+        "类型",
+        "效果",
+        "使用状态",
+        "剩余次数",
+        "压制状态"
+      ]
+    ],
+    "updateConfig": {
+      "skipFloors": -1
+    },
+    "exportConfig": {
+      "enabled": false,
+      "splitByRow": false,
+      "entryName": "气运表",
+      "entryType": "constant",
+      "keywords": "",
+      "preventRecursion": true,
+      "injectionTemplate": "",
+      "extraIndexEnabled": false,
+      "extraIndexEntryName": "气运表-索引",
+      "extraIndexColumns": [],
+      "extraIndexColumnModes": {},
+      "extraIndexInjectionTemplate": "",
+      "sqlInjectionTemplate": "",
+      "entryPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 10000
+      },
+      "extraIndexPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 10010
+      },
+      "fixedEntryPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 99990
+      },
+      "fixedIndexPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 99991
+      }
+    },
+    "orderNo": 11
+  },
+  "sheet_spirit_lines": {
+    "uid": "sheet_spirit_lines",
+    "name": "器灵台词表",
+    "sourceData": {
+      "note": "器灵台词表。每回合只保留一句灵汐台词，不得累积多句。\n台词须结合当前场景、物品、女修特征或刚发生的细节；遇到灵玥时停止发情，恢复正常共情。\n【SQLite SQL填写】\n- 响应继续放在 <tableEdit> 标签内，标签内部只输出标准 INSERT/UPDATE/DELETE SQL。\n- UPDATE 与 DELETE 必须带 WHERE；优先使用 DDL 中的 UNIQUE 业务键定位。\n- SQL 字符串中的英文单引号必须写成两个单引号，禁止在语句后追加解释或 Markdown。",
+      "initNode": "无",
+      "deleteNode": "每轮先 DELETE FROM spirit_lines 清理旧台词。",
+      "updateNode": "禁止累积；最终表中必须且只能有一句台词。",
+      "insertNode": "清理后只 INSERT 一句结合当前场景的新台词。",
+      "ddl": "CREATE TABLE spirit_lines (\n  row_id INTEGER PRIMARY KEY, -- 行号\n  line_text TEXT NOT NULL -- 台词内容\n);"
+    },
+    "content": [
+      [
+        "行号",
+        "台词内容"
+      ]
+    ],
+    "updateConfig": {
+      "skipFloors": -1
+    },
+    "exportConfig": {
+      "enabled": false,
+      "splitByRow": false,
+      "entryName": "器灵台词表",
+      "entryType": "constant",
+      "keywords": "",
+      "preventRecursion": true,
+      "injectionTemplate": "",
+      "extraIndexEnabled": false,
+      "extraIndexEntryName": "器灵台词表-索引",
+      "extraIndexColumns": [],
+      "extraIndexColumnModes": {},
+      "extraIndexInjectionTemplate": "",
+      "sqlInjectionTemplate": "",
+      "entryPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 10000
+      },
+      "extraIndexPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 10010
+      },
+      "fixedEntryPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 99990
+      },
+      "fixedIndexPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 99991
+      }
+    },
+    "orderNo": 12
+  },
+  "sheet_trends": {
+    "uid": "sheet_trends",
+    "name": "动向表",
+    "sourceData": {
+      "note": "动向表。本表记录不以主角为中心、但会让世界持续运转的大事件。\n【起承转合沉浸规则】\n- 空表时必须立即初始化2条来自不同地域、势力或类型的世界动向。禁止因“主角刚入门”或“当前较平静”而留空；平静时期应生成低烈度的世界脉动，如宗门招收、商路变化、小型遗迹异象、势力试探、人物调任或资源价格波动。\n- 通常维持2条；只有重大跨区域事件或第三方势力确有独立影响时才保留第3条，绝对不得超过3条。\n- 动向不要求必须是“世界级灾难”；它记录的是世界正在发生的可持续变化。平静开端应降低烈度，而不是取消事件。\n- 状态列只使用“起/承/转/合”。每条已有事件在接下来的回合严格按起→承→转→合推进，每轮只推进一级。\n- 起：起因、异象与初步端倪；承：各方介入、试探与矛盾升级；转：巨大冲突、意外反转或高潮爆发；合：事件收尾、余波与对世界的实际后果。\n- 上轮已到“合”的事件，下一轮以全新的“起”阶段事件替换，旧事件名、地点和描述不得残留。\n- 每条描述不少于50字，要呈现具体人物/势力正在做什么、当地发生了什么变化、下一阶段可能产生什么余波，禁止只写“某势力有所行动”。\n- 主角没有被追杀、参战或真实卷入时，动向只记录远方世界，不得强行绕回主角。主角已经可以行动介入的线索应进机遇表。\n- 世界状态表.动向仅保留“当前动向详见动向表”或简短摘要，不在两张表重复长文。\n【SQLite SQL填写】\n- 响应继续放在 <tableEdit> 标签内，标签内部只输出标准 INSERT/UPDATE/DELETE SQL。\n- UPDATE 与 DELETE 必须带 WHERE；优先使用 DDL 中的 UNIQUE 业务键定位。\n- SQL 字符串中的英文单引号必须写成两个单引号，禁止在语句后追加解释或 Markdown。",
+      "initNode": "空表时必须初始化2条“起”阶段的世界脉动。平静开局生成低烈度、不直接卷入主角的远方变化，不得留空。",
+      "deleteNode": "通常不删除而是在合阶段后替换为新事件；若异常超过3条，移除多余事件。",
+      "updateNode": "每轮将每条已有事件严格推进一级。合阶段的下一轮必须完整覆盖为全新起阶段事件。",
+      "insertNode": "当前少于2条时补足到2条“起”阶段事件；只有特殊时期允许第3条，并完整填写事件名、类型、地点、状态、描述和最近更新。",
+      "ddl": "CREATE TABLE trends (\n  row_id INTEGER PRIMARY KEY, -- 行号\n  trend_name TEXT NOT NULL UNIQUE, -- 动向名\n  trend_type TEXT NOT NULL DEFAULT '事件', -- 类型\n  location TEXT NOT NULL DEFAULT '未知', -- 地点\n  status TEXT NOT NULL DEFAULT '进行中', -- 状态\n  description TEXT NOT NULL DEFAULT '', -- 描述\n  latest_update TEXT NOT NULL DEFAULT '' -- 最近更新\n);"
+    },
+    "content": [
+      [
+        "行号",
+        "动向名",
+        "类型",
+        "地点",
+        "状态",
+        "描述",
+        "最近更新"
+      ]
+    ],
+    "updateConfig": {
+      "skipFloors": -1
+    },
+    "exportConfig": {
+      "enabled": false,
+      "splitByRow": false,
+      "entryName": "动向表",
+      "entryType": "constant",
+      "keywords": "",
+      "preventRecursion": true,
+      "injectionTemplate": "",
+      "extraIndexEnabled": false,
+      "extraIndexEntryName": "动向表-索引",
+      "extraIndexColumns": [],
+      "extraIndexColumnModes": {},
+      "extraIndexInjectionTemplate": "",
+      "sqlInjectionTemplate": "",
+      "entryPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 10000
+      },
+      "extraIndexPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 10010
+      },
+      "fixedEntryPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 99990
+      },
+      "fixedIndexPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 99991
+      }
+    },
+    "orderNo": 13
+  },
+  "sheet_chronicle": {
+    "uid": "sheet_chronicle",
+    "name": "纪要表",
+    "sourceData": {
+      "note": "轮次日志。每轮交互结束后立刻插入一条新记录。\n【列定义】\n列1=编码索引 code_index（AM0001 起递增，全表唯一）\n列2=时间跨度 time_span（沿用世界状态表当前时间的元会历格式）\n列3=与今天的关系 today_relation（前端派生字段，AI 不填写）\n列4=概览 summary（≤30 字）\n列5=纪要 chronicle_text（300-600 字）\n列6=重要对话 key_dialogue（可 NULL）\n【编码索引】\n格式 AMXXXX，XXXX 从 0001 开始递增。\n【时间跨度】\n必须沿用世界状态表 cur_time 的元会历格式；若本轮跨越一段时间，使用“起始元会历时间 ~ 结束元会历时间”。\n不得另造公历日期，也不得与世界状态表当前时间矛盾。\n【与今天的关系】\n兼容保留字段，道渊当前不根据元会历计算“与今天的关系”。填表 AI 不得填写、推测或维护；插入新行时保持为空。\n【概览】\n一句话概括本轮纪要内容，客观陈述，不加主观判断或推测，不包含纪要里没写的信息。必须 30-50 字。\n【纪要】\n第三方视角客观记录本轮事件，只写正文明确发生的事实，不补充没出现的情节。\n必须 300-600 字，结尾不总结、不升华。\n行文生活化、直白，基调积极向上。避免公文式措辞（例如 \"A 与 B 就某话题达成协议\"、\"A 确立了某计划\"）。\n保留角色情感细节，去掉支配欲、占有欲的描写。\n如果上下文包含多轮交互，合并成一条记录。\n允许写：主要事件、涉及角色、角色动作、物品交互、物品全名、物品得失、位置变化、地点全名、状态变化、新发现、伏笔、暗号、重要情报、任务目标。\n禁止写：极端情绪、夸张、比喻、升华、支配欲、掌控欲。\n【重要对话】\n只摘录直接推动剧情转折、揭示关键信息、改变人物关系或决策、构成承诺/誓约/约定的原文台词，并标明说话人。\n排除寒暄、重复、情绪感叹等无信息量的对白。\n最多 3 句，总 token 必须 ≤180。\n【SQLite SQL填写】\n- 响应继续放在 <tableEdit> 标签内，标签内部只输出标准 INSERT/UPDATE/DELETE SQL。\n- UPDATE 与 DELETE 必须带 WHERE；优先使用 DDL 中的 UNIQUE 业务键定位。\n- SQL 字符串中的英文单引号必须写成两个单引号，禁止在语句后追加解释或 Markdown。",
+      "initNode": "插入 AM0001 记录，记录初始场景和角色状态；time_span 沿用 world_state.cur_time，“与今天的关系”留空。",
+      "deleteNode": "禁止。",
+      "updateNode": "禁止。",
+      "insertNode": "每轮交互结束后插入一条新记录，编码索引递增（AM0001→AM0002→AM0003…）。chronicle_text 长度必须 ≥200 且 ≤600 字符；time_span 必须沿用 world_state.cur_time 的元会历格式；跨时段使用“起始时间 ~ 结束时间”。“与今天的关系”由前端派生注入，AI 插入时不得填写 today_relation。",
+      "ddl": "CREATE TABLE chronicle ( -- 纪要表\n  row_id INTEGER PRIMARY KEY, -- 行号\n  code_index TEXT NOT NULL UNIQUE CHECK(code_index GLOB 'AM[0-9][0-9][0-9][0-9]'), -- 编码索引\n  time_span TEXT NOT NULL, -- 时间跨度\n  today_relation TEXT, -- 与今天的关系\n  summary TEXT NOT NULL CHECK(LENGTH(summary) <= 90), -- 概览\n  chronicle_text TEXT NOT NULL CHECK(LENGTH(chronicle_text) >= 120 AND LENGTH(chronicle_text) <= 900), -- 纪要\n  key_dialogue TEXT -- 重要对话\n);"
+    },
+    "content": [
+      [
+        "行号",
+        "编码索引",
+        "时间跨度",
+        "与今天的关系",
+        "概览",
+        "纪要",
+        "重要对话"
+      ]
+    ],
+    "updateConfig": {
+      "skipFloors": -1
+    },
+    "exportConfig": {
+      "enabled": true,
+      "splitByRow": true,
+      "entryName": "纪要",
+      "entryType": "keyword",
+      "keywords": "编码索引",
+      "preventRecursion": true,
+      "injectionTemplate": "<记忆回溯>\n$1\n</记忆回溯>",
+      "extraIndexEnabled": true,
+      "extraIndexEntryName": "纪要索引",
+      "extraIndexColumns": [
+        "编码索引",
+        "概览"
+      ],
+      "extraIndexColumnModes": {
+        "编码索引": "both",
+        "概览": "index_only"
+      },
+      "extraIndexInjectionTemplate": "<已发生的事件概览>\n$1\n</已发生的事件概览>",
+      "sqlInjectionTemplate": "",
+      "entryPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 999,
+        "order": 10000
+      },
+      "extraIndexPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 1000,
+        "order": 10010
+      },
+      "fixedEntryPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 9999,
+        "order": 99987
+      },
+      "fixedIndexPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 9999,
+        "order": 99988
+      }
+    },
+    "orderNo": 14
+  },
+  "sheet_current_status": {
+    "uid": "sheet_current_status",
+    "name": "全局数据表",
+    "sourceData": {
+      "note": "记录是否色色、本轮特写镜头分配以及主角即时状态。此表有且仅有一行。\n时间和地点只由世界状态表维护；本表不得重复记录或推断。\n【表格结构】\n- 行0: 表头 - 列名（是否色色、聚焦镜头、镜头计数、主角当前状态、主角阴茎状态）\n- 行1: 数据 - 当前场景的即时状态（唯一数据行）\n- 列1: 是否色色 - 下一轮是否进入色情/性爱内容，限定 `是` 或 `否`。\n- 列2: 聚焦镜头 - 给下一轮的特写指引，取值范围 `腿部 / 足部 / 性器 / 臀部 / 胸部 / 脸部 / 反差` 七选一。\n- 列3: 镜头计数 - 各部位累计被指定为聚焦镜头的次数，固定格式 `腿部=N,足部=N,性器=N,臀部=N,胸部=N,脸部=N,反差=N`，七个部位顺序固定，用英文逗号分隔。\n- 列4: 主角当前状态 - 准确记录{{user}}当前正在进行的具体动作和行为。\n- 列5: 主角阴茎状态 - 详细描述当前的生理与物理状态。\n【聚焦镜头说明】\n- 本列写的是下一轮应聚焦的部位。\n- 选择时先读取镜头计数的最高值，优先从计数低于最高值至少 3 次的部位中，选择最贴合下一轮剧情走向的部位；没有冷却部位时按剧情走向选择。\n- 选定后将对应部位计数加 1，并按固定顺序重写镜头计数。\n【SQLite SQL填写】\n- 响应继续放在 <tableEdit> 标签内，标签内部只输出标准 INSERT/UPDATE/DELETE SQL。\n- UPDATE 与 DELETE 必须带 WHERE；优先使用 DDL 中的 UNIQUE 业务键定位。\n- SQL 字符串中的英文单引号必须写成两个单引号，禁止在语句后追加解释或 Markdown。",
+      "initNode": "故事初始化时插入一条记录。镜头计数初始化为 `腿部=0,足部=0,性器=0,臀部=0,胸部=0,脸部=0,反差=0`，聚焦镜头按开场白结束后的下一轮预判方向选定。主角当前状态与主角阴茎状态按开场白对应剧情填写。",
+      "deleteNode": "禁止 DELETE。",
+      "updateNode": "已有记录时使用带 WHERE row_id=1 的 UPDATE，维护本轮后台场景控制字段。",
+      "insertNode": "仅当表为空时 INSERT 唯一记录；已有记录时禁止新增。",
+      "ddl": "CREATE TABLE current_status ( -- 全局数据表\n  row_id INTEGER PRIMARY KEY, -- 行号\n  is_lewd TEXT NOT NULL DEFAULT '否' CHECK(is_lewd IN ('是', '否')), -- 是否色色\n  focus_shot TEXT CHECK(focus_shot IS NULL OR focus_shot IN ('腿部', '足部', '性器', '臀部', '胸部', '脸部', '反差')), -- 聚焦镜头\n  shot_counter TEXT NOT NULL, -- 镜头计数\n  protagonist_action TEXT NOT NULL, -- 主角当前状态\n  protagonist_penis TEXT NOT NULL -- 主角阴茎状态\n);"
+    },
+    "content": [
+      [
+        "行号",
+        "是否色色",
+        "聚焦镜头",
+        "镜头计数",
+        "主角当前状态",
+        "主角阴茎状态"
+      ]
+    ],
+    "updateConfig": {
+      "skipFloors": -1
+    },
+    "exportConfig": {
+      "enabled": false,
+      "splitByRow": false,
+      "entryName": "全局数据表",
+      "entryType": "constant",
+      "keywords": "",
+      "preventRecursion": true,
+      "injectionTemplate": "",
+      "extraIndexEnabled": false,
+      "extraIndexEntryName": "全局数据表-索引",
+      "extraIndexColumns": [],
+      "extraIndexColumnModes": {},
+      "extraIndexInjectionTemplate": "",
+      "sqlInjectionTemplate": "",
+      "entryPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 10000
+      },
+      "extraIndexPlacement": {
+        "position": "at_depth_as_system",
+        "depth": 2,
+        "order": 10010
+      },
+      "fixedEntryPlacement": {
+        "position": "before_character_definition",
+        "depth": 2,
+        "order": 99981
+      },
+      "fixedIndexPlacement": {
+        "position": "before_character_definition",
+        "depth": 2,
+        "order": 99982
+      }
+    },
+    "orderNo": 15
+  }
+}
