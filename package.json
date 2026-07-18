@@ -8,11 +8,15 @@
     "dev": "vite",
     "dev:tavern": "vite --config tavern/vite.config.js",
     "dev:iframe": "vite --config vite.iframe.config.js",
-    "build": "vite build && node scripts/build-post.js && node scripts/validate-build.js",
+    "build": "pnpm run build:mvu",
+    "build:mvu": "cross-env BUILD_TARGET=mvu vite build && cross-env BUILD_TARGET=mvu node scripts/build-post.js && cross-env BUILD_TARGET=mvu node scripts/validate-build.js",
+    "build:shujuku": "cross-env BUILD_TARGET=shujuku vite build && cross-env BUILD_TARGET=shujuku node scripts/build-post.js && cross-env BUILD_TARGET=shujuku node scripts/validate-build.js",
+    "build:all": "pnpm run build:mvu && pnpm run build:shujuku",
     "extract": "node scripts/extract.js",
     "kill": "node scripts/kill-port.js"
   },
   "devDependencies": {
+    "cross-env": "^10.1.0",
     "node-html-parser": "^9.0.0",
     "pretty": "^2.0.0",
     "stylelint-config-standard": "^40.0.0",

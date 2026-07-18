@@ -6,8 +6,9 @@ import pretty from 'pretty';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const INPUT_JSON_PATH = path.resolve(__dirname, '../origin/regex-mvu.json');
-const OUTPUT_JSON_PATH = path.resolve(__dirname, '../dist/regex-mvu.json');
+const target = process.env.BUILD_TARGET === 'shujuku' ? 'shujuku' : 'mvu';
+const INPUT_JSON_PATH = path.resolve(__dirname, `../origin/regex-${target}.json`);
+const OUTPUT_JSON_PATH = path.resolve(__dirname, `../dist/regex-${target}.json`);
 const DIST_HTML_PATH = path.resolve(__dirname, '../dist/index.html');
 
 function main() {

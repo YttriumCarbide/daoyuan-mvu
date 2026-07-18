@@ -28,11 +28,31 @@ const mvuMockPlugin = () => {
   }
 };
 
+// 注入 Shujuku 适配器 (仅在 BUILD_TARGET=shujuku 时生效)
+const shujukuPlugin = () => {
+  return {
+    name: 'shujuku-plugin',
+    transformIndexHtml(html) {
+      if (process.env.BUILD_TARGET === 'shujuku') {
+        return [
+          {
+            tag: 'script',
+            attrs: { src: '/shujuku-adapter.js' },
+            injectTo: 'head'
+          }
+        ];
+      }
+      return html;
+    }
+  }
+};
+
 export default defineConfig({
   root: 'src',
   plugins: [
     viteSingleFile(),
-    mvuMockPlugin()
+    mvuMockPlugin(),
+    shujukuPlugin()
   ],
   build: {
     minify: false,

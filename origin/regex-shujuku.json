@@ -1,0 +1,17 @@
+{
+    "id": "daoyuan-status-bar-shujuku",
+    "scriptName": "道渊状态栏-shujuku多功能版1.4.8",
+    "disabled": false,
+    "runOnEdit": true,
+    "findRegex": "<StatusPlaceHolderImpl/>",
+    "trimStrings": [],
+    "replaceString": "",
+    "placement": [
+        2
+    ],
+    "substituteRegex": 0,
+    "minDepth": null,
+    "maxDepth": null,
+    "markdownOnly": true,
+    "promptOnly": false
+}
