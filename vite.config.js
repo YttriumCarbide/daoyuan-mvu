@@ -57,7 +57,7 @@ export default defineConfig({
   build: {
     minify: false,
     outDir: '../dist',
-    emptyOutDir: true,
+    emptyOutDir: false,
     assetsInlineLimit: 100000000,
     chunkSizeWarningLimit: 100000000,
     cssCodeSplit: false,
