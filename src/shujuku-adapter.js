@@ -61,6 +61,300 @@
         };
       })();
 
+(function installDaoyuanStatusDb() {
+  'use strict';
+
+  const roots = [];
+  let localVariablesProxy = null;
+  function addRoot(root) {
+    try {
+      if (root && !roots.includes(root)) roots.push(root);
+    } catch (error) {}
+  }
+  addRoot(window);
+  try { addRoot(window.parent); } catch (error) {}
+  try { addRoot(window.top); } catch (error) {}
+
+  function getApi() {
+    for (const root of roots) {
+      try {
+        if (root.AutoCardUpdaterAPI) return root.AutoCardUpdaterAPI;
+      } catch (error) {}
+    }
+    return null;
+  }
+
+  function getVariablesReader() {
+    for (const root of roots) {
+      try {
+        if (typeof root.getAllVariables === 'function' && root.getAllVariables !== localVariablesProxy) {
+          return root.getAllVariables.bind(root);
+        }
+      } catch (error) {}
+    }
+    return null;
+  }
+
+  function readVariables() {
+    const reader = getVariablesReader();
+    return reader ? reader() : { stat_data: {} };
+  }
+
+  localVariablesProxy = function daoyuanDelayedVariablesReader() {
+    return readVariables();
+  };
+  if (typeof window.getAllVariables !== 'function') {
+    window.getAllVariables = localVariablesProxy;
+  }
+
+  function exportTables() {
+    const api = getApi();
+    if (!api || typeof api.exportTableAsJson !== 'function') return {};
+    return api.exportTableAsJson() || {};
+  }
+
+  function getSheet(tableName) {
+    const tables = exportTables();
+    for (const key of Object.keys(tables)) {
+      const sheet = tables[key];
+      if (sheet && sheet.name === tableName && Array.isArray(sheet.content)) return sheet;
+    }
+    return null;
+  }
+
+  function locateRow(tableName, keyColumn, keyValue) {
+    const sheet = getSheet(tableName);
+    if (!sheet || !Array.isArray(sheet.content[0])) return null;
+    const headers = sheet.content[0];
+    const keyIndex = headers.indexOf(keyColumn);
+    if (keyIndex < 0) return null;
+    for (let rowIndex = 1; rowIndex < sheet.content.length; rowIndex++) {
+      const row = sheet.content[rowIndex];
+      if (Array.isArray(row) && String(row[keyIndex] ?? '') === String(keyValue ?? '')) {
+        return { sheet, headers, row, rowIndex };
+      }
+    }
+    return null;
+  }
+
+  function resolvePath(path) {
+    const parts = Array.isArray(path) ? path : [];
+    const scope = parts[0];
+    if (scope === '主角' && parts.length === 1) {
+      return { table: '主角属性表', keyColumn: '角色名', keyValue: '主角', protected: true };
+    }
+    if (scope === '主角' && parts[1] === '功法') {
+      return { table: '功法表', keyColumn: '功法名', keyValue: parts[2] };
+    }
+    if (scope === '主角' && parts[1] === '储物袋') {
+      return { table: '储物袋表', keyColumn: '物品名', keyValue: parts[2] };
+    }
+    if (scope === '主角' && parts[1] === '器物') {
+      return { table: '器物表', keyColumn: '器物名', keyValue: parts[2] };
+    }
+    if (scope === '主角' && parts[1] === '气运') {
+      return { table: '气运表', keyColumn: '气运名', keyValue: parts[2] };
+    }
+    if (scope === '人物') return { table: 'NPC表', keyColumn: '姓名', keyValue: parts[1] };
+    if (scope === '道侣') return { table: '道侣表', keyColumn: '姓名', keyValue: parts[1] };
+    if (scope === '灵宠') return { table: '灵宠表', keyColumn: '姓名', keyValue: parts[1] };
+    if (scope === '机遇') return { table: '机遇表', keyColumn: '任务名', keyValue: parts[1] };
+    if (scope === '绝色榜') return { table: '绝色榜表', keyColumn: '仙子姓名', keyValue: parts[1] };
+    if (scope === '玉简') return { table: '玉简好友表', keyColumn: '好友姓名', keyValue: parts[1] };
+    if ((scope === '世界' && parts[1] === '动向') || scope === '动向') {
+      return { table: '动向表', keyColumn: '动向名', keyValue: scope === '世界' ? parts[2] : parts[1] };
+    }
+    return null;
+  }
+
+  function filterWritableData(headers, keyColumn, values) {
+    const allowed = new Set((headers || []).slice(1));
+    allowed.delete(keyColumn);
+    const result = {};
+    Object.entries(values || {}).forEach(([key, value]) => {
+      if (allowed.has(key) && value !== undefined) result[key] = value;
+    });
+    return result;
+  }
+
+  async function update(path, values) {
+    const api = getApi();
+    const target = resolvePath(path);
+    if (!api || !target || typeof api.updateRow !== 'function') return false;
+    const located = locateRow(target.table, target.keyColumn, target.keyValue);
+    if (!located) return false;
+    const data = filterWritableData(located.headers, target.keyColumn, values);
+    if (!Object.keys(data).length) return false;
+    return !!(await api.updateRow(target.table, located.rowIndex, data));
+  }
+
+  async function remove(path) {
+    const api = getApi();
+    const target = resolvePath(path);
+    if (!api || !target || target.protected || typeof api.deleteRow !== 'function') return false;
+    const located = locateRow(target.table, target.keyColumn, target.keyValue);
+    if (!located) return false;
+    return !!(await api.deleteRow(target.table, located.rowIndex));
+  }
+
+  function parseHistory(value) {
+    let parsed = value;
+    if (typeof parsed === 'string') {
+      try { parsed = parsed ? JSON.parse(parsed) : {}; } catch (error) { parsed = {}; }
+    }
+    if (Array.isArray(parsed)) {
+      const normalized = {};
+      parsed.forEach((item, index) => { normalized['m' + String(index + 1).padStart(3, '0')] = item; });
+      return normalized;
+    }
+    return parsed && typeof parsed === 'object' ? { ...parsed } : {};
+  }
+
+  function readJadeContact(name) {
+    const located = locateRow('玉简好友表', '好友姓名', name);
+    if (!located) return null;
+    const historyIndex = located.headers.indexOf('历史记录');
+    return {
+      ...located,
+      history: parseHistory(historyIndex >= 0 ? located.row[historyIndex] : '{}'),
+    };
+  }
+
+  async function writeJadeHistory(name, history) {
+    const api = getApi();
+    if (!api) return false;
+    let contact = readJadeContact(name);
+    const serialized = JSON.stringify(history || {});
+    if (!contact) {
+      if (typeof api.insertRow !== 'function') return false;
+      const rowIndex = await api.insertRow('玉简好友表', {
+        '好友姓名': name,
+        '性别': '未知',
+        '境界': '未知',
+        '关系': '陌生',
+        '好感度': 0,
+        '历史记录': serialized,
+      });
+      return rowIndex >= 1;
+    }
+    if (typeof api.updateCell !== 'function') return false;
+    return !!(await api.updateCell('玉简好友表', contact.rowIndex, '历史记录', serialized));
+  }
+
+  async function appendJadeMessage(name, sender, content) {
+    const contact = readJadeContact(name);
+    const history = contact ? contact.history : {};
+    const now = new Date();
+    const messageId = 'm' + now.getTime() + Math.floor(Math.random() * 1000);
+    history[messageId] = {
+      '发送者': sender,
+      '内容': content,
+      '时间': now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0'),
+    };
+    const success = await writeJadeHistory(name, history);
+    return { success, history, messageId };
+  }
+
+  async function deleteJadeMessage(name, messageId) {
+    const contact = readJadeContact(name);
+    if (!contact) return {};
+    const history = contact.history;
+    delete history[messageId];
+    const success = await writeJadeHistory(name, history);
+    if (!success) throw new Error('玉简历史写入失败');
+    return history;
+  }
+
+  async function ready(timeoutMs = 15000) {
+    const startedAt = Date.now();
+    while (Date.now() - startedAt < timeoutMs) {
+      const api = getApi();
+      const reader = getVariablesReader();
+      if (api && reader && typeof api.exportTableAsJson === 'function') {
+        try {
+          const variables = reader();
+          if (variables && variables.stat_data) {
+            if (typeof window.getAllVariables !== 'function') window.getAllVariables = reader;
+            return true;
+          }
+        } catch (error) {}
+      }
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    throw new Error('等待shujuku数据桥就绪超时');
+  }
+
+  function subscribe(callback) {
+    let timer = null;
+    const handler = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => callback(), 50);
+    };
+    roots.forEach(root => {
+      try { root.addEventListener('shujuku-table-updated', handler); } catch (error) {}
+    });
+    try {
+      window.addEventListener('beforeunload', () => {
+        roots.forEach(root => {
+          try { root.removeEventListener('shujuku-table-updated', handler); } catch (error) {}
+        });
+      }, { once: true });
+    } catch (error) {}
+    return handler;
+  }
+
+  window.DaoyuanStatusDb = {
+    getApi,
+    readVariables,
+    getSheet,
+    locateRow,
+    resolvePath,
+    update,
+    remove,
+    readJadeContact,
+    writeJadeHistory,
+    appendJadeMessage,
+    deleteJadeMessage,
+    ready,
+    subscribe,
+  };
+})();
+
+function _dy_findApi() {
+  var wins = [window];
+  try { if (window.parent && window.parent !== window) wins.push(window.parent); } catch(e) {}
+  try { if (window.top && window.top !== window) wins.push(window.top); } catch(e) {}
+  for (var i = 0; i < wins.length; i++) {
+    try { if (wins[i].AutoCardUpdaterAPI) return wins[i].AutoCardUpdaterAPI; } catch(e) {}
+  }
+  return null;
+}
+
+function getSheetByName(tableName) {
+  var api = _dy_findApi(); if (!api) return null;
+  var all = api.exportTableAsJson();
+  for (var key in all) { if (key.indexOf('sheet_') === 0 && all[key].name === tableName) return all[key]; }
+  for (var key in all) { if (key.indexOf('sheet_') === 0) { var ddl = (all[key].sourceData && all[key].sourceData.ddl) || ''; var m = ddl.match(/CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(\w+)/i); if (m && m[1] === tableName) return all[key]; } }
+  return null;
+}
+
+function getCellByHeader(tableName, rowIndex, colName) {
+  var sheet = getSheetByName(tableName); if (!sheet || !sheet.content) return null;
+  var headers = sheet.content[0]; var colIdx = headers.indexOf(colName);
+  if (colIdx === -1) return null;
+  return sheet.content[rowIndex] ? sheet.content[rowIndex][colIdx] : null;
+}
+
+function findRowByColumn(tableName, colName, value) {
+  var sheet = getSheetByName(tableName); if (!sheet || !sheet.content) return -1;
+  var headers = sheet.content[0]; var colIdx = headers.indexOf(colName);
+  if (colIdx === -1) return -1;
+  for (var i = 1; i < sheet.content.length; i++) { if (sheet.content[i] && String(sheet.content[i][colIdx]) === String(value)) return i; }
+  return -1;
+}
+
+function safeJsonParse(str) { try { return JSON.parse(str); } catch(e) { return {}; } }
+
 window.getAllVariables = function() {
   var data = { stat_data: {} };
   var sd = data.stat_data;
