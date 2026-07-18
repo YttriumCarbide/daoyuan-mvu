@@ -5,56 +5,159 @@ var charPortraits = window.charPortraits = {};
 var charPortraitsFemale = window.charPortraitsFemale = {};
 window.specialPortraits = {};
 
-window.loadRemotePortraits = async function () {
-  const val = (obj) => {
-    if (typeof obj !== "object" || obj === null) return {};
-    let r = {};
-    for (let k in obj) {
-      if (typeof obj[k] === "string") {
-        let vp = obj[k]
-          .split("|")
-          .filter(
-            (p) =>
-              p.trim().startsWith("http") || p.trim().startsWith("data:image"),
-          );
-        if (vp.length > 0) r[k] = vp.join("|");
-      }
+const REMOTE_PORTRAITS_URL =
+  "https://raw.githubusercontent.com/YttriumCarbide/Daoyuan/main/portraits.json";
+const REMOTE_PORTRAITS_CACHE_KEY = "daoyuan_remote_portraits_cache";
+const REMOTE_PORTRAITS_CACHE_TIME_KEY = "daoyuan_remote_portraits_cache_time";
+const REMOTE_PORTRAITS_AUTOFETCH_KEY = "daoyuan_remote_portraits_autofetched";
+
+/* 统一清洗立绘映射。
+ * portraits.json 和用户自定义数据最终都会进入这里，原因有两点：
+ * 1. 只允许 http(s) 或 data:image，避免把无效字符串、脚本协议等内容写进 img/src。
+ * 2. 兼容一个角色多张图的旧格式：多 URL 之间用 | 分隔，清洗后仍保留这个结构。
+ */
+const normalizePortraitMap = (obj) => {
+  if (typeof obj !== "object" || obj === null) return {};
+  let r = {};
+  for (let k in obj) {
+    if (typeof obj[k] === "string") {
+      let vp = obj[k]
+        .split("|")
+        .filter((p) => {
+          const url = p.trim();
+          return url.startsWith("http") || url.startsWith("data:image");
+        });
+      if (vp.length > 0) r[k] = vp.join("|");
     }
-    return r;
-  };
-  try {
-    const url =
-      "https://raw.githubusercontent.com/YttriumCarbide/Daoyuan/main/portraits.json";
-    const response = await fetch(url + "?t=" + new Date().getTime());
-    if (response.ok) {
-      const data = await response.json();
-      if (data.charPortraits) { charPortraits = val(data.charPortraits); window.charPortraits = charPortraits; }
-      if (data.charPortraitsFemale) {
-        charPortraitsFemale = val(data.charPortraitsFemale);
-        window.charPortraitsFemale = charPortraitsFemale;
-      }
-      if (data.specialPortraits)
-        window.specialPortraits = val(data.specialPortraits);
-      console.log("[道渊状态栏] 云端立绘配置加载成功");
-    }
-  } catch (e) {
-    console.error("[道渊状态栏] 获取云端立绘失败:", e);
   }
+  return r;
+};
+
+/* 把任意来源的数据整理成立绘模块内部使用的三张表。
+ * 这样远程 GitHub 数据、本地远程缓存、用户自定义缓存都可以复用同一套校验逻辑，
+ * 后面合并时只需要关心“谁先谁后”，不会因为不同入口造成行为不一致。
+ */
+const normalizePortraitPayload = (data) => ({
+  charPortraits: normalizePortraitMap(data?.charPortraits),
+  charPortraitsFemale: normalizePortraitMap(data?.charPortraitsFemale),
+  specialPortraits: normalizePortraitMap(data?.specialPortraits),
+});
+
+const getPortraitPayloadSize = (payload) =>
+  Object.keys(payload.charPortraits).length +
+  Object.keys(payload.charPortraitsFemale).length +
+  Object.keys(payload.specialPortraits).length;
+
+const readJsonStorage = (key) => {
   try {
-    const saved = localStorage.getItem("daoyuan_custom_portraits");
-    if (saved) {
-      Object.assign(charPortraits, val(JSON.parse(saved)));
-    }
-    const savedFem = localStorage.getItem("daoyuan_custom_portraits_female");
-    if (savedFem) {
-      Object.assign(charPortraitsFemale, val(JSON.parse(savedFem)));
-    }
-    const savedSpec = localStorage.getItem("daoyuan_custom_portraits_special");
-    if (savedSpec) {
-      Object.assign(window.specialPortraits, val(JSON.parse(savedSpec)));
-    }
+    const saved = localStorage.getItem(key);
+    return saved ? JSON.parse(saved) : null;
   } catch (e) {
-    console.warn("[道渊] 加载自定义立绘失败:", e);
+    console.warn("[道渊] 读取立绘缓存失败:", key, e);
+    return null;
+  }
+};
+
+/* 用户自定义立绘永远最后合并。
+ * 这是保护用户设置的关键：GitHub 更新或远程缓存更新只提供默认值，
+ * 用户自己上传的本地图、填写的图床 URL 必须覆盖同名默认立绘。
+ */
+const applyCustomPortraits = () => {
+  const saved = readJsonStorage("daoyuan_custom_portraits");
+  if (saved) {
+    Object.assign(charPortraits, normalizePortraitMap(saved));
+  }
+  const savedFem = readJsonStorage("daoyuan_custom_portraits_female");
+  if (savedFem) {
+    Object.assign(charPortraitsFemale, normalizePortraitMap(savedFem));
+  }
+  const savedSpec = readJsonStorage("daoyuan_custom_portraits_special");
+  if (savedSpec) {
+    Object.assign(window.specialPortraits, normalizePortraitMap(savedSpec));
+  }
+};
+
+/* 重建立绘运行时表。
+ * 每次从缓存或远程数据加载后都重新生成 charPortraits/window.charPortraits，
+ * 可以避免旧远程配置中已经删除的角色继续残留；随后再叠加用户自定义配置。
+ */
+const applyPortraitPayload = (data) => {
+  const payload = normalizePortraitPayload(data || {});
+  charPortraits = payload.charPortraits;
+  charPortraitsFemale = payload.charPortraitsFemale;
+  window.charPortraits = charPortraits;
+  window.charPortraitsFemale = charPortraitsFemale;
+  window.specialPortraits = payload.specialPortraits;
+  applyCustomPortraits();
+  return payload;
+};
+
+window.getPortraitCacheTime = function () {
+  const time = Number(localStorage.getItem(REMOTE_PORTRAITS_CACHE_TIME_KEY));
+  return Number.isFinite(time) && time > 0 ? time : 0;
+};
+
+window.loadLocalPortraits = function () {
+  const cached = readJsonStorage(REMOTE_PORTRAITS_CACHE_KEY);
+  applyPortraitPayload(cached || {});
+  return !!cached;
+};
+
+window.refreshPortraitUI = function () {
+  if (typeof window.populateCharacterData === "function") {
+    window.populateCharacterData();
+  }
+  if (window.currentActiveChat && typeof window.openChatView === "function") {
+    window.openChatView(window.currentActiveChat);
+  }
+};
+
+window.loadRemotePortraits = async function (options = {}) {
+  const shouldRefresh = !!options.refresh;
+  try {
+    const response = await fetch(
+      REMOTE_PORTRAITS_URL + "?t=" + new Date().getTime(),
+    );
+    if (!response.ok) {
+      throw new Error("HTTP " + response.status);
+    }
+    const data = await response.json();
+    const payload = normalizePortraitPayload(data);
+    if (getPortraitPayloadSize(payload) === 0) {
+      throw new Error("远程 portraits.json 未包含有效立绘配置");
+    }
+
+    localStorage.setItem(REMOTE_PORTRAITS_CACHE_KEY, JSON.stringify(payload));
+    localStorage.setItem(
+      REMOTE_PORTRAITS_CACHE_TIME_KEY,
+      String(Date.now()),
+    );
+    applyPortraitPayload(payload);
+    if (shouldRefresh) window.refreshPortraitUI();
+    console.log("[道渊状态栏] 云端立绘配置加载成功");
+    return { ok: true, payload };
+  } catch (e) {
+    console.warn("[道渊状态栏] 获取云端立绘失败:", e);
+    window.loadLocalPortraits();
+    return { ok: false, error: e };
+  }
+};
+
+window.initPortraits = async function () {
+  const hasRemoteCache = window.loadLocalPortraits();
+  const hasTriedAutofetch =
+    localStorage.getItem(REMOTE_PORTRAITS_AUTOFETCH_KEY) === "true";
+  if (hasRemoteCache || hasTriedAutofetch) return;
+
+  /* 首次自动拉取只在“没有远程缓存”时执行一次。
+   * 成功时静默写入缓存，避免正常用户被打扰；失败时弹窗防呆，
+   * 告诉用户可以去公告里手动拉取。无论成败都会记录尝试标记，
+   * 避免 GitHub 长期不可达时每次打开状态栏都重复弹失败提示。
+   */
+  localStorage.setItem(REMOTE_PORTRAITS_AUTOFETCH_KEY, "true");
+  const result = await window.loadRemotePortraits();
+  if (!result.ok) {
+    alert("自动更新立绘失败，请稍后在公告中手动拉取。");
   }
 };
 window.preloadPortraits = function (name) {

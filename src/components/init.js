@@ -1,8 +1,13 @@
 import { initTabNavigation } from "./maps.js";
 
 async function init() {
-  /* 拉取云端立绘 */
-  await window.loadRemotePortraits();
+  /* 初始化立绘。
+   * 这里不再每次启动都强制请求 GitHub：
+   * 1. 先读取浏览器 localStorage 中的远程立绘缓存和用户自定义立绘。
+   * 2. 如果用户从未缓存过远程配置，才自动尝试拉取一次。
+   * 3. 自动拉取成功不打扰用户；失败会提示用户可在公告中手动更新。
+   */
+  await window.initPortraits();
   /* MVU架构接入 */
   await window.waitGlobalInitialized("Mvu");
 
@@ -543,6 +548,90 @@ window.switchNoticeTab = function (tabName, btnEl) {
       '<div style="color:var(--text-dim);font-style:italic;text-align:center;margin-top:20px;">暂无内容</div>';
   }
 };
+
+window.renderPortraitUpdateControl = function () {
+  const dateEl = document.getElementById("dy-notice-date");
+  if (!dateEl || document.getElementById("dy-portrait-update-wrap")) return;
+
+  /* 手动更新按钮放在公告底部，而不是写进公告内容 tabs。
+   * 这样它不依赖 GitHub notice.json 是否成功加载：公告加载失败时，
+   * 用户仍然能看到“更新立绘”按钮，用它重试 portraits.json。
+   */
+  const wrap = document.createElement("div");
+  wrap.id = "dy-portrait-update-wrap";
+  wrap.style.cssText =
+    "margin-top:14px;display:flex;flex-direction:column;align-items:center;gap:8px;";
+
+  const btn = document.createElement("button");
+  btn.id = "dy-portrait-update-btn";
+  btn.type = "button";
+  btn.textContent = "更新立绘";
+  btn.style.cssText =
+    "display:inline-flex;align-items:center;justify-content:center;min-width:120px;padding:8px 18px;border-radius:22px;border:1px solid rgba(255,215,0,0.45);background:linear-gradient(145deg,rgba(255,215,0,0.14),rgba(255,215,0,0.04));color:var(--accent-gold);font-weight:bold;font-family:inherit;letter-spacing:1px;cursor:pointer;box-shadow:0 2px 10px rgba(255,215,0,0.08);transition:all 0.2s;";
+  btn.onmouseover = function () {
+    if (btn.disabled) return;
+    btn.style.background =
+      "linear-gradient(145deg,rgba(255,215,0,0.24),rgba(255,215,0,0.08))";
+    btn.style.boxShadow = "0 0 14px rgba(255,215,0,0.2)";
+    btn.style.transform = "translateY(-1px)";
+  };
+  btn.onmouseout = function () {
+    btn.style.background =
+      "linear-gradient(145deg,rgba(255,215,0,0.14),rgba(255,215,0,0.04))";
+    btn.style.boxShadow = "0 2px 10px rgba(255,215,0,0.08)";
+    btn.style.transform = "none";
+  };
+
+  const tip = document.createElement("div");
+  tip.id = "dy-portrait-update-tip";
+  tip.style.cssText = "color:var(--text-dim);font-size:0.78em;";
+  const cacheTime =
+    typeof window.getPortraitCacheTime === "function"
+      ? window.getPortraitCacheTime()
+      : 0;
+  tip.textContent = cacheTime
+    ? "上次立绘更新：" + new Date(cacheTime).toLocaleString()
+    : "尚未缓存云端立绘配置";
+
+  btn.onclick = async function () {
+    if (btn.disabled) return;
+    btn.disabled = true;
+    btn.textContent = "更新中...";
+    btn.style.opacity = "0.65";
+    btn.style.cursor = "wait";
+
+    /* 手动更新是用户明确触发的操作，所以成功和失败都要给反馈。
+     * 失败时 loadRemotePortraits() 会继续保留旧缓存并重新应用本地数据，
+     * 因此这里的提示明确告诉用户“继续使用旧缓存”，避免误以为立绘被清空。
+     */
+    const result =
+      typeof window.loadRemotePortraits === "function"
+        ? await window.loadRemotePortraits({ refresh: true })
+        : { ok: false };
+
+    if (result.ok) {
+      const nextCacheTime =
+        typeof window.getPortraitCacheTime === "function"
+          ? window.getPortraitCacheTime()
+          : 0;
+      tip.textContent = nextCacheTime
+        ? "上次立绘更新：" + new Date(nextCacheTime).toLocaleString()
+        : "立绘配置已更新";
+      alert("立绘更新成功。");
+    } else {
+      alert("立绘更新失败，将继续使用旧缓存。");
+    }
+
+    btn.disabled = false;
+    btn.textContent = "更新立绘";
+    btn.style.opacity = "1";
+    btn.style.cursor = "pointer";
+  };
+
+  wrap.appendChild(btn);
+  wrap.appendChild(tip);
+  dateEl.appendChild(wrap);
+};
 window.fetchAndShowNotice = async function () {
   if (document.body.classList.contains("dy-global-collapsed")) return;
   let m = document.getElementById("dy-notice-modal");
@@ -629,6 +718,7 @@ window.fetchAndShowNotice = async function () {
     document.getElementById("dy-notice-date").innerHTML =
       '<div><a href="https://daoyuan.mayuworld.com/" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:8px;padding:8px 20px;background:linear-gradient(145deg, rgba(255,215,0,0.1), rgba(255,215,0,0.02));border:1px solid rgba(255,215,0,0.3);border-radius:24px;color:var(--accent-gold);text-decoration:none;font-size:1em;letter-spacing:1px;font-weight:bold;transition:all 0.3s ease;box-shadow:0 2px 10px rgba(255,215,0,0.05);" onmouseover="this.style.background=\'linear-gradient(145deg, rgba(255,215,0,0.2), rgba(255,215,0,0.05))\'; this.style.boxShadow=\'0 0 15px rgba(255,215,0,0.2)\'; this.style.transform=\'translateY(-1px)\';" onmouseout="this.style.background=\'linear-gradient(145deg, rgba(255,215,0,0.1), rgba(255,215,0,0.02))\'; this.style.boxShadow=\'0 2px 10px rgba(255,215,0,0.05)\'; this.style.transform=\'none\';"><span>📖 查阅道渊 Wiki 图鉴</span><span style="font-size:0.8em;opacity:0.8">➔</span></a></div>';
   }
+  window.renderPortraitUpdateControl();
 };
 window.cleanUpUnwantedUI = function() {
   let e = document.getElementById("env-status");
