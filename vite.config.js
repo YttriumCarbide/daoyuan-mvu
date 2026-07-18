@@ -1,5 +1,11 @@
 import { defineConfig } from 'vite';
 import { viteSingleFile } from 'vite-plugin-singlefile';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // 注入 Mvu mock 数据与全局依赖的插件
 const mvuMockPlugin = () => {
@@ -34,11 +40,12 @@ const shujukuPlugin = () => {
     name: 'shujuku-plugin',
     transformIndexHtml(html) {
       if (process.env.BUILD_TARGET === 'shujuku') {
+        const adapterCode = fs.readFileSync(path.resolve(__dirname, 'src/shujuku-adapter.js'), 'utf8');
         return [
           {
             tag: 'script',
-            attrs: { src: '/shujuku-adapter.js' },
-            injectTo: 'head'
+            children: adapterCode,
+            injectTo: 'head-prepend'
           }
         ];
       }
