@@ -281,12 +281,13 @@
               <div id="btn-map-2d" style="cursor:pointer; color:var(--text-dim); transition:color 0.3s;"
                 onclick="
                   const p = document.getElementById('xuantian-map-img');
-                  const f = document.getElementById('map-3d-iframe');
+                  const f = document.getElementById('map-3d-container');
+                  const iframe = document.getElementById('map-3d-iframe');
                   const b3d = document.getElementById('btn-map-3d');
                   if(p.style.display === 'none') {
                     p.style.display = 'block';
                     this.innerHTML = '[ 关闭 2D 全图 ]';
-                    f.src = '';
+                    iframe.src = '';
                     f.style.display = 'none';
                     b3d.innerHTML = '[ 开启 3D 舆图 ]';
                   } else {
@@ -302,13 +303,14 @@
 
               <div id="btn-map-3d" style="cursor:pointer; color:var(--accent-mana); transition:color 0.3s;"
                 onclick="
-                  const f = document.getElementById('map-3d-iframe');
+                  const f = document.getElementById('map-3d-container');
+                  const iframe = document.getElementById('map-3d-iframe');
                   const p = document.getElementById('xuantian-map-img');
                   const b2d = document.getElementById('btn-map-2d');
                   
                   if(f.style.display === 'none') {
                     const open3D = () => {
-                      f.src = 'https://mumetrace.github.io/daoyuan-map/';
+                      iframe.src = 'https://mumetrace.github.io/daoyuan-map/';
                       f.style.display = 'block';
                       this.innerHTML = '[ 关闭 3D 舆图 ]';
                       p.style.display = 'none';
@@ -348,7 +350,7 @@
                        open3D();
                     }
                   } else {
-                    f.src = '';
+                    iframe.src = '';
                     f.style.display = 'none';
                     this.innerHTML = '[ 开启 3D 舆图 ]';
                   }
@@ -379,7 +381,19 @@
               >
             </div>
 
-            <iframe id="map-3d-iframe" style="display:none; width:100%; height:450px; border:1px solid rgba(100,180,255,0.3); border-radius:8px; margin-bottom:20px; box-shadow:0 5px 15px rgba(0,0,0,0.5);"></iframe>
+            <div id="map-3d-container" style="display:none; position:relative; margin-bottom:20px;">
+              <div style="position:absolute; top:10px; right:15px; cursor:pointer; background:rgba(0,0,0,0.6); padding:5px 10px; border-radius:5px; border:1px solid var(--accent-mana); color:var(--text-main); font-size:0.8em; box-shadow:0 0 10px rgba(0,0,0,0.5); z-index:10; transition:all 0.2s;"
+                   onclick="
+                     const frame = document.getElementById('map-3d-iframe');
+                     if (frame.requestFullscreen) { frame.requestFullscreen(); }
+                     else if (frame.webkitRequestFullscreen) { frame.webkitRequestFullscreen(); }
+                     else if (frame.msRequestFullscreen) { frame.msRequestFullscreen(); }
+                   "
+                   onmouseover="this.style.background='var(--accent-mana)'; this.style.color='#000';"
+                   onmouseout="this.style.background='rgba(0,0,0,0.6)'; this.style.color='var(--text-main)';"
+              >⛶ 全屏显示</div>
+              <iframe id="map-3d-iframe" style="width:100%; height:450px; border:1px solid rgba(100,180,255,0.3); border-radius:8px; box-shadow:0 5px 15px rgba(0,0,0,0.5);"></iframe>
+            </div>
 
             <div class="map-wrapper" id="world-map-xuantian">
               <div class="map-grid"></div>
