@@ -5,28 +5,6 @@ var charPortraits = window.charPortraits = {};
 var charPortraitsFemale = window.charPortraitsFemale = {};
 window.specialPortraits = {};
 
-async function fetchPortraitsData() {
-  const urls = [
-    "https://jsd.cdn.zzko.cn/gh/YttriumCarbide/Daoyuan@main/portraits.json",
-    "https://fastly.jsdelivr.net/gh/YttriumCarbide/Daoyuan@main/portraits.json",
-    "https://gcore.jsdelivr.net/gh/YttriumCarbide/Daoyuan@main/portraits.json",
-    "https://raw.githubusercontent.com/YttriumCarbide/Daoyuan/main/portraits.json"
-  ];
-  const timestamp = new Date().getTime();
-  let lastError = null;
-  for (const url of urls) {
-    try {
-      const response = await fetch(url + "?t=" + timestamp);
-      if (response.ok) {
-        return await response.text();
-      }
-    } catch (e) {
-      lastError = e;
-    }
-  }
-  throw new Error("All CDN mirrors failed: " + (lastError ? lastError.message : "Unknown error"));
-}
-
 window.loadRemotePortraits = async function () {
   const val = (obj) => {
     if (typeof obj !== "object" || obj === null) return {};
@@ -64,16 +42,39 @@ window.loadRemotePortraits = async function () {
   }
 
   if (!hasCache) {
-    try {
-      const text = await fetchPortraitsData();
-      localStorage.setItem("daoyuan_portraits_cache", text);
-      const data = JSON.parse(text);
-      if (data.charPortraits) { charPortraits = val(data.charPortraits); window.charPortraits = charPortraits; }
-      if (data.charPortraitsFemale) { charPortraitsFemale = val(data.charPortraitsFemale); window.charPortraitsFemale = charPortraitsFemale; }
-      if (data.specialPortraits) window.specialPortraits = val(data.specialPortraits);
-      console.log("[道渊状态栏] 首次静默拉取云端立绘成功");
-    } catch (e) {
-      console.warn("[道渊状态栏] 首次静默拉取云端立绘失败，将继续使用空缓存:", e);
+    const hasPrompted = localStorage.getItem("daoyuan_portraits_prompted");
+    if (!hasPrompted) {
+      localStorage.setItem("daoyuan_portraits_prompted", "1");
+      setTimeout(() => {
+        const pm = document.createElement("div");
+        pm.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:999999;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(5px);";
+        pm.innerHTML = `
+          <div style="background:linear-gradient(145deg,rgba(25,20,30,0.95),rgba(15,10,15,0.98));border:1px solid var(--accent-gold);border-radius:12px;width:80%;max-width:350px;padding:25px;box-shadow:0 0 40px rgba(255,215,0,0.2);text-align:center;animation:fadeIn 0.3s ease;">
+            <div style="color:var(--accent-gold);font-size:1.3em;font-weight:bold;margin-bottom:15px;letter-spacing:1px;">✨ 欢迎使用道渊状态栏</div>
+            <div style="color:var(--text-main);font-size:0.95em;line-height:1.6;margin-bottom:20px;">
+              检测到您是首次加载，本地尚未缓存角色立绘。<br><br>
+              <span style="color:var(--text-dim);font-size:0.9em;">由于国内网络原因，系统不再自动后台获取。<br>请您点击下方按钮手动尝试同步最新立绘库！</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <button id="dy-prompt-sync-btn" style="padding:10px 20px;background:linear-gradient(145deg, rgba(100,180,255,0.15), rgba(100,180,255,0.05));border:1px solid rgba(100,180,255,0.4);border-radius:24px;color:#64b4ff;cursor:pointer;font-size:1em;font-weight:bold;transition:all 0.3s ease;box-shadow:0 2px 15px rgba(100,180,255,0.1);">
+                🖼️ 立即手动同步
+              </button>
+              <button id="dy-prompt-close-btn" style="padding:8px 20px;background:transparent;border:none;color:var(--text-dim);cursor:pointer;font-size:0.9em;text-decoration:underline;">
+                稍后再说 (也可在公告栏中同步)
+              </button>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(pm);
+        document.getElementById("dy-prompt-close-btn").onclick = () => pm.remove();
+        document.getElementById("dy-prompt-sync-btn").onclick = function() {
+          if (window.forceUpdateRemotePortraits) {
+            window.forceUpdateRemotePortraits(this).then(() => {
+              setTimeout(() => pm.remove(), 1000);
+            });
+          }
+        };
+      }, 1000); // 延迟 1 秒弹出，避免阻塞页面渲染
     }
   }
   try {
@@ -120,13 +121,19 @@ window.forceUpdateRemotePortraits = async function (btnElement) {
     }, 2500);
   };
   try {
-    const text = await fetchPortraitsData();
-    localStorage.setItem("daoyuan_portraits_cache", text);
-    await window.loadRemotePortraits();
-    if (typeof window.populateCharacterData === "function") {
-      window.populateCharacterData();
+    const url = "https://raw.githubusercontent.com/YttriumCarbide/Daoyuan/main/portraits.json";
+    const response = await fetch(url + "?t=" + new Date().getTime());
+    if (response.ok) {
+      const text = await response.text();
+      localStorage.setItem("daoyuan_portraits_cache", text);
+      await window.loadRemotePortraits();
+      if (typeof window.populateCharacterData === "function") {
+        window.populateCharacterData();
+      }
+      showToast("最新立绘库同步成功！", true);
+    } else {
+      showToast("同步失败，网络请求异常：" + response.status, false);
     }
-    showToast("最新立绘库同步成功！", true);
   } catch (e) {
     console.error("[道渊状态栏] 手动同步立绘失败:", e);
     showToast("同步失败，请检查网络连接", false);
