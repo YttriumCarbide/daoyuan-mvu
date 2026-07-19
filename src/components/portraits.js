@@ -5,6 +5,28 @@ var charPortraits = window.charPortraits = {};
 var charPortraitsFemale = window.charPortraitsFemale = {};
 window.specialPortraits = {};
 
+async function fetchPortraitsData() {
+  const urls = [
+    "https://jsd.cdn.zzko.cn/gh/YttriumCarbide/Daoyuan@main/portraits.json",
+    "https://fastly.jsdelivr.net/gh/YttriumCarbide/Daoyuan@main/portraits.json",
+    "https://gcore.jsdelivr.net/gh/YttriumCarbide/Daoyuan@main/portraits.json",
+    "https://raw.githubusercontent.com/YttriumCarbide/Daoyuan/main/portraits.json"
+  ];
+  const timestamp = new Date().getTime();
+  let lastError = null;
+  for (const url of urls) {
+    try {
+      const response = await fetch(url + "?t=" + timestamp);
+      if (response.ok) {
+        return await response.text();
+      }
+    } catch (e) {
+      lastError = e;
+    }
+  }
+  throw new Error("All CDN mirrors failed: " + (lastError ? lastError.message : "Unknown error"));
+}
+
 window.loadRemotePortraits = async function () {
   const val = (obj) => {
     if (typeof obj !== "object" || obj === null) return {};
@@ -43,17 +65,13 @@ window.loadRemotePortraits = async function () {
 
   if (!hasCache) {
     try {
-      const url = "https://raw.githubusercontent.com/YttriumCarbide/Daoyuan/main/portraits.json";
-      const response = await fetch(url + "?t=" + new Date().getTime());
-      if (response.ok) {
-        const text = await response.text();
-        localStorage.setItem("daoyuan_portraits_cache", text);
-        const data = JSON.parse(text);
-        if (data.charPortraits) { charPortraits = val(data.charPortraits); window.charPortraits = charPortraits; }
-        if (data.charPortraitsFemale) { charPortraitsFemale = val(data.charPortraitsFemale); window.charPortraitsFemale = charPortraitsFemale; }
-        if (data.specialPortraits) window.specialPortraits = val(data.specialPortraits);
-        console.log("[道渊状态栏] 首次静默拉取云端立绘成功");
-      }
+      const text = await fetchPortraitsData();
+      localStorage.setItem("daoyuan_portraits_cache", text);
+      const data = JSON.parse(text);
+      if (data.charPortraits) { charPortraits = val(data.charPortraits); window.charPortraits = charPortraits; }
+      if (data.charPortraitsFemale) { charPortraitsFemale = val(data.charPortraitsFemale); window.charPortraitsFemale = charPortraitsFemale; }
+      if (data.specialPortraits) window.specialPortraits = val(data.specialPortraits);
+      console.log("[道渊状态栏] 首次静默拉取云端立绘成功");
     } catch (e) {
       console.warn("[道渊状态栏] 首次静默拉取云端立绘失败，将继续使用空缓存:", e);
     }
@@ -102,19 +120,13 @@ window.forceUpdateRemotePortraits = async function (btnElement) {
     }, 2500);
   };
   try {
-    const url = "https://raw.githubusercontent.com/YttriumCarbide/Daoyuan/main/portraits.json";
-    const response = await fetch(url + "?t=" + new Date().getTime());
-    if (response.ok) {
-      const text = await response.text();
-      localStorage.setItem("daoyuan_portraits_cache", text);
-      await window.loadRemotePortraits();
-      if (typeof window.populateCharacterData === "function") {
-        window.populateCharacterData();
-      }
-      showToast("最新立绘库同步成功！", true);
-    } else {
-      showToast("同步失败，网络请求异常：" + response.status, false);
+    const text = await fetchPortraitsData();
+    localStorage.setItem("daoyuan_portraits_cache", text);
+    await window.loadRemotePortraits();
+    if (typeof window.populateCharacterData === "function") {
+      window.populateCharacterData();
     }
+    showToast("最新立绘库同步成功！", true);
   } catch (e) {
     console.error("[道渊状态栏] 手动同步立绘失败:", e);
     showToast("同步失败，请检查网络连接", false);
