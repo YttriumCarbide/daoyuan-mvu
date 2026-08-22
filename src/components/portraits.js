@@ -18,7 +18,7 @@ import {
   setPortraitIndex as setStoredPortraitIndex,
 } from "../features/portraits/preferences.js";
 import { canUsePortraitTheme } from "../features/portraits/rules.js";
-import { getThemeUi, THEME_UI } from "../features/portraits/theme-ui.js";
+import { getThemeUi } from "../features/portraits/theme-ui.js";
 
 /* 预设的人物立绘映射表 (已转为云端加载) */
 var charPortraits = window.charPortraits = {};
@@ -81,6 +81,21 @@ function getCustomPortraitMap(poolId) {
   return result;
 }
 
+function getCustomPortraitThemeIds(name) {
+  const customImages = readPortraitPreferences().customImages;
+  const themeMaps = name ? [customImages[name]] : Object.values(customImages);
+  const result = new Set();
+  themeMaps.forEach((themes) => {
+    if (!themes || typeof themes !== "object") return;
+    Object.entries(themes).forEach(([theme, urls]) => {
+      if (splitPortraitUrls(urls).length) {
+        result.add(resolvePortraitPoolId(theme));
+      }
+    });
+  });
+  return result;
+}
+
 function migrateLegacyPortraitStorage() {
   return migrateLegacyPortraitPreferences();
 }
@@ -112,7 +127,7 @@ function rebuildPortraitPools() {
   const next = {};
   const themes = new Set([
     ...Object.keys(defaultPortraitPools),
-    ...Object.keys(THEME_UI),
+    ...getCustomPortraitThemeIds(),
   ]);
   for (const poolId of themes) {
     next[poolId] = {
@@ -156,14 +171,14 @@ function getCharacterPortraitStat(name) {
 
 function isPortraitPoolVisible(name, poolId) {
   const resolved = resolvePortraitPoolId(poolId);
-  const images = getPortraitPoolValue(name, resolved);
+  const images = splitPortraitUrls(getPortraitPoolValue(name, resolved));
   return canUsePortraitTheme(resolved, images, getCharacterPortraitStat(name));
 }
 
 function getVisiblePortraitPools(name) {
   const orderedThemes = Array.from(groupCharacterImagesByTheme(name).keys());
-  Object.keys(THEME_UI).forEach((theme) => {
-    if (getCustomImages(name, theme).length && !orderedThemes.includes(theme)) {
+  getCustomPortraitThemeIds(name).forEach((theme) => {
+    if (!orderedThemes.includes(theme)) {
       orderedThemes.push(theme);
     }
   });
@@ -722,17 +737,18 @@ window.searchAndShowPortrait = function () {
 };
 window.selectPortraitPool = function (name, poolId) {
   const resolved = resolvePortraitPoolId(poolId);
-  if (!window.setActivePortraitPool(name, resolved)) return false;
   const value = getPortraitPoolValue(name, resolved);
-  if (!value) {
+  const urls = splitPortraitUrls(value);
+  if (!value || urls.length === 0) {
     window.updatePortraitView(name, "");
     window.showMissingPortraitDialog(name, resolved);
     window.injectPortraitDrawers();
     return false;
   }
+  if (!window.setActivePortraitPool(name, resolved)) return false;
   window.updatePortraitView(
     name,
-    getIndexedPortrait(value, name, resolved) || "",
+    urls[getPortraitIndex(name, resolved, urls.length)] || "",
   );
   window.injectPortraitDrawers();
   return true;
@@ -830,7 +846,8 @@ window.injectPortraitDrawers = function () {
       toggle.setAttribute("aria-expanded", String(willOpen));
     };
     selector.append(toggle, menu);
-    actions.appendChild(selector);
+    const selectorHost = actions.querySelector(".beauty-forum-drawer-slot") || actions;
+    selectorHost.appendChild(selector);
   });
 };
 

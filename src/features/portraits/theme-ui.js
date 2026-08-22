@@ -4,6 +4,8 @@ export const THEME_UI = Object.freeze({
   special: { name: "心动", icon: "💖" },
   wedding: { name: "婚纱", icon: "👰" },
   tarot: { name: "塔罗", icon: "🔮" },
+  swimsuit: { name: "泳装", icon: "👙" },
+  nai: { name: "Nai", icon: "🥛" },
 });
 
 export function getThemeUi(theme) {
