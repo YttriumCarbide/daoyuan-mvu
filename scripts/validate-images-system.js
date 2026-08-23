@@ -31,6 +31,28 @@ class MemoryStorage {
   }
 }
 
+class LimitedStorage extends MemoryStorage {
+  constructor(entries, limit) {
+    super(entries);
+    this.limit = limit;
+  }
+
+  setItem(key, value) {
+    const normalizedValue = String(value);
+    const next = new Map(this.values);
+    next.set(key, normalizedValue);
+    const size = Array.from(next.entries()).reduce(
+      (total, [entryKey, entryValue]) =>
+        total + String(entryKey).length + String(entryValue).length,
+      0,
+    );
+    if (size > this.limit) {
+      throw new DOMException("Storage quota exceeded", "QuotaExceededError");
+    }
+    this.values = next;
+  }
+}
+
 const fixture = parseImageLibrary({
   schemaVersion: 2,
   data: {
@@ -108,7 +130,7 @@ const { readPortraitPreferences } = await import(
   "../src/features/portraits/preferences.js"
 );
 
-assert.equal(migrateLegacyPortraitPreferences(), true);
+assert.equal(await migrateLegacyPortraitPreferences(), true);
 const preferences = readPortraitPreferences();
 assert.equal(preferences.activeThemes.测试人物, "default");
 assert.equal(preferences.indices.测试人物.default, 1);
@@ -116,7 +138,58 @@ assert.deepEqual(preferences.customImages.测试人物.default, [
   "https://example.com/a.png",
   "https://example.com/b.png",
 ]);
-assert.equal(migrateLegacyPortraitPreferences(), false);
+assert.equal(await migrateLegacyPortraitPreferences(), false);
+assert.equal(
+  window.localStorage.getItem("daoyuan_portrait_preferences_migration_version"),
+  "3",
+);
+assert.equal(
+  window.localStorage.getItem("daoyuan_custom_portraits_pool_normal"),
+  null,
+);
+
+window.localStorage = new LimitedStorage(
+  {
+    daoyuan_images_cache_v2: "x".repeat(350),
+    daoyuan_active_portrait_pools: JSON.stringify({ 缓存恢复人物: "normal" }),
+    daoyuan_custom_portraits_pool_normal: JSON.stringify({
+      缓存恢复人物: "https://example.com/recovered.png",
+    }),
+  },
+  600,
+);
+assert.equal(await migrateLegacyPortraitPreferences(), true);
+assert.equal(window.localStorage.getItem("daoyuan_images_cache_v2"), null);
+assert.equal(
+  readPortraitPreferences().customImages.缓存恢复人物.default[0],
+  "https://example.com/recovered.png",
+);
+
+const largeLegacyUrls = Array.from(
+  { length: 18 },
+  (_, index) => `https://example.com/large-${index}-${"x".repeat(35)}.png`,
+);
+window.localStorage = new LimitedStorage(
+  {
+    daoyuan_custom_portraits_pool_normal: JSON.stringify({
+      保留旧数据人物: largeLegacyUrls,
+    }),
+  },
+  1400,
+);
+assert.equal(await migrateLegacyPortraitPreferences(), false);
+assert.equal(
+  window.localStorage.getItem("daoyuan_portrait_preferences_migration_version"),
+  null,
+);
+assert.notEqual(
+  window.localStorage.getItem("daoyuan_custom_portraits_pool_normal"),
+  null,
+);
+assert.deepEqual(
+  readPortraitPreferences().customImages.保留旧数据人物.default,
+  largeLegacyUrls,
+);
 
 const projectRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -148,5 +221,5 @@ assert.equal(
 );
 
 console.log(
-  "IMAGES_SYSTEM_OK schema, entity routing, theme order, drawer visibility, Nai UI, special rule, and local migration",
+  "IMAGES_SYSTEM_OK schema, entity routing, theme order, drawer visibility, Nai UI, special rule, quota recovery, and safe local migration",
 );

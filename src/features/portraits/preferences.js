@@ -1,4 +1,10 @@
+import {
+  pruneLocalPortraitImages,
+  resolvePortraitImageUrls,
+} from "./local-images.js";
+
 const PREFERENCES_KEY = "daoyuan_portrait_preferences_v2";
+let transientPreferences = null;
 
 function getStorage() {
   return window.DaoyuanStatusStorage || window.localStorage;
@@ -10,7 +16,7 @@ function createEmptyPreferences() {
 
 export function readPortraitPreferences() {
   try {
-    const saved = getStorage().getItem(PREFERENCES_KEY);
+    const saved = transientPreferences || getStorage().getItem(PREFERENCES_KEY);
     if (!saved) return createEmptyPreferences();
     const parsed = JSON.parse(saved);
     return {
@@ -25,7 +31,32 @@ export function readPortraitPreferences() {
 }
 
 export function writePortraitPreferences(preferences) {
-  getStorage().setItem(PREFERENCES_KEY, JSON.stringify(preferences));
+  const storage = getStorage();
+  const serialized = JSON.stringify(preferences);
+  storage.setItem(PREFERENCES_KEY, serialized);
+  if (storage.getItem(PREFERENCES_KEY) !== serialized) {
+    throw new Error("立绘偏好未能持久化到浏览器存储");
+  }
+  transientPreferences = null;
+  return true;
+}
+
+function getStoredCustomImageUrls(preferences) {
+  return Object.values(preferences.customImages || {}).flatMap(themes =>
+    themes && typeof themes === "object"
+      ? Object.values(themes).flatMap(urls => (Array.isArray(urls) ? urls : []))
+      : [],
+  );
+}
+
+function pruneUnusedLocalImages(preferences) {
+  void pruneLocalPortraitImages(getStoredCustomImageUrls(preferences)).catch(
+    error => console.warn("[道渊] 清理未使用的本地立绘失败:", error),
+  );
+}
+
+export function useTransientPortraitPreferences(preferences) {
+  transientPreferences = JSON.stringify(preferences);
 }
 
 export function getActiveTheme(name) {
@@ -53,7 +84,7 @@ export function setPortraitIndex(name, theme, index) {
 
 export function getCustomImages(name, theme) {
   const images = readPortraitPreferences().customImages[name]?.[theme];
-  return Array.isArray(images) ? images.slice() : [];
+  return resolvePortraitImageUrls(images);
 }
 
 export function setCustomImages(name, theme, urls) {
@@ -71,11 +102,13 @@ export function removeCustomImages(name, theme) {
       delete preferences.customImages[name];
     }
     writePortraitPreferences(preferences);
+    pruneUnusedLocalImages(preferences);
   }
 }
 
 export function resetPortraitPreferences() {
   writePortraitPreferences(createEmptyPreferences());
+  pruneUnusedLocalImages(createEmptyPreferences());
 }
 
 export { PREFERENCES_KEY };

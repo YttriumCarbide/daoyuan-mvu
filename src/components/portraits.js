@@ -7,6 +7,11 @@ import {
 } from "../features/image-library/index.js";
 import { migrateLegacyPortraitPreferences } from "../features/portraits/migration.js";
 import {
+  initializeLocalPortraitImages,
+  persistPortraitImageUrls,
+  resolvePortraitImageUrls,
+} from "../features/portraits/local-images.js";
+import {
   getActiveTheme,
   getCustomImages,
   getPortraitIndex as getStoredPortraitIndex,
@@ -75,7 +80,7 @@ function getCustomPortraitMap(poolId) {
   const result = {};
   const customImages = readPortraitPreferences().customImages;
   Object.entries(customImages).forEach(([name, themes]) => {
-    const urls = Array.isArray(themes?.[theme]) ? themes[theme] : [];
+    const urls = resolvePortraitImageUrls(themes?.[theme]);
     if (urls.length) result[name] = urls;
   });
   return result;
@@ -96,7 +101,7 @@ function getCustomPortraitThemeIds(name) {
   return result;
 }
 
-function migrateLegacyPortraitStorage() {
+async function migrateLegacyPortraitStorage() {
   return migrateLegacyPortraitPreferences();
 }
 
@@ -275,8 +280,9 @@ function showImageSyncToast(message, isSuccess) {
 }
 
 
-function applyImageLibraryToPortraits() {
-  migrateLegacyPortraitStorage();
+async function applyImageLibraryToPortraits() {
+  await initializeLocalPortraitImages();
+  await migrateLegacyPortraitStorage();
   rebuildDefaultPortraitPoolsFromImages();
   rebuildPortraitPools();
   window.dyPortraitCacheMissing = window.dyImageCacheMissing === true;
@@ -287,7 +293,7 @@ window.loadRemotePortraits = async function (options = {}) {
   const loaded = await initializeImageLibrary({
     autoFetch: options.autoFetch !== false,
   });
-  if (loaded) applyImageLibraryToPortraits();
+  if (loaded) await applyImageLibraryToPortraits();
   else {
     defaultPortraitPools = window.defaultPortraitPools = {};
     portraitPools = window.portraitPools = {};
@@ -306,7 +312,7 @@ window.forceUpdateRemotePortraits = async function (btnElement) {
   }
   try {
     await refreshImageLibrary();
-    applyImageLibraryToPortraits();
+    await applyImageLibraryToPortraits();
     if (typeof window.populateCharacterData === "function") {
       window.populateCharacterData();
     }
@@ -328,7 +334,11 @@ window.forceUpdateRemotePortraits = async function (btnElement) {
 
 if (!window.__daoyuanImagePortraitListenerBound) {
   window.__daoyuanImagePortraitListenerBound = true;
-  window.addEventListener("daoyuan_images_changed", applyImageLibraryToPortraits);
+  window.addEventListener("daoyuan_images_changed", () => {
+    void applyImageLibraryToPortraits().catch(error =>
+      console.warn("[道渊状态栏] 应用图片库失败:", error),
+    );
+  });
 }
 
 window.preloadPortraits = function (name) {
@@ -880,8 +890,8 @@ window.getPortraitUrl = function (name, gender) {
   return value ? getIndexedPortrait(value, name, poolId) : undefined;
 };
 
-/* 保存自定义立绘到 localStorage */
-window.saveCustomPortrait = function (name, urls, mode = "default") {
+/* 保存自定义立绘；本地图片内容由 IndexedDB 承载 */
+window.saveCustomPortrait = async function (name, urls, mode = "default") {
   try {
     const theme = resolvePortraitPoolId(mode);
     const normalizedUrls = splitPortraitUrls(urls);
@@ -903,7 +913,8 @@ window.saveCustomPortrait = function (name, urls, mode = "default") {
       );
     }
 
-    setCustomImages(name, theme, normalizedUrls);
+    const storedUrls = await persistPortraitImageUrls(normalizedUrls);
+    setCustomImages(name, theme, storedUrls);
     setPortraitIndex(name, theme, 0);
     portraitPools[theme] ||= {};
     portraitPools[theme][name] = normalizedUrls;
@@ -1155,7 +1166,7 @@ window.openCustomPortraitDialog = function (charName, mode) {
   }
   modal
     .querySelector("#portrait-confirm-btn")
-    .addEventListener("click", function () {
+    .addEventListener("click", async function () {
       var inputs = container.querySelectorAll("input");
       var validUrls = [];
       inputs.forEach(function (i) {
@@ -1166,7 +1177,7 @@ window.openCustomPortraitDialog = function (charName, mode) {
         alert("请输入至少一个有效的图片URL");
         return;
       }
-      if (window.saveCustomPortrait(charName, validUrls, mode)) {
+      if (await window.saveCustomPortrait(charName, validUrls, mode)) {
         modal.remove();
       } else {
         alert("保存失败，请重试");

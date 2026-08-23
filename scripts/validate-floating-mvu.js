@@ -101,6 +101,8 @@ const requiredMarkers = [
   "daoyuan_images_cache_v2",
   "daoyuan_portrait_preferences_v2",
   "daoyuan_portrait_preferences_migration_version",
+  "daoyuan_status_assets",
+  "idb:daoyuan-portrait:",
   "daoyuan_images_changed",
   "portrait-pool-selector",
   "portrait-pool-body-open",
