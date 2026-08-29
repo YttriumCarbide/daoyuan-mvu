@@ -83,7 +83,9 @@ const unsafeEntities = forbiddenEntityLiterals.filter((entity) => {
 });
 const requiredImageLibraryMarkers = [
   "images.json",
+  "portrait-drawers.json",
   "daoyuan_images_cache_v2",
+  "daoyuan_portrait_drawers_cache_v1",
   "daoyuan_portrait_preferences_v2",
   "daoyuan_portrait_preferences_migration_version",
   "daoyuan_status_assets",
@@ -104,7 +106,6 @@ const missingImageLibraryMarkers = requiredImageLibraryMarkers.filter(
 );
 const forbiddenLegacyImageFiles = [
   "portraits.json",
-  "portrait-drawers.json",
   "sect-maps.json",
 ].filter(marker => distHtml.includes(marker));
 

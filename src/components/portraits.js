@@ -23,6 +23,10 @@ import {
   setPortraitIndex as setStoredPortraitIndex,
 } from "../features/portraits/preferences.js";
 import { canUsePortraitTheme } from "../features/portraits/rules.js";
+import {
+  initializePortraitDrawers,
+  refreshPortraitDrawers,
+} from "../features/portraits/drawers.js";
 import { getThemeUi } from "../features/portraits/theme-ui.js";
 
 /* 预设的人物立绘映射表 (已转为云端加载) */
@@ -189,7 +193,16 @@ function getVisiblePortraitPools(name) {
   });
   return orderedThemes
     .filter((theme) => isPortraitPoolVisible(name, theme))
-    .map((theme) => [theme, getThemeUi(theme)]);
+    .map((theme) => [theme, getThemeUi(theme)])
+    .sort((left, right) => {
+      const leftOrder = Number.isFinite(left[1].order)
+        ? left[1].order
+        : Number.MAX_SAFE_INTEGER;
+      const rightOrder = Number.isFinite(right[1].order)
+        ? right[1].order
+        : Number.MAX_SAFE_INTEGER;
+      return leftOrder - rightOrder;
+    });
 }
 
 function getSavedActivePortraitPool(name) {
@@ -290,9 +303,11 @@ async function applyImageLibraryToPortraits() {
 }
 
 window.loadRemotePortraits = async function (options = {}) {
-  const loaded = await initializeImageLibrary({
-    autoFetch: options.autoFetch !== false,
-  });
+  const autoFetch = options.autoFetch !== false;
+  const [loaded] = await Promise.all([
+    initializeImageLibrary({ autoFetch }),
+    initializePortraitDrawers({ autoFetch }),
+  ]);
   if (loaded) await applyImageLibraryToPortraits();
   else {
     defaultPortraitPools = window.defaultPortraitPools = {};
@@ -311,7 +326,17 @@ window.forceUpdateRemotePortraits = async function (btnElement) {
     btnElement.style.pointerEvents = "none";
   }
   try {
-    await refreshImageLibrary();
+    const [imagesResult, drawersResult] = await Promise.allSettled([
+      refreshImageLibrary(),
+      refreshPortraitDrawers(),
+    ]);
+    if (imagesResult.status === "rejected") throw imagesResult.reason;
+    if (drawersResult.status === "rejected") {
+      console.warn(
+        "[道渊状态栏] 图片已同步，但立绘抽屉配置同步失败，继续使用已有配置:",
+        drawersResult.reason,
+      );
+    }
     await applyImageLibraryToPortraits();
     if (typeof window.populateCharacterData === "function") {
       window.populateCharacterData();
