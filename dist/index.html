@@ -533,67 +533,62 @@ function writeImageLibraryCache(data) {
 function clearImageLibraryCache() {
   getStorage$3().removeItem(IMAGES_CACHE_KEY);
 }
-function normalizeImage(image, entityName, index) {
-  if (!image || typeof image !== "object" || Array.isArray(image)) {
+function isRecord(value) {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+function isText(value, maxLength = 100) {
+  return typeof value === "string" && value.length > 0 && value.length <= maxLength && value.trim() === value;
+}
+function parseImage(image, entityName, index) {
+  if (!isRecord(image)) {
     throw new Error(`实体“${entityName}”的第 ${index + 1} 张图片不是有效对象`);
   }
-  const url = String(image.url || "").trim();
-  const theme = String(image.theme || "").trim();
-  if (!url || !/^(https?:\/\/|data:image\/)/i.test(url)) {
+  const { url, theme, tags, comment } = image;
+  if (typeof url !== "string" || !/^https:\/\/[^\s|]+$/.test(url)) {
     throw new Error(`实体“${entityName}”的第 ${index + 1} 张图片 URL 无效`);
   }
-  if (!theme) {
-    throw new Error(`实体“${entityName}”的第 ${index + 1} 张图片缺少 theme`);
+  if (!isText(theme)) {
+    throw new Error(`实体“${entityName}”的第 ${index + 1} 张图片 theme 无效`);
   }
-  return {
-    ...image,
-    url,
-    theme,
-    tags: Array.isArray(image.tags) ? image.tags.map((tag) => String(tag).trim()).filter(Boolean) : []
-  };
+  if (!Array.isArray(tags) || !tags.every((tag) => isText(tag)) || new Set(tags).size !== tags.length) {
+    throw new Error(`实体“${entityName}”的第 ${index + 1} 张图片 tags 无效`);
+  }
+  if (comment !== void 0 && !isText(comment, 500)) {
+    throw new Error(`实体“${entityName}”的第 ${index + 1} 张图片 comment 无效`);
+  }
+  return { url, theme, tags: tags.slice(), ...comment === void 0 ? {} : { comment } };
 }
 function parseImageLibrary(raw) {
   var _a;
   const data = typeof raw === "string" ? JSON.parse(raw) : raw;
-  if (!data || typeof data !== "object" || Array.isArray(data)) {
-    throw new Error("图片库不是有效对象");
-  }
-  if (Number(data.schemaVersion) !== SUPPORTED_IMAGE_SCHEMA_VERSION) {
+  if (!isRecord(data)) throw new Error("图片库不是有效对象");
+  if (data.schemaVersion !== SUPPORTED_IMAGE_SCHEMA_VERSION) {
     throw new Error(`不支持的图片库版本：${data.schemaVersion ?? "缺失"}`);
   }
   const rawEntities = (_a = data.data) == null ? void 0 : _a.entities;
-  if (!rawEntities || typeof rawEntities !== "object" || Array.isArray(rawEntities)) {
+  if (!isRecord(data.data) || !isRecord(rawEntities)) {
     throw new Error("图片库缺少 data.entities");
   }
-  const entities = {};
-  for (const [rawName, rawEntity] of Object.entries(rawEntities)) {
-    const name = String(rawName).trim();
-    if (!name || !rawEntity || typeof rawEntity !== "object") {
-      throw new Error("图片库包含无效实体");
+  const entries = Object.entries(rawEntities);
+  if (!entries.length) throw new Error("图片库没有实体数据");
+  const entities = Object.fromEntries(entries.map(([name, entity]) => {
+    if (!isText(name) || !isRecord(entity)) throw new Error("图片库包含无效实体");
+    if (!SUPPORTED_ENTITY_TYPES.has(entity.type)) {
+      throw new Error(`实体“${name}”的 type 无效：${entity.type ?? "缺失"}`);
     }
-    const type = String(rawEntity.type || "").trim();
-    if (!SUPPORTED_ENTITY_TYPES.has(type)) {
-      throw new Error(`实体“${name}”的 type 无效：${type || "缺失"}`);
-    }
-    if (!Array.isArray(rawEntity.images)) {
+    if (!Array.isArray(entity.images)) {
       throw new Error(`实体“${name}”的 images 不是数组`);
     }
-    entities[name] = {
-      ...rawEntity,
-      type,
-      images: rawEntity.images.map(
-        (image, index) => normalizeImage(image, name, index)
-      )
-    };
-  }
-  if (Object.keys(entities).length === 0) {
-    throw new Error("图片库没有实体数据");
-  }
-  return {
-    schemaVersion: SUPPORTED_IMAGE_SCHEMA_VERSION,
-    data: { entities }
-  };
+    return [name, {
+      type: entity.type,
+      images: entity.images.map((image, index) => parseImage(image, name, index))
+    }];
+  }));
+  return { schemaVersion: SUPPORTED_IMAGE_SCHEMA_VERSION, data: { entities } };
 }
+let mainLibrary = null;
+let workshopLibrary = null;
+let mainSource = null;
 let imageLibraryState = {
   schemaVersion: null,
   entities: {},
@@ -601,21 +596,77 @@ let imageLibraryState = {
   source: null
 };
 const subscribers = /* @__PURE__ */ new Set();
-function setImageLibrary(data, source) {
+function mergeEntities() {
+  const entities = new Map(Object.entries((mainLibrary == null ? void 0 : mainLibrary.data.entities) || {}));
+  for (const [name, extra] of Object.entries((workshopLibrary == null ? void 0 : workshopLibrary.data.entities) || {})) {
+    const base = entities.get(name);
+    if (!base) {
+      entities.set(name, extra);
+    } else if (base.type === extra.type) {
+      const images = /* @__PURE__ */ new Map();
+      for (const image of [...base.images, ...extra.images]) {
+        const key = JSON.stringify([image.url, image.theme]);
+        const existing = images.get(key);
+        images.set(key, existing ? { ...existing, tags: [.../* @__PURE__ */ new Set([...existing.tags, ...image.tags])] } : image);
+      }
+      entities.set(name, { ...base, images: [...images.values()] });
+    }
+  }
+  return Object.fromEntries(entities);
+}
+function publishImageLibrary() {
+  const library = mainLibrary || workshopLibrary;
   imageLibraryState = {
-    schemaVersion: data.schemaVersion,
-    entities: data.data.entities,
-    loaded: true,
-    source
+    schemaVersion: (library == null ? void 0 : library.schemaVersion) ?? null,
+    entities: mergeEntities(),
+    loaded: Boolean(library),
+    source: mainSource || (workshopLibrary ? "workshop" : null)
   };
   subscribers.forEach((subscriber) => subscriber(imageLibraryState));
   return imageLibraryState;
 }
+function setImageLibrary(data, source) {
+  mainLibrary = data;
+  mainSource = source;
+  return publishImageLibrary();
+}
+function setWorkshopImageLibrary(data) {
+  workshopLibrary = data;
+  return publishImageLibrary();
+}
 function getImageLibraryState() {
   return imageLibraryState;
 }
+async function readWorkshopImageLibrary() {
+  var _a;
+  let timer;
+  try {
+    const host = window.parent;
+    if (typeof ((_a = host == null ? void 0 : host.DaoyuanWorkshopAPI) == null ? void 0 : _a.getImages) !== "function") return null;
+    const read = async () => {
+      if (typeof window.waitGlobalInitialized === "function") {
+        await window.waitGlobalInitialized("DaoyuanWorkshopAPI");
+      }
+      const api = host.DaoyuanWorkshopAPI;
+      if (typeof (api == null ? void 0 : api.getImages) !== "function") return null;
+      return parseImageLibrary(await api.getImages());
+    };
+    return await Promise.race([
+      read(),
+      new Promise((resolve) => {
+        timer = setTimeout(() => resolve(null), 2e3);
+      })
+    ]);
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
 function getImageEntity(name) {
-  return getImageLibraryState().entities[String(name || "").trim()] || null;
+  const entities = getImageLibraryState().entities;
+  const key = String(name || "").trim();
+  return Object.hasOwn(entities, key) ? entities[key] : null;
 }
 function getCharacterEntity(name) {
   const entity = getImageEntity(name);
@@ -656,7 +707,10 @@ async function initializeImageLibrary(options = {}) {
     }
   } catch (error) {
     console.warn("[道渊状态栏] 图片库缓存无效，准备重新同步:", error);
-    clearImageLibraryCache();
+    try {
+      clearImageLibraryCache();
+    } catch {
+    }
   }
   window.dyImageCacheMissing = true;
   if (!autoFetch) return false;
@@ -682,6 +736,13 @@ async function refreshImageLibrary() {
   window.dyImageCacheMissing = false;
   notifyImageConsumers();
   return parsed;
+}
+async function loadWorkshopImages() {
+  const images = await readWorkshopImageLibrary();
+  if (!images) return false;
+  setWorkshopImageLibrary(images);
+  notifyImageConsumers();
+  return true;
 }
 window.loadRemoteImages = initializeImageLibrary;
 window.forceUpdateRemoteImages = refreshImageLibrary;
@@ -2157,17 +2218,17 @@ function syncLegacyPortraitGlobals() {
   window.specialPortraits = portraitPools.special || {};
 }
 function rebuildDefaultPortraitPoolsFromImages() {
-  const next = {};
+  const next = /* @__PURE__ */ Object.create(null);
   getAllCharacterNames().forEach((name) => {
     groupCharacterImagesByTheme(name).forEach((images, theme) => {
-      next[theme] || (next[theme] = {});
+      next[theme] || (next[theme] = /* @__PURE__ */ Object.create(null));
       next[theme][name] = images.map((image) => image.url);
     });
   });
   defaultPortraitPools = window.defaultPortraitPools = next;
 }
 function rebuildPortraitPools() {
-  const next = {};
+  const next = /* @__PURE__ */ Object.create(null);
   const themes = /* @__PURE__ */ new Set([
     ...Object.keys(defaultPortraitPools),
     ...getCustomPortraitThemeIds()
@@ -2301,13 +2362,7 @@ window.loadRemotePortraits = async function(options = {}) {
     initializeImageLibrary({ autoFetch }),
     initializePortraitDrawers({ autoFetch })
   ]);
-  if (loaded) await applyImageLibraryToPortraits();
-  else {
-    defaultPortraitPools = window.defaultPortraitPools = {};
-    portraitPools = window.portraitPools = {};
-    window.dyPortraitCacheMissing = true;
-    refreshPortraitAttentionState();
-  }
+  await applyImageLibraryToPortraits();
   return loaded;
 };
 window.forceUpdateRemotePortraits = async function(btnElement) {
@@ -2351,9 +2406,11 @@ window.forceUpdateRemotePortraits = async function(btnElement) {
 if (!window.__daoyuanImagePortraitListenerBound) {
   window.__daoyuanImagePortraitListenerBound = true;
   window.addEventListener("daoyuan_images_changed", () => {
-    void applyImageLibraryToPortraits().catch(
-      (error) => console.warn("[道渊状态栏] 应用图片库失败:", error)
-    );
+    void applyImageLibraryToPortraits().then(() => {
+      var _a;
+      (_a = window.populateCharacterData) == null ? void 0 : _a.call(window);
+      refreshVisiblePortraitSearch();
+    }).catch((error) => console.warn("[道渊状态栏] 应用图片库失败:", error));
   });
 }
 window.preloadPortraits = function(name) {
@@ -2672,7 +2729,7 @@ window.searchAndShowPortrait = function() {
   let matched = k === "随机" ? [allArr[Math.floor(Math.random() * allArr.length)]] : allArr.filter((x) => x.includes(k));
   if (matched.length === 0) {
     r.style.display = "block";
-    r.innerHTML = '<div style="color:var(--accent-blood);text-align:center;padding:10px;">未找到包含【' + k + "】的立绘记录。</div>";
+    r.innerHTML = '<div style="color:var(--accent-blood);text-align:center;padding:10px;">未找到包含【' + escapeHtmlAttribute(k) + "】的立绘记录。</div>";
     return;
   }
   let stat = {};
@@ -2691,8 +2748,24 @@ window.searchAndShowPortrait = function() {
       pUrl = getIndexedPortrait(getPortraitPoolValue(n, poolId), n, poolId);
     }
     const hasPortrait = Boolean(pUrl);
-    let safeN = String(n).replace(/"/g, '"');
-    html += '<div class="info-card" data-beauty="' + safeN + `" style="border-color:rgba(217,128,250,0.5);background:rgba(0,0,0,0.4);margin-bottom:10px;box-shadow:inset 0 0 10px rgba(217,128,250,0.1);"><div class="info-title"><span style="color:var(--rare-text);cursor:pointer;text-decoration:none;" onclick="event.stopPropagation(); window.showLoreByName('` + safeN + `');" title="点击探查天机">` + safeN + '</span><span style="font-size:0.8em;color:var(--text-dim)">查阅结果</span></div><div class="portrait-wrapper"><div class="portrait-actions">' + (hasPortrait ? `<div class="portrait-toggle-btn" onclick="const px=this.parentElement.nextElementSibling;const img=px.querySelector('img');if(!img.src){img.src=img.dataset.src;}px.classList.toggle('show');this.innerHTML=px.classList.contains('show')?'收起立绘 ▲':'查看立绘 ▼';">查看立绘 ▼</div>` : `<div class="portrait-toggle-btn" style="opacity:0.75;" onclick="event.stopPropagation(); window.showMissingPortraitDialog('` + safeN + `');" title="配置或获取角色立绘">暂无立绘</div>`) + `<div class="portrait-custom-btn" onclick="event.stopPropagation(); window.openCustomPortraitDialog('` + safeN + `');" title="设置立绘">🎨</div><div class="portrait-custom-btn" onclick="event.stopPropagation(); window.switchPortrait('` + safeN + `');" title="切换立绘">🔄</div>` + renderDaoyuanApplause(n) + "</div>" + (hasPortrait ? '<div class="large-portrait"><img data-src="' + pUrl + '" alt="' + safeN + '"></div>' : '<div class="large-portrait" style="display:none;align-items:center;justify-content:center;min-height:100px;color:var(--text-dim);font-size:0.85em;">点击「🎨 自定义」上传本地图片</div>') + "</div></div>";
+    const safeName = escapeHtmlAttribute(n);
+    const nameArgument = escapeHtmlAttribute(JSON.stringify(n));
+    html += `
+      <div class="info-card" data-beauty="${safeName}" style="border-color:rgba(217,128,250,0.5);background:rgba(0,0,0,0.4);margin-bottom:10px;box-shadow:inset 0 0 10px rgba(217,128,250,0.1);">
+        <div class="info-title">
+          <span style="color:var(--rare-text);cursor:pointer;text-decoration:none;" onclick="event.stopPropagation(); window.showLoreByName(${nameArgument});" title="点击探查天机">${safeName}</span>
+          <span style="font-size:0.8em;color:var(--text-dim)">查阅结果</span>
+        </div>
+        <div class="portrait-wrapper">
+          <div class="portrait-actions">
+            ${hasPortrait ? `<div class="portrait-toggle-btn" onclick="const px=this.parentElement.nextElementSibling;const img=px.querySelector('img');if(!img.src){img.src=img.dataset.src;}px.classList.toggle('show');this.innerHTML=px.classList.contains('show')?'收起立绘 ▲':'查看立绘 ▼';">查看立绘 ▼</div>` : `<div class="portrait-toggle-btn" style="opacity:0.75;" onclick="event.stopPropagation(); window.showMissingPortraitDialog(${nameArgument});" title="配置或获取角色立绘">暂无立绘</div>`}
+            <div class="portrait-custom-btn" onclick="event.stopPropagation(); window.openCustomPortraitDialog(${nameArgument});" title="设置立绘">🎨</div>
+            <div class="portrait-custom-btn" onclick="event.stopPropagation(); window.switchPortrait(${nameArgument});" title="切换立绘">🔄</div>
+            ${renderDaoyuanApplause(n)}
+          </div>
+          ${hasPortrait ? `<div class="large-portrait"><img data-src="${escapeHtmlAttribute(pUrl)}" alt="${safeName}"></div>` : `<div class="large-portrait" style="display:none;align-items:center;justify-content:center;min-height:100px;color:var(--text-dim);font-size:0.85em;">点击「🎨 自定义」上传本地图片</div>`}
+        </div>
+      </div>`;
   });
   r.innerHTML = html;
   r.style.display = "block";
@@ -12181,7 +12254,7 @@ window.openChatView = function(name) {
   document.getElementById("wx-reply-input").style.height = "auto";
   const portraitUrl = window.getPortraitUrl(name, data.性别) || "";
   if (portraitUrl) {
-    document.getElementById("wx-chat-bg").style.backgroundImage = `url('${portraitUrl}')`;
+    document.getElementById("wx-chat-bg").style.backgroundImage = `url(${JSON.stringify(portraitUrl)})`;
   } else {
     document.getElementById("wx-chat-bg").style.backgroundImage = "none";
     document.getElementById("wx-chat-bg").style.backgroundColor = "#0a0a0f";
@@ -12532,7 +12605,7 @@ window.populateCharacterData = function(variablesOverride) {
                     ${hasPortrait ? `<div class="portrait-toggle-btn" onclick="const p = this.parentElement.nextElementSibling; const img = p.querySelector('img'); if(!img.src) { img.src = img.dataset.src; } p.classList.toggle('show'); this.innerHTML = p.classList.contains('show') ? '收起立绘 ▲' : '查看立绘 ▼';">查看立绘 ▼</div>` : `<div class="portrait-toggle-btn" style="opacity:0.75;" onclick="event.stopPropagation(); window.showMissingPortraitDialog('${name}');" title="配置或获取角色立绘">暂无立绘</div>`}
                     <div class="portrait-custom-btn" onclick="event.stopPropagation(); window.openCustomPortraitDialog('${name}');" title="设置立绘">🎨</div><div class="portrait-custom-btn" onclick="event.stopPropagation(); window.switchPortrait('${name}');" title="切换立绘">🔄</div>${renderDaoyuanApplause(name)}
                 </div>
-                    ${hasPortrait ? `<div class="large-portrait"><img data-src="${portraitUrl}" alt="${name}"></div>` : `<div class="large-portrait" style="display:none;align-items:center;justify-content:center;min-height:100px;color:var(--text-dim);font-size:0.85em;">点击「🎨 自定义」上传本地图片</div>`}
+                    ${hasPortrait ? `<div class="large-portrait"><img data-src="${escapeHtmlAttribute(portraitUrl)}" alt="${name}"></div>` : `<div class="large-portrait" style="display:none;align-items:center;justify-content:center;min-height:100px;color:var(--text-dim);font-size:0.85em;">点击「🎨 自定义」上传本地图片</div>`}
                 </div></div>`;
     const safePartnerName = String(name).replace(/"/g, '"');
     partnersHtml += `
@@ -12585,7 +12658,7 @@ window.populateCharacterData = function(variablesOverride) {
                     ${hasPortrait ? `<div class="portrait-toggle-btn" onclick="const p = this.parentElement.nextElementSibling; const img = p.querySelector('img'); if(!img.src) { img.src = img.dataset.src; } p.classList.toggle('show'); this.innerHTML = p.classList.contains('show') ? '收起立绘 ▲' : '查看立绘 ▼';">查看立绘 ▼</div>` : `<div class="portrait-toggle-btn" style="opacity:0.75;" onclick="event.stopPropagation(); window.showMissingPortraitDialog('${name}');" title="配置或获取角色立绘">暂无立绘</div>`}
                     <div class="portrait-custom-btn" onclick="event.stopPropagation(); window.openCustomPortraitDialog('${name}');" title="设置立绘">🎨</div><div class="portrait-custom-btn" onclick="event.stopPropagation(); window.switchPortrait('${name}');" title="切换立绘">🔄</div>${renderDaoyuanApplause(name)}
                 </div>
-                    ${hasPortrait ? `<div class="large-portrait"><img data-src="${portraitUrl}" alt="${name}"></div>` : `<div class="large-portrait" style="display:none;align-items:center;justify-content:center;min-height:100px;color:var(--text-dim);font-size:0.85em;">点击「🎨 自定义」上传本地图片</div>`}
+                    ${hasPortrait ? `<div class="large-portrait"><img data-src="${escapeHtmlAttribute(portraitUrl)}" alt="${name}"></div>` : `<div class="large-portrait" style="display:none;align-items:center;justify-content:center;min-height:100px;color:var(--text-dim);font-size:0.85em;">点击「🎨 自定义」上传本地图片</div>`}
                 </div></div>`;
     const safeNpcName = String(name).replace(/"/g, '"');
     npcsHtml += `
@@ -12636,7 +12709,7 @@ window.populateCharacterData = function(variablesOverride) {
                     ${hasPortrait ? `<div class="portrait-toggle-btn" onclick="const p = this.parentElement.nextElementSibling; const img = p.querySelector('img'); if(!img.src) { img.src = img.dataset.src; } p.classList.toggle('show'); this.innerHTML = p.classList.contains('show') ? '收起立绘 ▲' : '查看立绘 ▼';">查看立绘 ▼</div>` : `<div class="portrait-toggle-btn" style="opacity:0.75;" onclick="event.stopPropagation(); window.showMissingPortraitDialog('${name}');" title="配置或获取角色立绘">暂无立绘</div>`}
                     <div class="portrait-custom-btn" onclick="event.stopPropagation(); window.openCustomPortraitDialog('${name}');" title="设置立绘">🎨</div><div class="portrait-custom-btn" onclick="event.stopPropagation(); window.switchPortrait('${name}');" title="切换立绘">🔄</div>
                 </div>
-                    ${hasPortrait ? `<div class="large-portrait"><img data-src="${portraitUrl}" alt="${name}"></div>` : `<div class="large-portrait" style="display:none;align-items:center;justify-content:center;min-height:100px;color:var(--text-dim);font-size:0.85em;">点击「🎨 自定义」上传本地图片</div>`}
+                    ${hasPortrait ? `<div class="large-portrait"><img data-src="${escapeHtmlAttribute(portraitUrl)}" alt="${name}"></div>` : `<div class="large-portrait" style="display:none;align-items:center;justify-content:center;min-height:100px;color:var(--text-dim);font-size:0.85em;">点击「🎨 自定义」上传本地图片</div>`}
                 </div></div>`;
     const safePetName = String(name).replace(/"/g, '"');
     petsHtml += `
@@ -12774,7 +12847,7 @@ window.populateCharacterData = function(variablesOverride) {
                 <div class="wx-list-item" data-name="${safeName}" onpointerdown="window.startPress('${safeName}')" onpointerup="window.endPress()" onpointerleave="window.endPress()" onclick="window.handleListItemClick('${safeName}')">
                     <div class="wx-unread-dot ${hasUnread ? "show" : ""}" id="unread-dot-${safeName}"></div>
                     <div class="wx-avatar-container" onclick="event.stopPropagation();">
-                        <img src="${portraitUrl}" data-src="${portraitUrl}" class="portrait-img" alt="${name}" onclick="document.getElementById('modal-image').src=this.dataset.src; document.getElementById('image-modal-overlay').style.display='flex';">
+                        <img src="${escapeHtmlAttribute(portraitUrl)}" data-src="${escapeHtmlAttribute(portraitUrl)}" class="portrait-img" alt="${name}" onclick="document.getElementById('modal-image').src=this.dataset.src; document.getElementById('image-modal-overlay').style.display='flex';">
                         <div class="wx-avatar-custom-btn" onclick="event.stopPropagation(); window.openCustomPortraitDialog('${safeName}');" title="自定义头像">🎨设置</div>
                     </div>
                     <div class="wx-list-info">
@@ -13101,6 +13174,9 @@ async function init() {
     }, 3500);
   };
   window.populateCharacterData();
+  void loadWorkshopImages().catch(
+    (error) => console.warn("[道渊状态栏] 工坊图片加载失败，继续使用主图片库:", error)
+  );
   window.eventOn(window.Mvu.events.VARIABLE_UPDATE_ENDED, (variables) => {
     window.populateCharacterData(variables);
   });

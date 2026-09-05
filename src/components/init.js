@@ -1,4 +1,5 @@
 import { initTabNavigation } from "./maps.js";
+import { loadWorkshopImages } from "../features/image-library/index.js";
 
 window.refreshUserAvatar = function () {
   const userAvatarElement = document.querySelector(".user_avatar");
@@ -260,6 +261,11 @@ async function init() {
 
   /* 首次渲染数据 */
   window.populateCharacterData();
+
+  // Optional Workshop images belong to this page load, not MVU refreshes or panel toggles.
+  void loadWorkshopImages().catch(error =>
+    console.warn("[道渊状态栏] 工坊图片加载失败，继续使用主图片库:", error),
+  );
 
   /* 监听变量更新事件，实现自动刷新 */
   window.eventOn(window.Mvu.events.VARIABLE_UPDATE_ENDED, (variables) => {

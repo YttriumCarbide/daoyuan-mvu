@@ -5,7 +5,8 @@ import {
   writeImageLibraryCache,
 } from "./cache.js";
 import { parseImageLibrary } from "./schema.js";
-import { getImageLibraryState, setImageLibrary } from "./store.js";
+import { getImageLibraryState, setImageLibrary, setWorkshopImageLibrary } from "./store.js";
+import { readWorkshopImageLibrary } from "./workshop.js";
 
 function notifyImageConsumers() {
   window.dispatchEvent(new CustomEvent("daoyuan_images_changed"));
@@ -22,7 +23,7 @@ export async function initializeImageLibrary(options = {}) {
     }
   } catch (error) {
     console.warn("[道渊状态栏] 图片库缓存无效，准备重新同步:", error);
-    clearImageLibraryCache();
+    try { clearImageLibraryCache(); } catch { /* Storage may be inaccessible. */ }
   }
 
   window.dyImageCacheMissing = true;
@@ -51,6 +52,14 @@ export async function refreshImageLibrary() {
   window.dyImageCacheMissing = false;
   notifyImageConsumers();
   return parsed;
+}
+
+export async function loadWorkshopImages() {
+  const images = await readWorkshopImageLibrary();
+  if (!images) return false;
+  setWorkshopImageLibrary(images);
+  notifyImageConsumers();
+  return true;
 }
 
 export { getImageLibraryState } from "./store.js";

@@ -65,24 +65,24 @@ const fixture = parseImageLibrary({
       测试人物: {
         type: "character",
         images: [
-          { url: "https://example.com/default-1.png", theme: "default" },
-          { url: "https://example.com/special.png", theme: "special" },
-          { url: "https://example.com/default-2.png", theme: "default" },
-          { url: "https://example.com/tarot.png", theme: "tarot" },
-          { url: "https://example.com/swimsuit.png", theme: "swimsuit" },
-          { url: "https://example.com/nai.png", theme: "nai" },
+          { url: "https://example.com/default-1.png", theme: "default", tags: [] },
+          { url: "https://example.com/special.png", theme: "special", tags: [] },
+          { url: "https://example.com/default-2.png", theme: "default", tags: [] },
+          { url: "https://example.com/tarot.png", theme: "tarot", tags: [] },
+          { url: "https://example.com/swimsuit.png", theme: "swimsuit", tags: [] },
+          { url: "https://example.com/nai.png", theme: "nai", tags: [] },
         ],
       },
       测试婚纱人物: {
         type: "character",
         images: [
-          { url: "https://example.com/default.png", theme: "default" },
-          { url: "https://example.com/wedding.png", theme: "wedding" },
+          { url: "https://example.com/default.png", theme: "default", tags: [] },
+          { url: "https://example.com/wedding.png", theme: "wedding", tags: [] },
         ],
       },
       测试宗门: {
         type: "sect",
-        images: [{ url: "https://example.com/map.png", theme: "map" }],
+        images: [{ url: "https://example.com/map.png", theme: "map", tags: [] }],
       },
     },
   },

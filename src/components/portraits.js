@@ -1,4 +1,5 @@
 import { renderDaoyuanApplause } from "./applause.js";
+import { escapeHtmlAttribute } from "../utils/html.js";
 import {
   getAllCharacterNames,
   groupCharacterImagesByTheme,
@@ -122,10 +123,10 @@ function syncLegacyPortraitGlobals() {
 }
 
 function rebuildDefaultPortraitPoolsFromImages() {
-  const next = {};
+  const next = Object.create(null);
   getAllCharacterNames().forEach((name) => {
     groupCharacterImagesByTheme(name).forEach((images, theme) => {
-      next[theme] ||= {};
+      next[theme] ||= Object.create(null);
       next[theme][name] = images.map((image) => image.url);
     });
   });
@@ -133,7 +134,7 @@ function rebuildDefaultPortraitPoolsFromImages() {
 }
 
 function rebuildPortraitPools() {
-  const next = {};
+  const next = Object.create(null);
   const themes = new Set([
     ...Object.keys(defaultPortraitPools),
     ...getCustomPortraitThemeIds(),
@@ -308,13 +309,8 @@ window.loadRemotePortraits = async function (options = {}) {
     initializeImageLibrary({ autoFetch }),
     initializePortraitDrawers({ autoFetch }),
   ]);
-  if (loaded) await applyImageLibraryToPortraits();
-  else {
-    defaultPortraitPools = window.defaultPortraitPools = {};
-    portraitPools = window.portraitPools = {};
-    window.dyPortraitCacheMissing = true;
-    refreshPortraitAttentionState();
-  }
+  // Local custom portraits remain available even without either remote source.
+  await applyImageLibraryToPortraits();
   return loaded;
 };
 
@@ -360,9 +356,10 @@ window.forceUpdateRemotePortraits = async function (btnElement) {
 if (!window.__daoyuanImagePortraitListenerBound) {
   window.__daoyuanImagePortraitListenerBound = true;
   window.addEventListener("daoyuan_images_changed", () => {
-    void applyImageLibraryToPortraits().catch(error =>
-      console.warn("[道渊状态栏] 应用图片库失败:", error),
-    );
+    void applyImageLibraryToPortraits().then(() => {
+      window.populateCharacterData?.();
+      refreshVisiblePortraitSearch();
+    }).catch(error => console.warn("[道渊状态栏] 应用图片库失败:", error));
   });
 }
 
@@ -712,7 +709,7 @@ window.searchAndShowPortrait = function () {
     r.style.display = "block";
     r.innerHTML =
       '<div style="color:var(--accent-blood);text-align:center;padding:10px;">未找到包含【' +
-      k +
+      escapeHtmlAttribute(k) +
       "】的立绘记录。</div>";
     return;
   }
@@ -736,35 +733,28 @@ window.searchAndShowPortrait = function () {
       pUrl = getIndexedPortrait(getPortraitPoolValue(n, poolId), n, poolId);
     }
     const hasPortrait = Boolean(pUrl);
-    let safeN = String(n).replace(/"/g, '"');
-    html +=
-      '<div class="info-card" data-beauty="' +
-      safeN +
-      '" style="border-color:rgba(217,128,250,0.5);background:rgba(0,0,0,0.4);margin-bottom:10px;box-shadow:inset 0 0 10px rgba(217,128,250,0.1);"><div class="info-title"><span style="color:var(--rare-text);cursor:pointer;text-decoration:none;" onclick="event.stopPropagation(); window.showLoreByName(\'' +
-      safeN +
-      '\');" title="点击探查天机">' +
-      safeN +
-      '</span><span style="font-size:0.8em;color:var(--text-dim)">查阅结果</span></div><div class="portrait-wrapper"><div class="portrait-actions">' +
-      (hasPortrait
-        ? '<div class="portrait-toggle-btn" onclick="const px=this.parentElement.nextElementSibling;const img=px.querySelector(\'img\');if(!img.src){img.src=img.dataset.src;}px.classList.toggle(\'show\');this.innerHTML=px.classList.contains(\'show\')?\'收起立绘 ▲\':\'查看立绘 ▼\';">查看立绘 ▼</div>'
-        : '<div class="portrait-toggle-btn" style="opacity:0.75;" onclick="event.stopPropagation(); window.showMissingPortraitDialog(\'' +
-          safeN +
-          '\');" title="配置或获取角色立绘">暂无立绘</div>') +
-      '<div class="portrait-custom-btn" onclick="event.stopPropagation(); window.openCustomPortraitDialog(\'' +
-      safeN +
-      '\');" title="设置立绘">🎨</div><div class="portrait-custom-btn" onclick="event.stopPropagation(); window.switchPortrait(\'' +
-      safeN +
-      '\');" title="切换立绘">🔄</div>' +
-      renderDaoyuanApplause(n) +
-      '</div>' +
-      (hasPortrait
-        ? '<div class="large-portrait"><img data-src="' +
-          pUrl +
-          '" alt="' +
-          safeN +
-          '"></div>'
-        : '<div class="large-portrait" style="display:none;align-items:center;justify-content:center;min-height:100px;color:var(--text-dim);font-size:0.85em;">点击「🎨 自定义」上传本地图片</div>') +
-      '</div></div>';
+    const safeName = escapeHtmlAttribute(n);
+    const nameArgument = escapeHtmlAttribute(JSON.stringify(n));
+    html += `
+      <div class="info-card" data-beauty="${safeName}" style="border-color:rgba(217,128,250,0.5);background:rgba(0,0,0,0.4);margin-bottom:10px;box-shadow:inset 0 0 10px rgba(217,128,250,0.1);">
+        <div class="info-title">
+          <span style="color:var(--rare-text);cursor:pointer;text-decoration:none;" onclick="event.stopPropagation(); window.showLoreByName(${nameArgument});" title="点击探查天机">${safeName}</span>
+          <span style="font-size:0.8em;color:var(--text-dim)">查阅结果</span>
+        </div>
+        <div class="portrait-wrapper">
+          <div class="portrait-actions">
+            ${hasPortrait
+              ? `<div class="portrait-toggle-btn" onclick="const px=this.parentElement.nextElementSibling;const img=px.querySelector('img');if(!img.src){img.src=img.dataset.src;}px.classList.toggle('show');this.innerHTML=px.classList.contains('show')?'收起立绘 ▲':'查看立绘 ▼';">查看立绘 ▼</div>`
+              : `<div class="portrait-toggle-btn" style="opacity:0.75;" onclick="event.stopPropagation(); window.showMissingPortraitDialog(${nameArgument});" title="配置或获取角色立绘">暂无立绘</div>`}
+            <div class="portrait-custom-btn" onclick="event.stopPropagation(); window.openCustomPortraitDialog(${nameArgument});" title="设置立绘">🎨</div>
+            <div class="portrait-custom-btn" onclick="event.stopPropagation(); window.switchPortrait(${nameArgument});" title="切换立绘">🔄</div>
+            ${renderDaoyuanApplause(n)}
+          </div>
+          ${hasPortrait
+            ? `<div class="large-portrait"><img data-src="${escapeHtmlAttribute(pUrl)}" alt="${safeName}"></div>`
+            : `<div class="large-portrait" style="display:none;align-items:center;justify-content:center;min-height:100px;color:var(--text-dim);font-size:0.85em;">点击「🎨 自定义」上传本地图片</div>`}
+        </div>
+      </div>`;
   });
   r.innerHTML = html;
   r.style.display = "block";

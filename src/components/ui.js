@@ -1,4 +1,5 @@
 import { renderDaoyuanApplause } from "./applause.js";
+import { escapeHtmlAttribute } from "../utils/html.js";
 
 /* ===== 长按删除玉简事件逻辑 ===== */
 window.pressTimer = null;
@@ -67,7 +68,7 @@ window.openChatView = function (name) {
   const portraitUrl = window.getPortraitUrl(name, data.性别) || "";
   if (portraitUrl) {
     document.getElementById("wx-chat-bg").style.backgroundImage =
-      `url('${portraitUrl}')`;
+      `url(${JSON.stringify(portraitUrl)})`;
   } else {
     document.getElementById("wx-chat-bg").style.backgroundImage = "none";
     document.getElementById("wx-chat-bg").style.backgroundColor = "#0a0a0f";
@@ -475,7 +476,7 @@ window.populateCharacterData = function(variablesOverride) {
                     ${hasPortrait ? `<div class="portrait-toggle-btn" onclick="const p = this.parentElement.nextElementSibling; const img = p.querySelector('img'); if(!img.src) { img.src = img.dataset.src; } p.classList.toggle('show'); this.innerHTML = p.classList.contains('show') ? '收起立绘 ▲' : '查看立绘 ▼';">查看立绘 ▼</div>` : `<div class="portrait-toggle-btn" style="opacity:0.75;" onclick="event.stopPropagation(); window.showMissingPortraitDialog('${name}');" title="配置或获取角色立绘">暂无立绘</div>`}
                     <div class="portrait-custom-btn" onclick="event.stopPropagation(); window.openCustomPortraitDialog('${name}');" title="设置立绘">🎨</div><div class="portrait-custom-btn" onclick="event.stopPropagation(); window.switchPortrait('${name}');" title="切换立绘">🔄</div>${renderDaoyuanApplause(name)}
                 </div>
-                    ${hasPortrait ? `<div class="large-portrait"><img data-src="${portraitUrl}" alt="${name}"></div>` : `<div class="large-portrait" style="display:none;align-items:center;justify-content:center;min-height:100px;color:var(--text-dim);font-size:0.85em;">点击「🎨 自定义」上传本地图片</div>`}
+                    ${hasPortrait ? `<div class="large-portrait"><img data-src="${escapeHtmlAttribute(portraitUrl)}" alt="${name}"></div>` : `<div class="large-portrait" style="display:none;align-items:center;justify-content:center;min-height:100px;color:var(--text-dim);font-size:0.85em;">点击「🎨 自定义」上传本地图片</div>`}
                 </div></div>`;
 
     const safePartnerName = String(name).replace(/"/g, '"');
@@ -531,7 +532,7 @@ window.populateCharacterData = function(variablesOverride) {
                     ${hasPortrait ? `<div class="portrait-toggle-btn" onclick="const p = this.parentElement.nextElementSibling; const img = p.querySelector('img'); if(!img.src) { img.src = img.dataset.src; } p.classList.toggle('show'); this.innerHTML = p.classList.contains('show') ? '收起立绘 ▲' : '查看立绘 ▼';">查看立绘 ▼</div>` : `<div class="portrait-toggle-btn" style="opacity:0.75;" onclick="event.stopPropagation(); window.showMissingPortraitDialog('${name}');" title="配置或获取角色立绘">暂无立绘</div>`}
                     <div class="portrait-custom-btn" onclick="event.stopPropagation(); window.openCustomPortraitDialog('${name}');" title="设置立绘">🎨</div><div class="portrait-custom-btn" onclick="event.stopPropagation(); window.switchPortrait('${name}');" title="切换立绘">🔄</div>${renderDaoyuanApplause(name)}
                 </div>
-                    ${hasPortrait ? `<div class="large-portrait"><img data-src="${portraitUrl}" alt="${name}"></div>` : `<div class="large-portrait" style="display:none;align-items:center;justify-content:center;min-height:100px;color:var(--text-dim);font-size:0.85em;">点击「🎨 自定义」上传本地图片</div>`}
+                    ${hasPortrait ? `<div class="large-portrait"><img data-src="${escapeHtmlAttribute(portraitUrl)}" alt="${name}"></div>` : `<div class="large-portrait" style="display:none;align-items:center;justify-content:center;min-height:100px;color:var(--text-dim);font-size:0.85em;">点击「🎨 自定义」上传本地图片</div>`}
                 </div></div>`;
 
     const safeNpcName = String(name).replace(/"/g, '"');
@@ -585,7 +586,7 @@ window.populateCharacterData = function(variablesOverride) {
                     ${hasPortrait ? `<div class="portrait-toggle-btn" onclick="const p = this.parentElement.nextElementSibling; const img = p.querySelector('img'); if(!img.src) { img.src = img.dataset.src; } p.classList.toggle('show'); this.innerHTML = p.classList.contains('show') ? '收起立绘 ▲' : '查看立绘 ▼';">查看立绘 ▼</div>` : `<div class="portrait-toggle-btn" style="opacity:0.75;" onclick="event.stopPropagation(); window.showMissingPortraitDialog('${name}');" title="配置或获取角色立绘">暂无立绘</div>`}
                     <div class="portrait-custom-btn" onclick="event.stopPropagation(); window.openCustomPortraitDialog('${name}');" title="设置立绘">🎨</div><div class="portrait-custom-btn" onclick="event.stopPropagation(); window.switchPortrait('${name}');" title="切换立绘">🔄</div>
                 </div>
-                    ${hasPortrait ? `<div class="large-portrait"><img data-src="${portraitUrl}" alt="${name}"></div>` : `<div class="large-portrait" style="display:none;align-items:center;justify-content:center;min-height:100px;color:var(--text-dim);font-size:0.85em;">点击「🎨 自定义」上传本地图片</div>`}
+                    ${hasPortrait ? `<div class="large-portrait"><img data-src="${escapeHtmlAttribute(portraitUrl)}" alt="${name}"></div>` : `<div class="large-portrait" style="display:none;align-items:center;justify-content:center;min-height:100px;color:var(--text-dim);font-size:0.85em;">点击「🎨 自定义」上传本地图片</div>`}
                 </div></div>`;
 
     const safePetName = String(name).replace(/"/g, '"');
@@ -745,7 +746,7 @@ window.populateCharacterData = function(variablesOverride) {
                 <div class="wx-list-item" data-name="${safeName}" onpointerdown="window.startPress('${safeName}')" onpointerup="window.endPress()" onpointerleave="window.endPress()" onclick="window.handleListItemClick('${safeName}')">
                     <div class="wx-unread-dot ${hasUnread ? "show" : ""}" id="unread-dot-${safeName}"></div>
                     <div class="wx-avatar-container" onclick="event.stopPropagation();">
-                        <img src="${portraitUrl}" data-src="${portraitUrl}" class="portrait-img" alt="${name}" onclick="document.getElementById('modal-image').src=this.dataset.src; document.getElementById('image-modal-overlay').style.display='flex';">
+                        <img src="${escapeHtmlAttribute(portraitUrl)}" data-src="${escapeHtmlAttribute(portraitUrl)}" class="portrait-img" alt="${name}" onclick="document.getElementById('modal-image').src=this.dataset.src; document.getElementById('image-modal-overlay').style.display='flex';">
                         <div class="wx-avatar-custom-btn" onclick="event.stopPropagation(); window.openCustomPortraitDialog('${safeName}');" title="自定义头像">🎨设置</div>
                     </div>
                     <div class="wx-list-info">

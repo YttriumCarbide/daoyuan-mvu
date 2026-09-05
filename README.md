@@ -14,6 +14,14 @@
 
 项目中的 `data/applause-character-registry.json` 和 `daoyuan-applause` 组件来自 `daoyuan-wiki`，本项目只负责在状态栏中接入和验证它们，不维护其源代码或数据定义。
 
+## 图片来源
+
+人物立绘、绝色榜与宗门舆图统一读取 `images.json`（ImageIndex v2）。首次缺少缓存时下载主库，之后可通过「同步最新图片库」手动更新；主题和标签不限定为固定列表。
+
+在酒馆中，每次状态栏页面或 iframe 重新加载后，会后台读取 `window.parent.DaoyuanWorkshopAPI.getImages()`，将当前角色的 Workshop 图片合入内存索引。收起、展开、普通 MVU 数据刷新和手动同步主库都不会再次请求 Workshop；需要更新工坊图片时重新加载状态栏。
+
+主库图片保持原有顺序，Workshop 图片按同名同类型追加，以 URL 和主题去重；同名不同类型保留主库实体。用户自定义立绘仍优先。Workshop 数据不写入主库缓存，API 缺失、拒绝、返回无效数据或等待超过 2 秒时继续使用主库及本地图片，不阻塞界面。接口约定见 [Workshop API 文档](docs/daoyuan-workshop-api.md)。
+
 ## 环境要求
 
 - Node.js 18+
@@ -59,6 +67,7 @@ pnpm dev:tavern
 | `pnpm dev:iframe` | 启动 iframe 尺寸和嵌入测试页 |
 | `pnpm dev:tavern` | 启动 Tavern 聊天页面模拟环境，默认使用 `5174` 端口 |
 | `pnpm build` | 构建单文件状态栏，格式化产物，并生成 `dist/regex-mvu.json` |
+| `pnpm validate:images` | 验证 v2 图片、Workshop 故障隔离、合并及立绘偏好迁移 |
 | `pnpm extract` | 从 `origin/regex-mvu.json` 拆出 `src/index.html`、`src/style.css` 和 `src/main.js` |
 | `pnpm extract -- --force` | 强制重新提取，可能覆盖 `src/` 中未提交的修改，谨慎使用 |
 | `pnpm kill <port>` | 结束占用指定端口的进程，例如 `pnpm kill 5173` |

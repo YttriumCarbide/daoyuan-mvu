@@ -1,7 +1,9 @@
 import { getImageLibraryState } from "./store.js";
 
 export function getImageEntity(name) {
-  return getImageLibraryState().entities[String(name || "").trim()] || null;
+  const entities = getImageLibraryState().entities;
+  const key = String(name || "").trim();
+  return Object.hasOwn(entities, key) ? entities[key] : null;
 }
 
 export function getEntityType(name) {
