@@ -39,7 +39,14 @@ export async function initializeImageLibrary(options = {}) {
 
 export async function refreshImageLibrary() {
   const parsed = parseImageLibrary(await fetchImageLibrary());
-  writeImageLibraryCache(parsed);
+  try {
+    writeImageLibraryCache(parsed);
+  } catch (error) {
+    console.warn(
+      "[道渊状态栏] 图片库缓存写入失败，本次继续使用内存数据:",
+      error,
+    );
+  }
   setImageLibrary(parsed, "remote");
   window.dyImageCacheMissing = false;
   notifyImageConsumers();

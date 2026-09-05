@@ -7,6 +7,11 @@ import {
 } from "../features/image-library/index.js";
 import { migrateLegacyPortraitPreferences } from "../features/portraits/migration.js";
 import {
+  initializeLocalPortraitImages,
+  persistPortraitImageUrls,
+  resolvePortraitImageUrls,
+} from "../features/portraits/local-images.js";
+import {
   getActiveTheme,
   getCustomImages,
   getPortraitIndex as getStoredPortraitIndex,
@@ -18,7 +23,11 @@ import {
   setPortraitIndex as setStoredPortraitIndex,
 } from "../features/portraits/preferences.js";
 import { canUsePortraitTheme } from "../features/portraits/rules.js";
-import { getThemeUi, THEME_UI } from "../features/portraits/theme-ui.js";
+import {
+  initializePortraitDrawers,
+  refreshPortraitDrawers,
+} from "../features/portraits/drawers.js";
+import { getThemeUi } from "../features/portraits/theme-ui.js";
 
 /* 预设的人物立绘映射表 (已转为云端加载) */
 var charPortraits = window.charPortraits = {};
@@ -75,13 +84,28 @@ function getCustomPortraitMap(poolId) {
   const result = {};
   const customImages = readPortraitPreferences().customImages;
   Object.entries(customImages).forEach(([name, themes]) => {
-    const urls = Array.isArray(themes?.[theme]) ? themes[theme] : [];
+    const urls = resolvePortraitImageUrls(themes?.[theme]);
     if (urls.length) result[name] = urls;
   });
   return result;
 }
 
-function migrateLegacyPortraitStorage() {
+function getCustomPortraitThemeIds(name) {
+  const customImages = readPortraitPreferences().customImages;
+  const themeMaps = name ? [customImages[name]] : Object.values(customImages);
+  const result = new Set();
+  themeMaps.forEach((themes) => {
+    if (!themes || typeof themes !== "object") return;
+    Object.entries(themes).forEach(([theme, urls]) => {
+      if (splitPortraitUrls(urls).length) {
+        result.add(resolvePortraitPoolId(theme));
+      }
+    });
+  });
+  return result;
+}
+
+async function migrateLegacyPortraitStorage() {
   return migrateLegacyPortraitPreferences();
 }
 
@@ -112,7 +136,7 @@ function rebuildPortraitPools() {
   const next = {};
   const themes = new Set([
     ...Object.keys(defaultPortraitPools),
-    ...Object.keys(THEME_UI),
+    ...getCustomPortraitThemeIds(),
   ]);
   for (const poolId of themes) {
     next[poolId] = {
@@ -156,20 +180,29 @@ function getCharacterPortraitStat(name) {
 
 function isPortraitPoolVisible(name, poolId) {
   const resolved = resolvePortraitPoolId(poolId);
-  const images = getPortraitPoolValue(name, resolved);
+  const images = splitPortraitUrls(getPortraitPoolValue(name, resolved));
   return canUsePortraitTheme(resolved, images, getCharacterPortraitStat(name));
 }
 
 function getVisiblePortraitPools(name) {
   const orderedThemes = Array.from(groupCharacterImagesByTheme(name).keys());
-  Object.keys(THEME_UI).forEach((theme) => {
-    if (getCustomImages(name, theme).length && !orderedThemes.includes(theme)) {
+  getCustomPortraitThemeIds(name).forEach((theme) => {
+    if (!orderedThemes.includes(theme)) {
       orderedThemes.push(theme);
     }
   });
   return orderedThemes
     .filter((theme) => isPortraitPoolVisible(name, theme))
-    .map((theme) => [theme, getThemeUi(theme)]);
+    .map((theme) => [theme, getThemeUi(theme)])
+    .sort((left, right) => {
+      const leftOrder = Number.isFinite(left[1].order)
+        ? left[1].order
+        : Number.MAX_SAFE_INTEGER;
+      const rightOrder = Number.isFinite(right[1].order)
+        ? right[1].order
+        : Number.MAX_SAFE_INTEGER;
+      return leftOrder - rightOrder;
+    });
 }
 
 function getSavedActivePortraitPool(name) {
@@ -260,8 +293,9 @@ function showImageSyncToast(message, isSuccess) {
 }
 
 
-function applyImageLibraryToPortraits() {
-  migrateLegacyPortraitStorage();
+async function applyImageLibraryToPortraits() {
+  await initializeLocalPortraitImages();
+  await migrateLegacyPortraitStorage();
   rebuildDefaultPortraitPoolsFromImages();
   rebuildPortraitPools();
   window.dyPortraitCacheMissing = window.dyImageCacheMissing === true;
@@ -269,10 +303,12 @@ function applyImageLibraryToPortraits() {
 }
 
 window.loadRemotePortraits = async function (options = {}) {
-  const loaded = await initializeImageLibrary({
-    autoFetch: options.autoFetch !== false,
-  });
-  if (loaded) applyImageLibraryToPortraits();
+  const autoFetch = options.autoFetch !== false;
+  const [loaded] = await Promise.all([
+    initializeImageLibrary({ autoFetch }),
+    initializePortraitDrawers({ autoFetch }),
+  ]);
+  if (loaded) await applyImageLibraryToPortraits();
   else {
     defaultPortraitPools = window.defaultPortraitPools = {};
     portraitPools = window.portraitPools = {};
@@ -290,8 +326,18 @@ window.forceUpdateRemotePortraits = async function (btnElement) {
     btnElement.style.pointerEvents = "none";
   }
   try {
-    await refreshImageLibrary();
-    applyImageLibraryToPortraits();
+    const [imagesResult, drawersResult] = await Promise.allSettled([
+      refreshImageLibrary(),
+      refreshPortraitDrawers(),
+    ]);
+    if (imagesResult.status === "rejected") throw imagesResult.reason;
+    if (drawersResult.status === "rejected") {
+      console.warn(
+        "[道渊状态栏] 图片已同步，但立绘抽屉配置同步失败，继续使用已有配置:",
+        drawersResult.reason,
+      );
+    }
+    await applyImageLibraryToPortraits();
     if (typeof window.populateCharacterData === "function") {
       window.populateCharacterData();
     }
@@ -313,7 +359,11 @@ window.forceUpdateRemotePortraits = async function (btnElement) {
 
 if (!window.__daoyuanImagePortraitListenerBound) {
   window.__daoyuanImagePortraitListenerBound = true;
-  window.addEventListener("daoyuan_images_changed", applyImageLibraryToPortraits);
+  window.addEventListener("daoyuan_images_changed", () => {
+    void applyImageLibraryToPortraits().catch(error =>
+      console.warn("[道渊状态栏] 应用图片库失败:", error),
+    );
+  });
 }
 
 window.preloadPortraits = function (name) {
@@ -722,17 +772,18 @@ window.searchAndShowPortrait = function () {
 };
 window.selectPortraitPool = function (name, poolId) {
   const resolved = resolvePortraitPoolId(poolId);
-  if (!window.setActivePortraitPool(name, resolved)) return false;
   const value = getPortraitPoolValue(name, resolved);
-  if (!value) {
+  const urls = splitPortraitUrls(value);
+  if (!value || urls.length === 0) {
     window.updatePortraitView(name, "");
     window.showMissingPortraitDialog(name, resolved);
     window.injectPortraitDrawers();
     return false;
   }
+  if (!window.setActivePortraitPool(name, resolved)) return false;
   window.updatePortraitView(
     name,
-    getIndexedPortrait(value, name, resolved) || "",
+    urls[getPortraitIndex(name, resolved, urls.length)] || "",
   );
   window.injectPortraitDrawers();
   return true;
@@ -830,7 +881,8 @@ window.injectPortraitDrawers = function () {
       toggle.setAttribute("aria-expanded", String(willOpen));
     };
     selector.append(toggle, menu);
-    actions.appendChild(selector);
+    const selectorHost = actions.querySelector(".beauty-forum-drawer-slot") || actions;
+    selectorHost.appendChild(selector);
   });
 };
 
@@ -863,8 +915,8 @@ window.getPortraitUrl = function (name, gender) {
   return value ? getIndexedPortrait(value, name, poolId) : undefined;
 };
 
-/* 保存自定义立绘到 localStorage */
-window.saveCustomPortrait = function (name, urls, mode = "default") {
+/* 保存自定义立绘；本地图片内容由 IndexedDB 承载 */
+window.saveCustomPortrait = async function (name, urls, mode = "default") {
   try {
     const theme = resolvePortraitPoolId(mode);
     const normalizedUrls = splitPortraitUrls(urls);
@@ -886,7 +938,8 @@ window.saveCustomPortrait = function (name, urls, mode = "default") {
       );
     }
 
-    setCustomImages(name, theme, normalizedUrls);
+    const storedUrls = await persistPortraitImageUrls(normalizedUrls);
+    setCustomImages(name, theme, storedUrls);
     setPortraitIndex(name, theme, 0);
     portraitPools[theme] ||= {};
     portraitPools[theme][name] = normalizedUrls;
@@ -1138,7 +1191,7 @@ window.openCustomPortraitDialog = function (charName, mode) {
   }
   modal
     .querySelector("#portrait-confirm-btn")
-    .addEventListener("click", function () {
+    .addEventListener("click", async function () {
       var inputs = container.querySelectorAll("input");
       var validUrls = [];
       inputs.forEach(function (i) {
@@ -1149,7 +1202,7 @@ window.openCustomPortraitDialog = function (charName, mode) {
         alert("请输入至少一个有效的图片URL");
         return;
       }
-      if (window.saveCustomPortrait(charName, validUrls, mode)) {
+      if (await window.saveCustomPortrait(charName, validUrls, mode)) {
         modal.remove();
       } else {
         alert("保存失败，请重试");

@@ -2191,3 +2191,87 @@ body {
   margin-bottom: 10px;
   text-align: center;
 }
+
+.beauty-forum-card .portrait-actions {
+  display: grid;
+  grid-auto-flow: row;
+  grid-auto-columns: auto;
+  gap: 6px;
+  align-items: stretch;
+}
+
+.beauty-forum-card .beauty-forum-primary-actions,
+.beauty-forum-card .beauty-forum-secondary-actions,
+.beauty-forum-card .beauty-forum-drawer-slot {
+  min-width: 0;
+}
+
+.beauty-forum-card .portrait-pool-selector {
+  width: 100%;
+  min-width: 0;
+}
+
+.beauty-forum-card .portrait-pool-toggle {
+  width: 100%;
+  min-width: 0;
+  min-height: 36px;
+}
+
+.beauty-forum-card .portrait-toggle-btn {
+  width: 100%;
+  min-width: 0;
+  padding: 8px 10px;
+  white-space: nowrap;
+  letter-spacing: 0;
+}
+
+.beauty-forum-card .portrait-custom-btn,
+.beauty-forum-card .portrait-applause {
+  width: 100%;
+  height: 36px;
+  aspect-ratio: auto;
+}
+
+.beauty-forum-card .portrait-actions .forum-thread-toggle {
+  grid-column: auto;
+  width: 100%;
+  min-height: 36px;
+}
+
+@media (min-width: 701px) {
+  .beauty-forum-card .portrait-actions {
+    grid-template-columns:
+      minmax(108px, 1fr)
+      repeat(3, 36px)
+      minmax(78px, 1fr)
+      minmax(78px, 1fr);
+  }
+
+  .beauty-forum-card .beauty-forum-primary-actions,
+  .beauty-forum-card .beauty-forum-secondary-actions {
+    display: contents;
+  }
+}
+
+@media (max-width: 700px) {
+  .beauty-forum-card .portrait-actions {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+
+  .beauty-forum-card .beauty-forum-primary-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) repeat(3, 36px);
+    gap: 4px;
+  }
+
+  .beauty-forum-card .beauty-forum-secondary-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  .beauty-forum-card .portrait-toggle-btn {
+    padding: 6px 8px;
+  }
+}

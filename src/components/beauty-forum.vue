@@ -658,13 +658,13 @@ window.fetchBeautyForumModels = fetchApiModels;
         class="info-card beauty-forum-card"
         :data-beauty="card.name"
       >
-        <div class="beauty-forum-meta">
+        <div class="info-title beauty-forum-head">
           <span
-            v-if="card.data?.头衔"
-            class="beauty-forum-title-badge"
-            :title="card.data.头衔"
+            class="beauty-forum-name"
+            title="点击探查天机"
+            @click.stop="showLoreByName(card.name)"
           >
-            {{ card.data.头衔 }}
+            第{{ rankLabel(card, index) }}名：{{ card.name }}
           </span>
           <button
             class="beauty-forum-delete"
@@ -675,15 +675,12 @@ window.fetchBeautyForumModels = fetchApiModels;
           >
             {{ isDeleteArmed(card.name) ? "删除?" : "✕" }}
           </button>
-        </div>
-
-        <div class="info-title beauty-forum-head">
           <span
-            class="beauty-forum-name"
-            title="点击探查天机"
-            @click.stop="showLoreByName(card.name)"
+            v-if="card.data?.头衔"
+            class="beauty-forum-title-badge"
+            :title="card.data.头衔"
           >
-            第{{ rankLabel(card, index) }}名：{{ card.name }}
+            {{ card.data.头衔 }}
           </span>
         </div>
 
@@ -697,48 +694,53 @@ window.fetchBeautyForumModels = fetchApiModels;
 
         <div class="portrait-wrapper">
           <div class="portrait-actions">
-            <div
-              v-if="hasPortrait(card)"
-              class="portrait-toggle-btn"
-              @click.stop="togglePortrait(card.name)"
-            >
-              {{ portraitOpen[card.name] ? "收起立绘 ▲" : "查看立绘 ▼" }}
-            </div>
-            <div
-              v-else
-              class="portrait-toggle-btn"
-              style="opacity:0.75;"
-              title="配置或获取角色立绘"
-              @click.stop="showMissingPortraitDialog(card.name)"
-            >
-              暂无立绘
-            </div>
+            <div class="beauty-forum-primary-actions">
+              <div
+                v-if="hasPortrait(card)"
+                class="portrait-toggle-btn"
+                @click.stop="togglePortrait(card.name)"
+              >
+                {{ portraitOpen[card.name] ? "收起立绘 ▲" : "查看立绘 ▼" }}
+              </div>
+              <div
+                v-else
+                class="portrait-toggle-btn"
+                style="opacity:0.75;"
+                title="配置或获取角色立绘"
+                @click.stop="showMissingPortraitDialog(card.name)"
+              >
+                暂无立绘
+              </div>
 
-            <div
-              class="portrait-custom-btn"
-              title="设置立绘"
-              @click.stop="openCustomPortraitDialog(card.name)"
-            >
-              🎨
+              <div
+                class="portrait-custom-btn"
+                title="设置立绘"
+                @click.stop="openCustomPortraitDialog(card.name)"
+              >
+                🎨
+              </div>
+              <div
+                class="portrait-custom-btn"
+                title="切换立绘"
+                @click.stop="switchPortrait(card.name)"
+              >
+                🔄
+              </div>
+              <span class="forum-applause" v-html="renderDaoyuanApplause(card.name)"></span>
             </div>
-            <div
-              class="portrait-custom-btn"
-              title="切换立绘"
-              @click.stop="switchPortrait(card.name)"
-            >
-              🔄
+            <div class="beauty-forum-secondary-actions">
+              <button
+                class="forum-thread-toggle"
+                type="button"
+                :title="isExpanded(card.name) ? '收起回帖' : '展开回帖'"
+                @click.stop="toggleThread(card.name)"
+              >
+                <span class="forum-thread-icon">✎</span>
+                <span>回帖</span>
+                <span class="forum-thread-caret">{{ isExpanded(card.name) ? "▲" : "▼" }}</span>
+              </button>
+              <div class="beauty-forum-drawer-slot"></div>
             </div>
-            <span class="forum-applause" v-html="renderDaoyuanApplause(card.name)"></span>
-            <button
-              class="forum-thread-toggle"
-              type="button"
-              :title="isExpanded(card.name) ? '收起回帖' : '展开回帖'"
-              @click.stop="toggleThread(card.name)"
-            >
-              <span class="forum-thread-icon">✎</span>
-              <span>回帖</span>
-              <span class="forum-thread-caret">{{ isExpanded(card.name) ? "▲" : "▼" }}</span>
-            </button>
           </div>
 
           <div v-if="hasPortrait(card)" class="large-portrait" :class="{ show: portraitOpen[card.name] }">
@@ -1019,18 +1021,6 @@ window.fetchBeautyForumModels = fetchApiModels;
   overflow: hidden;
 }
 
-.beauty-forum-meta {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-direction: row-reverse;
-  max-width: calc(100% - 20px);
-  z-index: 2;
-}
-
 .beauty-forum-delete {
   width: 24px;
   height: 24px;
@@ -1076,14 +1066,18 @@ window.fetchBeautyForumModels = fetchApiModels;
 }
 
 .beauty-forum-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
-  gap: 10px;
-  padding-right: 140px;
+  gap: 8px;
+  padding-right: 0;
 }
 
 .beauty-forum-name {
   min-width: 0;
-  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   cursor: pointer;
 }
 

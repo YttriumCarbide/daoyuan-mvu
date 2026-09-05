@@ -338,23 +338,19 @@ function floatingMvuRuntime(uiHtml, petAssets) {
     setItem(key, value) {
       const normalizedKey = String(key);
       const normalizedValue = String(value);
-      floatingStorageMemory.set(normalizedKey, normalizedValue);
       const storage = getTavernStorage();
       if (storage) {
-        try {
-          storage.setItem(normalizedKey, normalizedValue);
-        } catch (error) {}
+        storage.setItem(normalizedKey, normalizedValue);
       }
+      floatingStorageMemory.set(normalizedKey, normalizedValue);
     },
     removeItem(key) {
       const normalizedKey = String(key);
-      floatingStorageMemory.delete(normalizedKey);
       const storage = getTavernStorage();
       if (storage) {
-        try {
-          storage.removeItem(normalizedKey);
-        } catch (error) {}
+        storage.removeItem(normalizedKey);
       }
+      floatingStorageMemory.delete(normalizedKey);
     },
   };
 

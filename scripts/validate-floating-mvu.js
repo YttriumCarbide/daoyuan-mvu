@@ -98,13 +98,20 @@ const requiredMarkers = [
   "VARIABLE_UPDATE_ENDED",
   "__daoyuanFloatingBridge",
   "images.json",
+  "portrait-drawers.json",
   "daoyuan_images_cache_v2",
+  "daoyuan_portrait_drawers_cache_v1",
   "daoyuan_portrait_preferences_v2",
   "daoyuan_portrait_preferences_migration_version",
+  "daoyuan_status_assets",
+  "idb:daoyuan-portrait:",
   "daoyuan_images_changed",
   "portrait-pool-selector",
   "portrait-pool-body-open",
   "switchPortraitInPool",
+  "Nai",
+  "🥛",
+  "urls.length === 0",
   "dyImageCacheMissing",
   "dyPortraitCacheMissing",
   "getSectMapImages",
@@ -119,7 +126,6 @@ const missingMarkers = requiredMarkers.filter(
 
 const forbiddenLegacyImageFiles = [
   "portraits.json",
-  "portrait-drawers.json",
   "sect-maps.json",
 ].filter(marker => scriptContent.includes(marker));
 

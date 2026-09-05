@@ -37,26 +37,26 @@
           setItem(key, value) {
             const normalizedKey = String(key);
             const normalizedValue = String(value);
-            memory.set(normalizedKey, normalizedValue);
             const storage = backend();
             if (storage) {
-              try { storage.setItem(normalizedKey, normalizedValue); } catch (error) {}
+              storage.setItem(normalizedKey, normalizedValue);
             }
+            memory.set(normalizedKey, normalizedValue);
           },
           removeItem(key) {
             const normalizedKey = String(key);
-            memory.delete(normalizedKey);
             const storage = backend();
             if (storage) {
-              try { storage.removeItem(normalizedKey); } catch (error) {}
+              storage.removeItem(normalizedKey);
             }
+            memory.delete(normalizedKey);
           },
           clear() {
-            memory.clear();
             const storage = backend();
             if (storage) {
-              try { storage.clear(); } catch (error) {}
+              storage.clear();
             }
+            memory.clear();
           },
         };
       })();
