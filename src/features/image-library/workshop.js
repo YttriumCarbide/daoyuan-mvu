@@ -5,13 +5,11 @@ export async function readWorkshopImageLibrary() {
   let timer;
   try {
     const host = window.parent;
-    if (typeof host?.DaoyuanWorkshopAPI?.getImages !== "function") return null;
-
     const read = async () => {
       if (typeof window.waitGlobalInitialized === "function") {
         await window.waitGlobalInitialized("DaoyuanWorkshopAPI");
       }
-      const api = host.DaoyuanWorkshopAPI;
+      const api = host?.DaoyuanWorkshopAPI;
       if (typeof api?.getImages !== "function") return null;
       return parseImageLibrary(await api.getImages());
     };

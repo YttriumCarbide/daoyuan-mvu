@@ -117,6 +117,46 @@ test("reads current parent API after discovery, without relying on a child API c
   assert.ok(getCharacterEntity("工坊角色"));
 });
 
+test("waits for an initially absent parent API before reading Workshop images", async () => {
+  const discovery = deferred();
+  let discoveryCalls = 0;
+  let readCalls = 0;
+  page.waitGlobalInitialized = (name) => {
+    assert.equal(name, "DaoyuanWorkshopAPI");
+    discoveryCalls++;
+    return discovery.promise;
+  };
+  const loading = library.loadWorkshopImages();
+  assert.deepEqual(getCharacterEntity("林雪"), main.data.entities.林雪);
+  page.parent.DaoyuanWorkshopAPI = {
+    getImages: async () => { readCalls++; return workshop; },
+  };
+  discovery.resolve();
+  assert.equal(await loading, true);
+  assert.equal(discoveryCalls, 1);
+  assert.equal(readCalls, 1);
+  assert.ok(getCharacterEntity("工坊角色"));
+});
+
+test("a stalled API discovery times out and cannot publish late images", { timeout: 5000 }, async () => {
+  const discovery = deferred();
+  page.waitGlobalInitialized = () => discovery.promise;
+  const started = Date.now();
+  assert.equal(await library.loadWorkshopImages(), false);
+  assert.ok(Date.now() - started >= 1900);
+  page.parent.DaoyuanWorkshopAPI = { getImages: async () => workshop };
+  discovery.resolve();
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(getCharacterEntity("工坊角色"), null);
+  assert.deepEqual(getCharacterEntity("林雪"), main.data.entities.林雪);
+});
+
+test("failed API discovery leaves the main library usable", async () => {
+  page.waitGlobalInitialized = async () => { throw new Error("discovery failed"); };
+  assert.equal(await library.loadWorkshopImages(), false);
+  assert.deepEqual(getCharacterEntity("林雪"), main.data.entities.林雪);
+});
+
 test("absent or inaccessible parent API leaves the main library usable", async () => {
   page.DaoyuanWorkshopAPI = { getImages: async () => workshop };
   assert.equal(await library.loadWorkshopImages(), false);

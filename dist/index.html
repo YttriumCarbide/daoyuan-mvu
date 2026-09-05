@@ -638,16 +638,14 @@ function getImageLibraryState() {
   return imageLibraryState;
 }
 async function readWorkshopImageLibrary() {
-  var _a;
   let timer;
   try {
     const host = window.parent;
-    if (typeof ((_a = host == null ? void 0 : host.DaoyuanWorkshopAPI) == null ? void 0 : _a.getImages) !== "function") return null;
     const read = async () => {
       if (typeof window.waitGlobalInitialized === "function") {
         await window.waitGlobalInitialized("DaoyuanWorkshopAPI");
       }
-      const api = host.DaoyuanWorkshopAPI;
+      const api = host == null ? void 0 : host.DaoyuanWorkshopAPI;
       if (typeof (api == null ? void 0 : api.getImages) !== "function") return null;
       return parseImageLibrary(await api.getImages());
     };
@@ -12231,6 +12229,13 @@ window.openChatView = function(name) {
   window.currentActiveChat = name;
   const data = window.currentMessagesData[name];
   if (!data) return;
+  document.getElementById("wx-detail-modal").classList.remove("show");
+  const input = document.getElementById("wx-reply-input");
+  input.value = "";
+  input.style.height = "auto";
+  renderChatView(name, data);
+};
+function renderChatView(name, data) {
   const readStates = JSON.parse(
     localStorage.getItem("daoyuan_wx_read_states") || "{}"
   );
@@ -12248,10 +12253,7 @@ window.openChatView = function(name) {
   document.getElementById("wx-detail-gender").textContent = data.性别 || "未知";
   document.getElementById("wx-detail-relation").textContent = data.关系 || "陌生";
   document.getElementById("wx-detail-favor").textContent = data.好感度 || "0";
-  document.getElementById("wx-detail-modal").classList.remove("show");
   document.getElementById("wx-reply-input").placeholder = `输入传讯给 ${name}... (Enter发送, Shift+Enter换行)`;
-  document.getElementById("wx-reply-input").value = "";
-  document.getElementById("wx-reply-input").style.height = "auto";
   const portraitUrl = window.getPortraitUrl(name, data.性别) || "";
   if (portraitUrl) {
     document.getElementById("wx-chat-bg").style.backgroundImage = `url(${JSON.stringify(portraitUrl)})`;
@@ -12285,7 +12287,7 @@ window.openChatView = function(name) {
   setTimeout(() => {
     msgContainer.scrollTop = msgContainer.scrollHeight;
   }, 50);
-};
+}
 window.populateCharacterData = function(variablesOverride) {
   const all_variables = variablesOverride && typeof variablesOverride === "object" ? variablesOverride : window.getAllVariables();
   const stat = _.get(all_variables, "stat_data", {});
@@ -12863,8 +12865,9 @@ window.populateCharacterData = function(variablesOverride) {
     messagesListHtml || '<p style="color: var(--text-dim); font-style: italic; padding: 20px; text-align: center;">暂无玉简传讯记录。</p>'
   );
   if (window.currentActiveChat && document.getElementById("wx-chat-view").style.display !== "none") {
-    if (window.currentMessagesData[window.currentActiveChat]) {
-      window.openChatView(window.currentActiveChat);
+    const activeChatData = window.currentMessagesData[window.currentActiveChat];
+    if (activeChatData) {
+      renderChatView(window.currentActiveChat, activeChatData);
     } else {
       document.getElementById("wx-chat-view").style.display = "none";
       document.getElementById("wx-list-view").style.display = "flex";

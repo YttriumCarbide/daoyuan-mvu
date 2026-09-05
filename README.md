@@ -18,7 +18,7 @@
 
 人物立绘、绝色榜与宗门舆图统一读取 `images.json`（ImageIndex v2）。首次缺少缓存时下载主库，之后可通过「同步最新图片库」手动更新；主题和标签不限定为固定列表。
 
-在酒馆中，每次状态栏页面或 iframe 重新加载后，会后台读取 `window.parent.DaoyuanWorkshopAPI.getImages()`，将当前角色的 Workshop 图片合入内存索引。收起、展开、普通 MVU 数据刷新和手动同步主库都不会再次请求 Workshop；需要更新工坊图片时重新加载状态栏。
+在酒馆中，每次状态栏页面或 iframe 重新加载后，会后台等待 Workshop API 就绪，再读取 `window.parent.DaoyuanWorkshopAPI.getImages()`，将当前角色的 Workshop 图片合入内存索引。发现 API 和读取图片共用 2 秒等待上限，不阻塞首屏。收起、展开、普通 MVU 数据刷新和手动同步主库都不会再次请求 Workshop；需要更新工坊图片时重新加载状态栏。图片或 MVU 数据刷新时，正在编辑的玉简草稿会保留。
 
 主库图片保持原有顺序，Workshop 图片按同名同类型追加，以 URL 和主题去重；同名不同类型保留主库实体。用户自定义立绘仍优先。Workshop 数据不写入主库缓存，API 缺失、拒绝、返回无效数据或等待超过 2 秒时继续使用主库及本地图片，不阻塞界面。接口约定见 [Workshop API 文档](docs/daoyuan-workshop-api.md)。
 

@@ -37,6 +37,15 @@ window.openChatView = function (name) {
   const data = window.currentMessagesData[name];
   if (!data) return;
 
+  document.getElementById("wx-detail-modal").classList.remove("show");
+  const input = document.getElementById("wx-reply-input");
+  input.value = "";
+  input.style.height = "auto";
+  renderChatView(name, data);
+};
+
+// Refresh chat content without resetting an in-progress reply.
+function renderChatView(name, data) {
   /* 更新已读记录并隐藏红点 */
   const readStates = JSON.parse(
     localStorage.getItem("daoyuan_wx_read_states") || "{}",
@@ -59,11 +68,8 @@ window.openChatView = function (name) {
     data.关系 || "陌生";
   document.getElementById("wx-detail-favor").textContent = data.好感度 || "0";
 
-  document.getElementById("wx-detail-modal").classList.remove("show");
   document.getElementById("wx-reply-input").placeholder =
     `输入传讯给 ${name}... (Enter发送, Shift+Enter换行)`;
-  document.getElementById("wx-reply-input").value = "";
-  document.getElementById("wx-reply-input").style.height = "auto";
 
   const portraitUrl = window.getPortraitUrl(name, data.性别) || "";
   if (portraitUrl) {
@@ -107,7 +113,7 @@ window.openChatView = function (name) {
   setTimeout(() => {
     msgContainer.scrollTop = msgContainer.scrollHeight;
   }, 50);
-};
+}
 
 window.populateCharacterData = function(variablesOverride) {
   const all_variables =
@@ -768,8 +774,9 @@ window.populateCharacterData = function(variablesOverride) {
     window.currentActiveChat &&
     document.getElementById("wx-chat-view").style.display !== "none"
   ) {
-    if (window.currentMessagesData[window.currentActiveChat]) {
-      window.openChatView(window.currentActiveChat);
+    const activeChatData = window.currentMessagesData[window.currentActiveChat];
+    if (activeChatData) {
+      renderChatView(window.currentActiveChat, activeChatData);
     } else {
       /* 好友可能被删除了 */
       document.getElementById("wx-chat-view").style.display = "none";

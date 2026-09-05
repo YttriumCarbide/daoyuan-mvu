@@ -13,7 +13,7 @@
     "build:shujuku": "cross-env BUILD_TARGET=shujuku vite build && cross-env BUILD_TARGET=shujuku node scripts/build-post.js && cross-env BUILD_TARGET=shujuku node scripts/validate-build.js",
     "build:floating-mvu": "cross-env BUILD_TARGET=mvu vite build && node scripts/build-floating-mvu.js && node scripts/validate-floating-mvu.js",
     "build:all": "pnpm run build:mvu && pnpm run build:shujuku && pnpm run build:floating-mvu",
-    "validate:images": "node --test scripts/image-library.test.js && node scripts/validate-images-system.js",
+    "validate:images": "node --test scripts/image-library.test.js scripts/chat-view.test.js && node scripts/validate-images-system.js",
     "extract": "node scripts/extract.js",
     "kill": "node scripts/kill-port.js"
   },
