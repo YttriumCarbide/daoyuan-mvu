@@ -25,6 +25,13 @@ function deferred() {
 
 const values = new Map();
 const page = new EventTarget();
+// Node 18 has EventTarget, but CustomEvent is only available behind a flag.
+globalThis.CustomEvent ??= class CustomEvent extends Event {
+  constructor(type, options = {}) {
+    super(type, options);
+    this.detail = options.detail ?? null;
+  }
+};
 page.localStorage = {
   getItem: (key) => values.get(key) ?? null,
   setItem: (key, value) => values.set(key, String(value)),
@@ -145,12 +152,10 @@ test("a hung Workshop read cannot block primary cache initialization or refresh"
   await optional;
 });
 
-test("timeout discards a late Workshop result", async (context) => {
-  context.mock.timers.enable({ apis: ["setTimeout"] });
+test("timeout discards a late Workshop result", { timeout: 5000 }, async () => {
   const pending = deferred();
   page.parent = { DaoyuanWorkshopAPI: { getImages: () => pending.promise } };
   const result = library.loadWorkshopImages();
-  context.mock.timers.tick(2000);
   assert.equal(await result, false);
   pending.resolve(workshop);
   await Promise.resolve();
@@ -172,4 +177,3 @@ test("Workshop is usable without a main library", async () => {
   assert.ok(getCharacterEntity("工坊角色"));
   assert.equal(values.has(IMAGES_CACHE_KEY), false);
 });
-
